@@ -35,64 +35,65 @@ app.get("/", (req, res) => {
   res.send("Welcome to the main server!");
 });
 
-// Auth & Appointments
 app.use("/auth", authRoutes);
 app.use("/appointments", appointmentRoute);
 app.use("/doctors", doctorRoute);
 
-// 📧 Contact form - Email setup
+// 📧 Nodemailer Transporter
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
+    pass: process.env.EMAIL_PASSWORD,
   },
   tls: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
 });
 
-app.post('/send', (req, res) => {
+// Contact Form Route
+app.post("/send", (req, res) => {
   const { name, email, message } = req.body;
 
   const mailOptions = {
     from: email,
     to: process.env.EMAIL_USER,
     subject: `Contact Form Submission from ${name}`,
-    text: `You have received a new message from ${name} (${email}):\n\n${message}`
+    text: `You have received a new message from ${name} (${email}):\n\n${message}`,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
       return res.status(500).send(`Error sending message: ${error.message}`);
     }
-    console.log('Email sent successfully:', info.response);
-    res.status(200).send('Message sent successfully!');
+    console.log("Email sent successfully:", info.response);
+    res.status(200).send("Message sent successfully!");
   });
 });
 
-app.get('/test-email', (req, res) => {
+// Test Email Route
+app.get("/test-email", (req, res) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: process.env.EMAIL_USER,
-    subject: 'Test email',
-    text: 'This is a test email.'
+    subject: "Test email",
+    text: "This is a test email.",
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      console.error('Error sending test email:', error);
-      return res.status(500).send('Error sending test email.');
+      console.error("Error sending test email:", error);
+      return res.status(500).send("Error sending test email.");
     }
-    console.log('Test email sent successfully:', info.response);
-    res.status(200).send('Test email sent successfully!');
+    console.log("Test email sent successfully:", info.response);
+    res.status(200).send("Test email sent successfully!");
   });
 });
 
-// 🔌 Socket.io Events
+// 🔌 Socket.io: Update Appointment Status
 io.on("connection", (socket) => {
   console.log("User connected");
 
@@ -104,68 +105,101 @@ io.on("connection", (socket) => {
       location,
       appointmentState,
     } = data;
-  
+
     const appointment = await Appointment.findById(appointmentId)
       .populate({
         path: "doctorID",
-        select: "name email phone department experience bio profession gender username",
+        select:
+          "name email phone department experience bio profession gender username",
       })
       .populate({
         path: "appointmentID",
-        select: "patientName patientEmail patientContact gender age title desc mode state expectedDate patientAddress",
+        select:
+          "patientName patientEmail patientContact gender age title desc mode state expectedDate patientAddress",
       })
       .select("-__v");
-  
+
     if (!appointment) {
-      return await callback({ success: false, message: "Appointment not found" });
-    }
-  
-    if (appointmentState === "approved") {
-      let existingContract = await Contract.findOne({ appointmentId: appointment._id });
-  
-      if (existingContract) {
-        return await callback({ success: false, message: "Contract already exists for this appointment" });
-      }
-  
-      const contract = new Contract({
-        appointmentId: appointment._id,
-        meetingDetails: {
-          meetingPassword,
-          meetingUrl: appointment.mode === "online" ? meetingUrl : null,
-          location: appointment.mode === "offline" ? location : null,
-        },
+      return await callback({
+        success: false,
+        message: "Appointment not found",
       });
-      contract.generateMeetingId();
-      await contract.save();
     }
-  
+
+    if (appointmentState === "approved") {
+      let existingContract = await Contract.findOne({
+        appointmentId: appointment._id,
+      });
+
+      if (!existingContract) {
+        const contract = new Contract({
+          appointmentId: appointment._id,
+          meetingDetails: {
+            meetingPassword,
+            meetingUrl:
+              appointment.mode === "online" ? meetingUrl : null,
+            location:
+              appointment.mode === "offline" ? location : null,
+          },
+        });
+        contract.generateMeetingId();
+        await contract.save();
+      }
+    }
+
     appointment.state = appointmentState;
     await appointment.save();
-  
-    // 📧 Send approval email to patient
-    if (appointmentState === "approved") {
+
+    // ✅ Immediate Socket Response
+    await callback({ success: true, message: "Appointment status updated" });
+
+    // 📧 Async Email to Patient
+    if (
+      appointmentState === "approved" ||
+      appointmentState === "rejected"
+    ) {
       const patientEmail = appointment.patientEmail;
       const patientName = appointment.patientName;
       const doctorName = appointment.doctorID.name;
-      const appointmentDate = new Date(appointment.expectedDate).toLocaleString();
-      const appointmentMode = appointment.mode === "online" ? "Online" : "Offline";
-  
-      const approvalMailOptions = {
-        from: process.env.EMAIL_USER,
-        to: patientEmail,
-        subject: `Appointment Approved - Dr. ${doctorName}`,
-        text: `Hello ${patientName},\n\nYour appointment with Dr. ${doctorName} has been approved.\n\n📅 Date: ${appointmentDate}\n📍 Mode: ${appointmentMode}\n\nThank you for using our platform.\n\n- Health Platform Team`
-      };
-  
-      transporter.sendMail(approvalMailOptions, (error, info) => {
+      const appointmentDate = new Date(
+        appointment.expectedDate
+      ).toLocaleString();
+      const appointmentMode =
+        appointment.mode === "online" ? "Online" : "Offline";
+
+      let mailOptions;
+
+      if (appointmentState === "approved") {
+        mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: patientEmail,
+          subject: `Appointment Approved - Dr. ${doctorName}`,
+          text: `Hello ${patientName},\n\nYour appointment with Dr. ${doctorName} has been approved.\n\n📅 Date: ${appointmentDate}\n📍 Mode: ${appointmentMode}\n\nThank you for using our platform.\n\n- Medi Mentor Team`,
+        };
+      } else {
+        mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: patientEmail,
+          subject: `Appointment Rejected - Dr. ${doctorName}`,
+          text: `Hello ${patientName},\n\nWe regret to inform you that your appointment with Dr. ${doctorName} scheduled on ${appointmentDate} has been rejected.\n\nPlease try rescheduling or contact support if you believe this was a mistake.\n\n- Medi Mentor Team`,
+        };
+      }
+
+      transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.error("Error sending approval email to patient:", error);
+          console.error(
+            `Error sending ${appointmentState} email to patient:`,
+            error
+          );
         } else {
-          console.log("Approval email sent to patient:", info.response);
+          console.log(
+            `${appointmentState.charAt(0).toUpperCase() + appointmentState.slice(1)} email sent to patient:`,
+            info.response
+          );
         }
       });
     }
-  
+
     const dynamicEventName = `updateAppointmentStatus/${appointment?.patientID}`;
     io.emit(dynamicEventName, {
       appointmentState,
@@ -204,16 +238,14 @@ io.on("connection", (socket) => {
         },
       },
     });
-  
-    await callback({ success: true, message: "Appointment status updated" });
   });
-  
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });
 });
 
+// Start Server
 const PORT = process.env.PORT || 8080;
 httpServer.listen(PORT, () => {
   console.log(`Main server running on port ${PORT}`);
