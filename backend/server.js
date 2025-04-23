@@ -1,4 +1,3 @@
-import { inject } from "@vercel/analytics"
 import express from "express";
 import connectDB from "./db.js";
 import dotenv from "dotenv";
@@ -105,7 +104,7 @@ io.on("connection", (socket) => {
       location,
       appointmentState,
     } = data;
-
+  
     const appointment = await Appointment.findById(appointmentId)
       .populate({
         path: "doctorID",
@@ -116,18 +115,18 @@ io.on("connection", (socket) => {
         select: "patientName patientEmail patientContact gender age title desc mode state expectedDate patientAddress",
       })
       .select("-__v");
-
+  
     if (!appointment) {
       return await callback({ success: false, message: "Appointment not found" });
     }
-
+  
     if (appointmentState === "approved") {
       let existingContract = await Contract.findOne({ appointmentId: appointment._id });
-
+  
       if (existingContract) {
         return await callback({ success: false, message: "Contract already exists for this appointment" });
       }
-
+  
       const contract = new Contract({
         appointmentId: appointment._id,
         meetingDetails: {
@@ -139,10 +138,34 @@ io.on("connection", (socket) => {
       contract.generateMeetingId();
       await contract.save();
     }
-
+  
     appointment.state = appointmentState;
     await appointment.save();
-
+  
+    // 📧 Send approval email to patient
+    if (appointmentState === "approved") {
+      const patientEmail = appointment.patientEmail;
+      const patientName = appointment.patientName;
+      const doctorName = appointment.doctorID.name;
+      const appointmentDate = new Date(appointment.expectedDate).toLocaleString();
+      const appointmentMode = appointment.mode === "online" ? "Online" : "Offline";
+  
+      const approvalMailOptions = {
+        from: process.env.EMAIL_USER,
+        to: patientEmail,
+        subject: `Appointment Approved - Dr. ${doctorName}`,
+        text: `Hello ${patientName},\n\nYour appointment with Dr. ${doctorName} has been approved.\n\n📅 Date: ${appointmentDate}\n📍 Mode: ${appointmentMode}\n\nThank you for using our platform.\n\n- Health Platform Team`
+      };
+  
+      transporter.sendMail(approvalMailOptions, (error, info) => {
+        if (error) {
+          console.error("Error sending approval email to patient:", error);
+        } else {
+          console.log("Approval email sent to patient:", info.response);
+        }
+      });
+    }
+  
     const dynamicEventName = `updateAppointmentStatus/${appointment?.patientID}`;
     io.emit(dynamicEventName, {
       appointmentState,
@@ -181,9 +204,10 @@ io.on("connection", (socket) => {
         },
       },
     });
-
+  
     await callback({ success: true, message: "Appointment status updated" });
   });
+  
 
   socket.on("disconnect", () => {
     console.log("User disconnected");
