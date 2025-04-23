@@ -39,7 +39,7 @@ const Contact = () => {
     setLoading(true); // Set loading state to true
 
     try {
-      const response = await fetch('http://localhost:3000/send', {
+      const response = await fetch('https://healthcare-platform-server.vercel.app/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
