@@ -4,6 +4,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Logo from "../../assets/images/logo2.jpg";
 import { RiArrowDropDownLine } from "react-icons/ri";
+import { GiHamburgerMenu } from "react-icons/gi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../reduxslice/AuthSlice";
 import { useNavigate } from "react-router-dom";
@@ -20,10 +21,10 @@ const NavBar = () => {
     dispatch(logout());
     navigate("/");
   };
-  // const [isMenuOpen, setIsMenuOpen] = useState(false); 
-  // const toggleMenu = () => {
-  //   setIsMenuOpen(!isMenuOpen); 
-  // };
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -61,11 +62,21 @@ const NavBar = () => {
   return (
     <header className="bg-white shadow-md w-full sticky top-0 z-[999] ">
       <div className="container mx-auto flex justify-between items-center py-4 px-6">
-        
         {/* Logo Section */}
-        <div className="flex items-center">
+        <div className="flex items-center hidden md:block">
           <img alt="Logo" className="h-10" height={150} src={Logo} width={50} />
         </div>
+
+        {/* Hamburger button */}
+        <button
+          onClick={toggleMenu}
+          className="md:hidden focus:outline-none z-50"
+        >
+          <div className="relative w-6 h-6">
+            <GiHamburgerMenu />
+          </div>
+        </button>
+
         {/* Navigation Bar */}
         <nav className="flex-grow flex justify-center space-x-6">
           {/* home */}
@@ -147,6 +158,37 @@ const NavBar = () => {
             </>
           )}
         </div>
+
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 w-1/2 sm:w-1/4 bg-emerald-500 shadow-2xl px-2 py-4 z-40 rounded-md">
+            <ul className="flex flex-col space-y-2 text-white">
+              <li>
+                <a href="/" onClick={handleLogout}>
+                  Home
+                </a>
+              </li>
+              <li>
+                <button onClick={() => navigate("/about")}>About</button>
+              </li>
+              <li>
+                <button onClick={() => navigate("/contact")}>Contact</button>
+              </li>
+              <li>
+                <button onClick={() => navigate("/pharmacy")}>Pharmacy</button>
+              </li>
+              {!user && !doctor && (
+                <>
+                  <li>
+                    <a href="/login">Login</a>
+                  </li>
+                  <li>
+                    <a href="/registration">SignUp</a>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        )}
       </div>
     </header>
   );
