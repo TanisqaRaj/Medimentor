@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BsLayoutSidebarInset } from "react-icons/bs";
-import { FaNotesMedical, FaListUl } from "react-icons/fa";
+import { FaNotesMedical} from "react-icons/fa";
 import { TbHistoryToggle } from "react-icons/tb";
 import { AiTwotoneMedicineBox } from "react-icons/ai";
 import { FaBookMedical } from "react-icons/fa";
@@ -13,8 +13,7 @@ const Sidebar = () => {
   const user = useSelector((state) => state.auth.user);
   const sidebarItems = [
     { title: "Book Appointment", icon: <FaBookMedical />, path: "/bookappointment" },
-    { title: "Appointments", icon: <FaNotesMedical />, },
-    { title: "Appointment List", icon: <FaListUl />, path: "/appointmentlist" },
+    { title: "Appointment List", icon: <FaNotesMedical />, path: "/appointmentlist" },
     { title: "Appointment History", icon: <TbHistoryToggle /> },
     { title: "Buy Medicine", icon: <AiTwotoneMedicineBox />, path: "/pharmacy" },
   ];

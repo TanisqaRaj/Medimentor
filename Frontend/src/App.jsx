@@ -42,7 +42,7 @@ function App() {
     {
       path: "/",
       element: (
-        <div>
+        <div className="relative">
           <NavBar />
           <Landing />
           <Footer />
