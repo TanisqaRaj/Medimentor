@@ -93,14 +93,14 @@ const BookAppointment = () => {
   return (
     <div className="w-full overflow-hidden">
       <DashHeader setFilteredDoctors={setFilteredDoctors} />
-      <div className="pb-5 px-10 py-10">
+      <div className="pb-5 px-0 md:px-10 py-10">
         <InfiniteScroll
           dataLength={visibleDoctors.length}
           next={fetchData}
           hasMore={hasMore}
           loader={<h4>Loading...</h4>}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-6 px-4 lg:px-14">
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 self-start gap-6 px-1 sm:px-4 lg:px-14">
             {/* Display Filtered Doctors if Available */}
             {filteredDoctors.length > 0 ? (
               filteredDoctors.map((item, index) => (
@@ -147,7 +147,7 @@ const BookAppointment = () => {
             ) : visibleDoctors.length > 0 ? (
               visibleDoctors.map((item, index) => (
                 <div key={index} className="flex flex-row items-center bg-white border rounded-lg shadow-lg hover:shadow-2xl duration-300 p-4">
-                  <div className="hidden sm:block">
+                  <div className="w-full sm:w-[250px] flex justify-center">
                     <img
                       src={`data:image/jpeg;base64,${item?.image}`} 
                       alt={item?.name}
@@ -157,20 +157,20 @@ const BookAppointment = () => {
                   </div>
                   <div className="items-start pl-10 space-y-4">
                     <div className="text-2xl font-semibold text-gray-800">{item.name}</div>
-                    <div className="flex gap-6">
-                      <div className="flex items-center justify-center gap-2">
+                    <div className="flex md:gap-6 gap-1">
+                      <div className="flex  items-center justify-center gap-0.5 md:gap-2">
                         <FaStar />
                         <div className="text-gray-800">{item.rating}</div>
-                        <div className="text-gray-600">67 reviews</div>
+                        <div className="text-gray-600 hidden md:block">67 reviews</div>
                       </div>
                       <div className="flex items-center justify-center gap-1">
                         <FaIndianRupeeSign />
                         <div className="font-semibold text-gray-800">{item.fee}</div>
-                        <div className="text-gray-600">per consultation</div>
+                        <div className="text-gray-600 text-sm">per consultation</div>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-600 text-center mt-2">{item.bio}</div>
-                    <div className="flex sm:flex-col md:flex-row gap-2 text-center text-gray-700">
+                    <div className="text-sm text-gray-600 text-center mt-2 w-full sm:w-fit">{item.bio}</div>
+                    <div className="flex flex-wrap gap-2 text-gray-700 max-h-10 overflow-y-auto">
                       {item.profession.map((profession, index) => (
                         <p key={index} className="border bg-slate-200 rounded-lg p-1">
                           {profession}
@@ -178,7 +178,7 @@ const BookAppointment = () => {
                       ))}
                     </div>
                     <button
-                      className="mt-4 bg-emerald-500 text-white items-center py-2 px-6 w-full m:w-fit rounded-lg hover:bg-emerald-700 duration-300"
+                      className="mt-4 bg-emerald-500 text-white items-center py-2 px-6 w-full sm:w-fit rounded-lg hover:bg-emerald-700 duration-300"
                       onClick={() => handleBookAppointment(item._id)}
                     >
                       Book Appointment
