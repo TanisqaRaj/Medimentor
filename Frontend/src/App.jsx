@@ -192,6 +192,19 @@ function App() {
       ),
     },
     {
+      path: "/appointmenthistory",
+      element: (
+        <div>
+          <NavBar />
+          <div className="flex">
+            <Sidebar />
+            <AppointmentHistory/>
+          </div>
+          <Footer />
+        </div>
+      ),
+    },
+    {
       path: "/doctordashboard",
       element: (
         <div>

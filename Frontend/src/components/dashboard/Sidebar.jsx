@@ -14,7 +14,7 @@ const Sidebar = () => {
   const sidebarItems = [
     { title: "Book Appointment", icon: <FaBookMedical />, path: "/bookappointment" },
     { title: "Appointment List", icon: <FaNotesMedical />, path: "/appointmentlist" },
-    { title: "Appointment History", icon: <TbHistoryToggle /> },
+    { title: "Appointment History", icon: <TbHistoryToggle /> , path: "/appointmenthistory" },
     { title: "Buy Medicine", icon: <AiTwotoneMedicineBox />, path: "/pharmacy" },
   ];
 
