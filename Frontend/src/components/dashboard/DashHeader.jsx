@@ -80,7 +80,7 @@ useEffect(() => {
   return (
     <header className="h-16 flex px-10  w-[95vw]  right-0 z-50">
       <div className="h-full  container mx-auto flex items-center px-4 py-4 justify-center">
-        <p className="px-4 pt-10 lg:px-10 pb-10 text-2xl font-bold text-gray-700 text-start">
+        <p className="px-4 pt-10 lg:px-10 pb-10 text-2xl font-bold text-gray-700 text-start hidden md:block">
           Find Your Doctor
         </p>
         {/*----------- SearchBar and SearchLogo ---------------*/}

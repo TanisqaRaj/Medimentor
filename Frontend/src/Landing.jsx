@@ -3,7 +3,7 @@ import axios from "axios";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import doctor from "./assets/images/doctorsGrpPic1.webp";
-import doctors from './assets/images/Doctors.png.png'
+import doctors from "./assets/images/Doctors.png.png";
 import CountUp from "react-countup";
 import LazyImage from "./LazyImage";
 
@@ -62,7 +62,6 @@ const Landing = () => {
   useEffect(() => {
     fetchTotalUsers();
     fetchTotalDoctors();
-    
   }, []);
 
   return (
@@ -91,47 +90,48 @@ const Landing = () => {
             </a>
           </div>
           <div className="md:w-1/2 mt-10 md:mt-0 flex justify-end h-[80vh]">
-            <LazyImage
-              alt="Doctor"
-              src={doctor}
-              width={500}
-            />
+            <LazyImage alt="Doctor" src={doctor} width={500} />
           </div>
         </div>
       </section>
 
       {/* Total registered doctors */}
       <div
-        className="flex flex-col md:flex-row items-center mb-10 p-8 mr-8"
+        className="w-full flex flex-col lg:flex-row items-center gap-8 px-4 md:px-8 lg:px-16 py-10"
         data-aos="fade-right"
       >
-        <div className="md:w-1/2">
+        <div className="w-full lg:w-1/2 flex justify-center">
           <LazyImage
             alt="Doctor and Patient"
-            className="rounded-lg shadow-lg"
+            className="rounded-lg shadow-lg w-full max-w-md"
             height={300}
             src={doctors}
             width={500}
           />
         </div>
-        <div className="md:w-1/2 md:pl-10 mt-10 md:mt-0 p-4 text-center">
-          <h2 className="text-3xl font-bold">Trusted by Millions Globally</h2>
-          <div>
+
+        <div className="w-full lg:w-1/2 text-center lg:text-left">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">
+            Trusted by Millions Globally
+          </h2>
+          <p className="text-sm md:text-base mb-6">
             Explore the essential metrics that showcase our platform's trust,
             quality, and commitment to healthcare excellence.
-          </div>
-          <div className="flex justify-between p-6 py-10 pl-16 pr-16 border rounded-2xl shadow-2xl mt-6 space-x-24 ">
-            <div className="font-sm text-4xl  w-full border p-10 bg-emerald-50 rounded-2xl shadow-md  hover:bg-emerald-100 duration-400">
-              <div className="font-semibold">
+          </p>
+
+          {/* Counter Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="border p-6 bg-emerald-50 rounded-2xl shadow-md hover:bg-emerald-100 transition duration-300">
+              <div className="text-3xl font-semibold">
                 <CountUp end={totalDoctors} duration={4} />+
               </div>
-              <div className="text-sm font-medium">Registered Doctors</div>
+              <div className="text-sm font-medium mt-2">Registered Doctors</div>
             </div>
-            <div className="font-sm text-4xl  w-full border p-11 bg-emerald-100 rounded-2xl shadow-md hover:bg-emerald-200 duration-400">
-              <div className="font-semibold">
+            <div className="border p-6 bg-emerald-100 rounded-2xl shadow-md hover:bg-emerald-200 transition duration-300">
+              <div className="text-3xl font-semibold">
                 <CountUp end={totalUsers} duration={4} />+
               </div>
-              <div className="text-sm font-medium">Registered Users</div>
+              <div className="text-sm font-medium mt-2">Registered Users</div>
             </div>
           </div>
         </div>
@@ -202,43 +202,43 @@ const Landing = () => {
       </section>
 
       {/* Landing Video Section */}
-  <section
-  className="bg-gray-200 py-20 w-[100vw] min-h-screen"
-  data-aos="zoom-in"
->
-  <div className="container mx-auto text-center">
-    <h2 className="text-3xl font-bold mb-4">
-      Doctor Pharmacy Reservation
-    </h2>
-    <p className="mb-6">
-      Reserve your spot with our expert doctors. Get the best healthcare
-      services at your convenience.
-    </p>
-    <a
-      className="bg-emerald-600 text-white px-6 py-2 rounded-full font-semibold"
-      href="/login"
-    >
-      Reserve Now
-    </a>
+      <section
+        className="bg-gray-200 py-16 px-4 sm:px-6 lg:px-12 w-full"
+        data-aos="zoom-in"
+      >
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+            Doctor Pharmacy Reservation
+          </h2>
+          <p className="text-sm sm:text-base mb-6">
+            Reserve your spot with our expert doctors. Get the best healthcare
+            services at your convenience.
+          </p>
+          <a
+            className="bg-emerald-600 text-white px-6 py-2 rounded-full font-semibold inline-block"
+            href="/login"
+          >
+            Reserve Now
+          </a>
 
-    {/* Embedded YouTube Video */}
-    <div className="mt-10 max-w-4xl mx-auto">
-      <iframe
-        className="rounded-lg shadow-lg w-full h-[60vh]"
-        width="560"
-        height="315"
-        src="https://www.youtube.com/embed/74DWwSxsVSs?si=u72BmFp_AZdDeydO"
-        title="YouTube video player"
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerPolicy="strict-origin-when-cross-origin"
-        allowFullScreen
-      ></iframe>
-    </div>
-  </div>
-</section>
-
-
+          {/* YouTube Video */}
+          <div className="mt-10 w-full max-w-5xl mx-auto">
+            <div
+              className="relative w-full"
+              style={{ paddingBottom: "56.25%" }}
+            >
+              <iframe
+                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+                src="https://www.youtube.com/embed/74DWwSxsVSs?autoplay=1&mute=1&controls=1&rel=0"
+                title="YouTube video player"
+                frameBorder="0"
+                allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Landing Health Tips Section */}
       <section className="py-20 w-[100vw] min-h-screen px-8">

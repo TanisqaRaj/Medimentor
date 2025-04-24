@@ -136,7 +136,7 @@ const BookAppointment = () => {
                       ))}
                     </div>
                     <button
-                      className="mt-4 bg-emerald-500 text-white items-center py-2 px-6 rounded-lg hover:bg-emerald-700 duration-300"
+                      className="mt-4 bg-emerald-500 text-white items-center py-2 px-6 w-full m:w-fit rounded-lg hover:bg-emerald-700 duration-300"
                       onClick={() => handleBookAppointment(item._id)}
                     >
                       Book Appointment
@@ -152,7 +152,7 @@ const BookAppointment = () => {
                       src={`data:image/jpeg;base64,${item?.image}`} 
                       alt={item?.name}
                       style={{ height: "250px", width: "350px", objectFit: "cover" }}
-                      className="border w-30 h-30 object-cover rounded-3xl shadow-lg hover:scale-105 duration-300"
+                      className="border hidden md:block w-30 h-30 object-cover rounded-3xl shadow-lg hover:scale-105 duration-300"
                     />
                   </div>
                   <div className="items-start pl-10 space-y-4">
@@ -170,7 +170,7 @@ const BookAppointment = () => {
                       </div>
                     </div>
                     <div className="text-sm text-gray-600 text-center mt-2">{item.bio}</div>
-                    <div className="flex flex-col sm:flex-row gap-2 text-center text-gray-700">
+                    <div className="flex sm:flex-col md:flex-row gap-2 text-center text-gray-700">
                       {item.profession.map((profession, index) => (
                         <p key={index} className="border bg-slate-200 rounded-lg p-1">
                           {profession}
@@ -178,7 +178,7 @@ const BookAppointment = () => {
                       ))}
                     </div>
                     <button
-                      className="mt-4 bg-emerald-500 text-white items-center py-2 px-6 rounded-lg hover:bg-emerald-700 duration-300"
+                      className="mt-4 bg-emerald-500 text-white items-center py-2 px-6 w-full m:w-fit rounded-lg hover:bg-emerald-700 duration-300"
                       onClick={() => handleBookAppointment(item._id)}
                     >
                       Book Appointment

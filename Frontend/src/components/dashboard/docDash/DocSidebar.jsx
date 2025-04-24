@@ -13,8 +13,8 @@ const DocSidebar = () => {
     const doctor = useSelector((state) => state.auth.doctor);
      const sidebarItems = [
         { title: "Incoming Request", icon: <FaBookMedical /> ,path:"/incomingrequest"},
-        { title: "Appointments", icon: <FaNotesMedical />,  },
-        { title: "Previous Appointment", icon: <TbHistoryToggle /> },
+        // { title: "Appointments", icon: <FaNotesMedical />,  },
+        // { title: "Previous Appointment", icon: <TbHistoryToggle /> },
         { title: "Buy Medicine", icon: <AiTwotoneMedicineBox />, path:"/pharmacy" },
       ];
 

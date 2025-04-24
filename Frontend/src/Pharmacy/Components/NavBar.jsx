@@ -20,10 +20,15 @@ const NavBar = () => {
     dispatch(logout());
     navigate("/");
   };
+  // const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  // const toggleMenu = () => {
+  //   setIsMenuOpen(!isMenuOpen); 
+  // };
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
   const expirytoken = async () => {
     const tokenObj = {
       token: token,
@@ -54,29 +59,32 @@ const NavBar = () => {
   }, []);
 
   return (
-    <header className="bg-white shadow-md w-full sticky top-0 z-50 overflow-hidden">
+    <header className="bg-white shadow-md w-full sticky top-0 z-[999] ">
       <div className="container mx-auto flex justify-between items-center py-4 px-6">
+        
         {/* Logo Section */}
         <div className="flex items-center">
           <img alt="Logo" className="h-10" height={150} src={Logo} width={50} />
         </div>
         {/* Navigation Bar */}
         <nav className="flex-grow flex justify-center space-x-6">
+          {/* home */}
           <a
-            className="text-gray-700 hover:text-teal-600"
+            className="text-gray-700 hover:text-teal-600 hidden md:block"
             href="/"
             onClick={handleLogout}
           >
             Home
           </a>
+          {/* About */}
           <a
-            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer"
+            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer hidden md:block"
             onClick={() => navigate("/about")}
           >
             About
           </a>
           {/* Services */}
-          <div className="relative">
+          <div className="relative hidden md:block">
             <div
               className="flex items-center cursor-pointer text-gray-700 hover:text-teal-600"
               onClick={toggleDropdown}
@@ -86,7 +94,7 @@ const NavBar = () => {
             </div>
 
             {isOpen && (
-              <div className="absolute mt-2 bg-white border rounded shadow-lg w-48 z-10">
+              <div className="absolute mt-2 bg-white border rounded shadow-lg w-48 z-[100]">
                 <ul className="py-2">
                   <li className="px-4 py-2 hover:bg-teal-100">
                     <a href="/appointment">Appointment</a>
@@ -101,15 +109,16 @@ const NavBar = () => {
               </div>
             )}
           </div>
+
           {/* Contact */}
           <a
-            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer"
+            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer hidden md:block"
             onClick={() => navigate("/contact")}
           >
             Contact
           </a>
           <a
-            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer"
+            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer hidden md:block"
             onClick={() => navigate("/pharmacy")}
           >
             Pharmacy
@@ -130,7 +139,7 @@ const NavBar = () => {
                 Login
               </a>
               <a
-                className="text-gray-700 hover:text-teal-600"
+                className="text-gray-700 hover:text-teal-600 hidden md:block"
                 href="/registration"
               >
                 SignUp
