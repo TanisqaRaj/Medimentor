@@ -76,7 +76,7 @@ const Login = () => {
 
       console.log("Request Body:", requestBody); // Log the request body for debugging
 
-      const response = await fetch("https://healthcare-platform-server.vercel.app/auth/login", {
+      const response = await fetch("https://medimentorbackend.onrender.com/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

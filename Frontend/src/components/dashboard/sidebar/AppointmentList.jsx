@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { io } from "socket.io-client";
 
-const socket = io("https://healthcare-platform-server.vercel.app"); // Replace with your backend URL
+const socket = io("https://medimentorbackend.onrender.com"); // Replace with your backend URL
 
 const AppointmentList = () => {
   const [popupVisible, setPopupVisible] = useState(false);

@@ -5,7 +5,7 @@ import MeetingDetails from "./MeetingDetails";
 import { io } from "socket.io-client";
 import Map from "../../Map";
 
-const socket = io("https://healthcare-platform-server.vercel.app");
+const socket = io("https://medimentorbackend.onrender.com");
 
 const IncomingRequest = () => {
   const [appVisible, setAppVisible] = useState(false);
@@ -68,7 +68,7 @@ const IncomingRequest = () => {
     console.log("doctorId", doctorId);
     try {
       const response = await axios.get(
-        `https://healthcare-platform-server.vercel.app/appointments/docapp/${doctorId}`
+        `https://medimentorbackend.onrender.com/appointments/docapp/${doctorId}`
       );
       const success = response?.data?.success;
       console.log("response data is", response.data);

@@ -64,8 +64,8 @@ const Registration = () => {
   async function onSubmit(data) {
     let url =
       data.role === "patient"
-        ? "https://healthcare-platform-server.vercel.app/auth/register/user"
-        : "https://healthcare-platform-server.vercel.app/auth/register/doctor";
+        ? "https://medimentorbackend.onrender.com/auth/register/user"
+        : "https://medimentorbackend.onrender.com/auth/register/doctor";
 
     const registerObj = {
       name: data.firstname.trim() + " " + data.lastname.trim(),

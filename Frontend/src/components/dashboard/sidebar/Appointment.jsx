@@ -27,7 +27,7 @@ export default function Appointment({ visible, onClose, doctorId }) {
 
     try {
       const response = await axios.post(
-        "https://healthcare-platform-server.vercel.app/appointments/create",
+        "https://medimentorbackend.onrender.com/appointments/create",
         appointmentData
       );
       if (response.data.success) {

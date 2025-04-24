@@ -11,7 +11,7 @@ const AdminContent = () => {
 
     const fetchTotalUsers = async () => {
         try {
-            const response = await axios.get("https://healthcare-platform-server.vercel.app/doctors/totalusers");
+            const response = await axios.get("https://medimentorbackend.onrender.com/doctors/totalusers");
             const success = response?.data?.success;
 
             if (success) {
@@ -26,7 +26,7 @@ const AdminContent = () => {
 
     const fetchTotalDoctors = async () => {
         try {
-            const response = await axios.get("https://healthcare-platform-server.vercel.app/doctors/totaldoctors");
+            const response = await axios.get("https://medimentorbackend.onrender.com/doctors/totaldoctors");
             const success = response?.data?.success;
 
             if (success) {
