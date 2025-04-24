@@ -112,7 +112,7 @@ const Registration = () => {
 
   return (
     <div
-      className="w-full min-h-screen flex justify-center items-center rounded-lg py-20 px-40 bg-opacity-20 backdrop-blur-sm"
+      className="w-full min-h-screen flex justify-center items-center rounded-lg py-5 px-5 md:py-20 md:px-40 bg-opacity-20 backdrop-blur-sm"
       style={{
         backgroundImage: "url('../src/assets/images/BGregistration.jpg')",
         backgroundSize: "cover",
@@ -121,7 +121,7 @@ const Registration = () => {
     >
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full min-w-10 px-16 pb-16 space-y-4 bg-white bg-opacity-30 backdrop-blur-sm rounded-lg shadow-lg"
+        className="w-full min-w-10 px-3 md:px-16 pb-16 space-y-4 bg-white bg-opacity-30 backdrop-blur-sm rounded-lg shadow-lg"
       >
         {/* Previous page */}
         <button onClick={handleBackClick} className="text-emerald-600 mb-4">
@@ -246,22 +246,53 @@ const Registration = () => {
         </div>
 
         {/* Gender */}
-        <div className="flex space-x-2">
-          <label>Gender</label>
-          <input {...register("gender")} value="male" type="radio" name="gender" id="male" />
-          <label htmlFor="male">Male</label>
-          <input {...register("gender")} value="female" type="radio" name="gender" id="female" />
-          <label htmlFor="female">Female</label>
-          <input {...register("gender")} value="other" type="radio" name="gender" id="other" />
-          <label htmlFor="other">Other</label>
+        <div className="flex flex-col md:flex-row md:space-x-2">
+          <div>
+            <label>Gender</label>
+          </div>
+
+          <div className="space-x-2 flex">
+            <input
+              {...register("gender")}
+              value="male"
+              type="radio"
+              name="gender"
+              id="male"
+            />
+            <label htmlFor="male">Male</label>
+            <input
+              {...register("gender")}
+              value="female"
+              type="radio"
+              name="gender"
+              id="female"
+            />
+            <label htmlFor="female">Female</label>
+            <input
+              {...register("gender")}
+              value="other"
+              type="radio"
+              name="gender"
+              id="other"
+            />
+            <label htmlFor="other">Other</label>
+          </div>
         </div>
 
         {/* ProfilePic */}
-        <div className="flex gap-1">
+        <div className="flex gap-0.5 overflow-clip">
           <label>Upload pic </label>
-          <input {...register("profilepic")} type="file" onChange={handleImageChange} />
+          <input
+            {...register("profilepic")}
+            type="file"
+            onChange={handleImageChange}
+          />
           {image ? (
-            <img src={URL.createObjectURL(image)} alt="" className="border w-40 h-40 rounded-md" />
+            <img
+              src={URL.createObjectURL(image)}
+              alt=""
+              className="border w-40 h-40 rounded-md"
+            />
           ) : (
             <img src={image} alt="" className="border w-4 h-4 rounded-md" />
           )}
@@ -289,12 +320,10 @@ const Registration = () => {
         {/* If selected role is doctor */}
         {isDoctor === "doctor" && (
           <div>
-            <div className="flex justify-between items-center space-x-5">
+            <div className="flex flex-col md:flex-row justify-between md:items-center md:space-x-5">
               {/* DoctorBio */}
               <div className="flex-row w-1/2">
-                <label className="block mb-1 text-sm font-medium text-gray-700">
-                  Doctor Bio
-                </label>
+                <label className="block mb-1 ">Doctor Bio</label>
                 <textarea
                   className={"w-full px-4 py-2 border rounded"}
                   placeholder="Write bio....."
@@ -307,9 +336,7 @@ const Registration = () => {
 
               {/* Skills */}
               <div className=" w-1/2 flex-col space-y-2">
-                <label className="block text-gray-700 text-sm font-medium">
-                  Skills
-                </label>
+                <label className="block">Skills</label>
                 <Multiselect
                   className="w-full"
                   options={[
@@ -365,9 +392,9 @@ const Registration = () => {
             </div>
 
             {/* Experience and department */}
-            <div className="w-full flex justify-center flex-row space-x-2">
+            <div className="w-full flex flex-col md:flex-row justify-center flex-row md:space-x-2">
               {/* Experience */}
-              <div className="w-1/2">
+              <div className="w-fit md:w-1/2">
                 <label>Experience</label>
                 <input
                   className="border items-center w-full h-8"
@@ -377,7 +404,7 @@ const Registration = () => {
                 <span>Years</span>
               </div>
               {/* department*/}
-              <div className="w-1/2 flex flex-col">
+              <div className="w-fit md:w-1/2 self-start flex flex-col">
                 <label className="gap-x-3 p-1">Department</label>
                 <select {...register("department")} className="border">
                   <option>Select department</option>
@@ -404,7 +431,6 @@ const Registration = () => {
               </div>
             </div>
           </div>
-          
         )}
 
         {/* SignUp SignIn Button */}
@@ -412,16 +438,23 @@ const Registration = () => {
           <div className="w-1/2">
             <button
               type="Submit"
-              className="w-full px-4 py-2 font-medium text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 "
+              className="w-full px-4 py-2 md:font-medium text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 "
               disabled={isSubmitting}
             >
               {isSubmitting ? "Submitting..." : "SignUp"}
             </button>
           </div>
 
-          <div className="flex flex-row justify-center items-center" onClick={handleNavigateLogin}>
-            <p className="text-center p-2 text-white text-lg">Already have an account?</p>
-            <p className="text-lg text-emerald-400 hover:cursor-pointer">SignIn</p>
+          <div
+            className="flex flex-row justify-center items-center"
+            onClick={handleNavigateLogin}
+          >
+            <p className="text-center p-2 text-white text-sm md:text-lg">
+              Already have an account?
+            </p>
+            <p className="text-sm md:text-lg text-emerald-400 hover:cursor-pointer">
+              SignIn
+            </p>
           </div>
         </div>
       </form>
