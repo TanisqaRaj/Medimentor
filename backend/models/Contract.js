@@ -9,8 +9,8 @@ const contractSchema = new mongoose.Schema(
     },
 
     meetingDetails: {
-        meetingId: { type: String, required: true, unique: true },
-        meetingPassword: { type: String, required: true },
+        meetingId: { type: String, required: false, unique: true },
+        meetingPassword: { type: String, required: false },
         meetingUrl: { type: String, required: false },
         location: { type: String, required: false },
     }
@@ -20,10 +20,17 @@ const contractSchema = new mongoose.Schema(
   }
 );
 
-contractSchema.methods.generateMeetingId = function () {
+contractSchema.pre('save', function (next) {
+  if (!this.meetingDetails) this.meetingDetails = {};
+
+  if (!this.meetingDetails.meetingId) {
     const date = new Date();
-    // generate unique meeting ID using the appointment ID and current date and not existing one
     this.meetingDetails.meetingId = `${this.appointmentId}${date.toISOString().replace(/[^0-9]/g, "")}`;
-};
+    console.log("Generated meeting ID:", this.meetingDetails.meetingId);
+  }
+
+  next();
+});
+
 
 export default mongoose.model("Contract", contractSchema);

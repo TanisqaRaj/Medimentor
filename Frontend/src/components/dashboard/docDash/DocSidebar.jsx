@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 const DocSidebar = () => {
     const [open, setOpen] = useState(false);
     const navigate=useNavigate();
-    const user = useSelector((state) => state.auth.user);
+    const doctor = useSelector((state) => state.auth.doctor);
      const sidebarItems = [
         { title: "Incoming Request", icon: <FaBookMedical /> ,path:"/incomingrequest"},
         { title: "Appointments", icon: <FaNotesMedical />,  },
@@ -44,12 +44,12 @@ const DocSidebar = () => {
             <div className="h-24 w-24 border shadow-lg rounded-full overflow-hidden"
             onClick={openProfile}>
               <img
-                src={`data:image/png;base64,${user?.image}`}
+                src={`data:image/png;base64,${doctor?.image}`}
                 className="h-full w-full object-cover"
               />
             </div>
             <h2 className="mt-4 text-sm  text-gray-800 font-semibold">
-              {user?.name}
+              {doctor?.name}
             </h2>
           </div>
         )}
