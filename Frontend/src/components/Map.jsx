@@ -3,15 +3,21 @@ import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { MdAddLocationAlt } from "react-icons/md";
 
-const Map = ({ onclose }) => {
+const Map = ({ onclose, position, setPosition, appointmentId, appointmentState, updateAppointmentStatus}) => {
   const mapRef = useRef(null);
   const mapRefInstance = useRef(null); // Store map instance
   const markerRef = useRef(null);
-  const [position, setPosition] = useState([51.505, -0.09]); // Default position (London)
+  
   const [locationText, setLocationText] = useState("Your location...");
 
   const handleOnClose = (e) => {
     if (e.target.id === "container") onclose();
+  };
+
+  const onSubmit = async () => {
+    await updateAppointmentStatus(appointmentId, appointmentState, null, null, locationText);
+    console.log(locationText);
+    onclose();
   };
 
   const fetchLocationDetails = async (lat, lon) => {
@@ -22,6 +28,7 @@ const Map = ({ onclose }) => {
       const data = await response.json();
 
       if (data.address) {
+        console.log(data.address);
         const city =
           data.address.city ||
           data.address.town ||
@@ -88,9 +95,10 @@ const Map = ({ onclose }) => {
     );
 
     // Update state when marker is dragged
-    markerRef.current.on("dragend", function (event) {
+    markerRef.current.on("dragend",async function (event) {
       const newPos = event.target.getLatLng();
       setPosition([newPos.lat, newPos.lng]);
+      await fetchLocationDetails(newPos.lat, newPos.lng);
     });
 
     // Geolocation API - Get user's current location
@@ -127,14 +135,23 @@ const Map = ({ onclose }) => {
           ref={mapRef}
         ></div>
         <div className="flex justify-center  shadow-lg">
-          <textarea className="w-[68vw] rounded-b-lg" value={locationText}>
+          <textarea className="w-[58vw] rounded-b-lg" value={locationText}>
             {/* your location.... */}
           </textarea>
           <button
-            className="w-[2vw] items-center justify-center bg-emerald-200 rounded-b-lg font-bold text-2xl"
+            className="w-[2vw] items-center justify-center text-emerald-300 bg-white rounded-b-lg font-bold text-xl"
             onClick={setLocation}
+           
           >
             <MdAddLocationAlt />
+       
+          </button>
+          <button
+            className="w-[10vw] items-center justify-center text-emerald-300 bg-white rounded-b-lg font-bold text-xl"
+            
+            onClick={onSubmit}
+          >
+            submit
           </button>
         </div>
       </div>

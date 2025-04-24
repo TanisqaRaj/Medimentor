@@ -77,8 +77,6 @@ const TotalDoctorsList = () => {
     setDoctorlist(updatedList);
   };
 
-
-
   return (
     <div className="w-full">
       <div className="pb-5 ">

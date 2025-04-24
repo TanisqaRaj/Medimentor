@@ -20,8 +20,6 @@ const Login = () => {
 
   const [isDoctor, setIsDoctor] = useState('');
 
-
-
   function validUsername(text,errors){
     if(!(/^[^0-9]*$/.test(text))){
       errors.name=true

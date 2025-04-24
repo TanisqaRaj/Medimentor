@@ -14,6 +14,7 @@ const IncomingRequest = () => {
   const doctorId = useSelector((state) => state.auth.doctor._id);
   const [action, setAction] = useState("");
   const [mapVisible, setMapVisible] = useState(false);
+  const [position, setPosition] = useState([51.505, -0.09]); // Default position (London)
 
   function openPasswordPopup(id) {
     setAppointmentId(id);
@@ -22,8 +23,8 @@ const IncomingRequest = () => {
   }
 
   function openMap(id) {
-    // setAppointmentId(id);
-    // setAction("approved");
+    setAppointmentId(id);
+    setAction("approved");
     setMapVisible(true);
   }
 
@@ -40,6 +41,15 @@ const IncomingRequest = () => {
     meetingPassword = null,
     location = null
   ) {
+
+    console.log("Sending to server:", {
+      appointmentId,
+      appointmentState,
+      meetingUrl,
+      meetingPassword,
+      location,
+    });
+    
     socket.emit(
       "updateAppointmentStatus",
       {
@@ -178,9 +188,15 @@ const IncomingRequest = () => {
         updateAppointmentStatus={updateAppointmentStatus}
       />
       {mapVisible === true && (
-        <Map onclose={handleMap}/>
+        <Map
+          onclose={handleMap}
+          position={position}
+          setPosition={setPosition}
+          appointmentState={action}
+          appointmentId={appointmentId}
+          updateAppointmentStatus={updateAppointmentStatus}
+        />
       )}
-      
     </div>
   );
 };

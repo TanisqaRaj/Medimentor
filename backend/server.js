@@ -9,14 +9,17 @@ import { Server } from "socket.io";
 import http from "http";
 import bodyParser from "body-parser";
 import nodemailer from "nodemailer";
-
 import Appointment from "./models/Appointment.js";
 import Contract from "./models/Contract.js";
 
+// Load environment variables
 dotenv.config();
+
+// Connect to MongoDB
 connectDB();
 
 const app = express();
+
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: {
@@ -131,20 +134,37 @@ io.on("connection", (socket) => {
         appointmentId: appointment._id,
       });
 
-      if (!existingContract) {
-        const contract = new Contract({
-          appointmentId: appointment._id,
-          meetingDetails: {
-            meetingPassword,
-            meetingUrl:
-              appointment.mode === "online" ? meetingUrl : null,
-            location:
-              appointment.mode === "offline" ? location : null,
-          },
+      // if (!existingContract) {
+      //   const contract = new Contract({
+      //     appointmentId: appointment._id,
+      //     meetingDetails: {
+      //       meetingPassword,
+      //       meetingUrl:
+      //         appointment.mode === "online" ? meetingUrl : null,
+      //       location:
+      //         appointment.mode === "offline" ? location : null,
+      //     },
+      //   });
+      //   contract.generateMeetingId();
+      //   await contract.save();
+      // }
+
+      if (existingContract) {
+        return await callback({
+          success: false,
+          message: "Contract already exists for this appointment",
         });
-        contract.generateMeetingId();
-        await contract.save();
       }
+
+      const contract = new Contract({
+        appointmentId: appointment._id,
+        meetingDetails: {
+          meetingPassword: meetingPassword,
+          meetingUrl: appointment.mode === "online" ? meetingUrl : null,
+          location: appointment.mode === "offline" ? location : null,
+        },
+      });
+      await contract.save();
     }
 
     appointment.state = appointmentState;
@@ -199,8 +219,10 @@ io.on("connection", (socket) => {
         }
       });
     }
-
+    // Generate dynamic event name
     const dynamicEventName = `updateAppointmentStatus/${appointment?.patientID}`;
+   
+    // Emit the dynamically created event to clients
     io.emit(dynamicEventName, {
       appointmentState,
       appointmentId,
@@ -238,8 +260,11 @@ io.on("connection", (socket) => {
         },
       },
     });
+
+    await callback({ success: true, message: "Appointment status updated" });
   });
 
+   // socket disconnect
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });
