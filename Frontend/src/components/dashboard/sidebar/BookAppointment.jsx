@@ -21,7 +21,7 @@ const BookAppointment = () => {
   // Count Total Doctors
   const fetchTotalDoctors = async () => {
     try {
-      const response = await axios.get("https://healthcare-platform-server.vercel.app/doctors/totaldoctors");
+      const response = await axios.get("https://medimentorbackend.onrender.com/doctors/totaldoctors");
       const success = response?.data?.success;
 
       if (success) {
@@ -42,7 +42,7 @@ const BookAppointment = () => {
   // Fetch Initial Data
   const fetchInitialData = async () => {
     try {
-      const response = await axios.get("https://healthcare-platform-server.vercel.app/doctors/listdoctors?page=0&limit=10");
+      const response = await axios.get("https://medimentorbackend.onrender.com/doctors/listdoctors?page=0&limit=10");
       const success = response?.data?.success;
 
       if (success) {
