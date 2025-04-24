@@ -78,13 +78,13 @@ export default function Appointment({ visible, onClose, doctorId }) {
       id="container"
       onClick={handleOnClose}
     >
-      <div className="h-[70vh] w-[70vw] flex  rounded-lg bg-white shadow-lg overflow-auto">
+      <div className="h-[90vh] md:h-[75vh] w-[90vw] md:w-[70vw] flex mt-16  rounded-lg bg-white shadow-lg overflow-auto">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="w-full min-w-10 p-10 space-y-3 bg-white  rounded-lg"
+          className="w-full min-w-10 p-2 md:p-10 space-y-3 bg-white  rounded-lg"
         >
           {/* Patient name */}
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 md:w-fit">
             <label className="font-medium text-gray-800">Patient Name</label>
             <input
               {...register("patientName", {
@@ -139,9 +139,9 @@ export default function Appointment({ visible, onClose, doctorId }) {
           </div>
 
           {/* contact and gender */}
-          <div className="flex gap-x-3 justify-between items-center">
+          <div className="flex flex-col md:flex-row gap-x-3 justify-between items-center">
             {/* Gender */}
-            <div className="flex gap-2 items-center w-full">
+            <div className="flex gap-0.5 md:gap-2 items-center w-full">
               <label className="font-medium text-gray-800">Gender</label>
               <input
                 type="radio"
@@ -237,7 +237,7 @@ export default function Appointment({ visible, onClose, doctorId }) {
           </div>
 
           {/* Title and disease */}
-          <div className="flex justify-between items-center gap-x-3">
+          <div className="flex flex-col md:flex-row gap-y-2 md:gap-y-0 justify-between items-center gap-x-3">
             {/* title */}
             <div className="flex flex-row gap-2 w-full">
               <label className="font-medium text-gray-800">Title</label>
@@ -255,7 +255,7 @@ export default function Appointment({ visible, onClose, doctorId }) {
             </div>
 
             {/* Disease */}
-            <div className="flex gap-1 w-full">
+            <div className="flex gap-1 w-full items-center">
               <label className="font-medium text-gray-800">Disease</label>
               <textarea
                 className="w-full px-3 py-2 border h-10 rounded-lg"
@@ -269,9 +269,9 @@ export default function Appointment({ visible, onClose, doctorId }) {
           </div>
 
           {/* Mode and Appointment date */}
-          <div className="flex flex-row gap-6 items-center">
+          <div className="flex flex-col md:flex-row gap-6 justify-center md:items-center">
             {/* Mode */}
-            <div className="flex flex-col w-1/2">
+            <div className="flex flex-col w-fit md:w-1/2">
               <label className="font-medium text-gray-800">
                 Mode of Consultation
               </label>
@@ -310,7 +310,7 @@ export default function Appointment({ visible, onClose, doctorId }) {
             </div>
 
             {/* Appointment Date */}
-            <div className="flex flex-col w-1/2">
+            <div className="flex flex-col w-fit md:w-1/2">
               <label className="font-medium text-gray-800">
                 Select expected Date of Appointment
               </label>
