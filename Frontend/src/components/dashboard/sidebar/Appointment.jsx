@@ -220,7 +220,7 @@ export default function Appointment({ visible, onClose, doctorId }) {
 
           {/* Address */}
           <div className="flex flex-row gap-2">
-            <label className="font-medium text-gray-800">Adress</label>
+            <label className="font-medium text-gray-800">Address</label>
             <input
               {...register("patientAddress", {
                 required: true,
