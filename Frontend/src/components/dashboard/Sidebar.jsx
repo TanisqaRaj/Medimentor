@@ -21,7 +21,7 @@ const Sidebar = () => {
   return (
     <div
       className={`${open ? "w-[250px]" : "w-[60px]"
-        } duration-400 p-4 flex flex-col max-h-[90vh] h-[90vh] bg-emerald-500 text-black rounded-r-xl  justify-start sticky top-0`}
+        } duration-400 px-0.5 pt-4 py-1 sm:p-4 flex flex-col max-h-[90vh] h-[90vh] bg-emerald-500 text-black rounded-r-xl  justify-start sticky top-0`}
     >
       {/* Toggle Icon */}
       <div
