@@ -98,7 +98,7 @@ const Hero = () => {
                 {data.title}
               </h3>
               <button className="mb-4 px-16 py-1 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition duration-300"
-                onClick={addtocart}
+                // onClick={addtocart}
               >
                 Add to cart
               </button>

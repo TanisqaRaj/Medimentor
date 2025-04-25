@@ -38,7 +38,8 @@ const Header = () => {
               <FaCartPlus />
             </span>
             <div className="bg-emerald-400 text-white h-5 w-5 p-1 flex items-center justify-center rounded-full absolute -top-2 -right-3 ">
-              <p className="text-xs">{ProductNo}</p>
+              {/* <p className="text-xs">{ProductNo}</p> */}
+              <p className="text-xs">0</p>
             </div>
           </div>
           {/* ---Login button --- */}
