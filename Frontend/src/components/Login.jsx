@@ -220,6 +220,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
               />
+              <p className="text-sm text-emerald-500 mt-2 hover:cursor-pointer">Forgot Password</p>
             </div>
             {/* Submit Button */}
             <div className="mb-4">
@@ -238,7 +239,7 @@ const Login = () => {
               <p className="text-center p-2 text-gray-600 text-sm">
                 Don&apos;t have an acoount?
               </p>
-              <p className="text-sm text-emerald-500">Signup</p>
+              <p className="text-sm text-emerald-500 hover:cursor-pointer">Signup</p>
             </div>
           </form>
         </div>

@@ -36,6 +36,7 @@ import TotalAppointmentList from "./components/Admin/TotalAppointmentList";
 import UserProfile from "./components/dashboard/sidebar/Profile/UserProfile";
 import DoctorProfile from "./components/dashboard/sidebar/Profile/DoctorProfile";
 import Map from "./components/Map";
+import ScheduledMeet from "./components/dashboard/sidebar/ScheduledMeet";
 
 function App() {
   const router = createBrowserRouter([
@@ -316,6 +317,19 @@ function App() {
           <div className="flex">
             <DocSidebar />
             <DoctorProfile />
+          </div>
+          <Footer />
+        </div>
+      ),
+    },
+    {
+      path:"/scheduledmeet",
+      element: (
+        <div>
+          <NavBar />
+          <div className="flex">
+            <Sidebar />
+            <ScheduledMeet />
           </div>
           <Footer />
         </div>
