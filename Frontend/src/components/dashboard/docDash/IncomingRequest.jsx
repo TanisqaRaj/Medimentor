@@ -34,6 +34,7 @@ const IncomingRequest = () => {
     await updateAppointmentStatus(id, "rejected");
   }
 
+  //...................................//
   async function updateAppointmentStatus(
     appointmentId,
     appointmentState,
@@ -41,7 +42,7 @@ const IncomingRequest = () => {
     meetingPassword = null,
     location = null
   ) {
-
+    
     console.log("Sending to server:", {
       appointmentId,
       appointmentState,

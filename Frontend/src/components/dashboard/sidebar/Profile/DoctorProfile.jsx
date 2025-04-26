@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 const DoctorProfile = () => {
-  const user = useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.auth.doctor);
 
   return (
     <div className="w-full px-10 py-16 flex ">
