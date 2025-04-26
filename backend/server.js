@@ -134,20 +134,6 @@ io.on("connection", (socket) => {
         appointmentId: appointment._id,
       });
 
-      // if (!existingContract) {
-      //   const contract = new Contract({
-      //     appointmentId: appointment._id,
-      //     meetingDetails: {
-      //       meetingPassword,
-      //       meetingUrl:
-      //         appointment.mode === "online" ? meetingUrl : null,
-      //       location:
-      //         appointment.mode === "offline" ? location : null,
-      //     },
-      //   });
-      //   contract.generateMeetingId();
-      //   await contract.save();
-      // }
 
       if (existingContract) {
         return await callback({
@@ -194,7 +180,7 @@ io.on("connection", (socket) => {
           from: process.env.EMAIL_USER,
           to: patientEmail,
           subject: `Appointment Approved - Dr. ${doctorName}`,
-          text: `Hello ${patientName},\n\nYour appointment with Dr. ${doctorName} has been approved.\n\n📅 Date: ${appointmentDate}\n📍 Mode: ${appointmentMode}\n\nThank you for using our platform.\n\n- Medi Mentor Team`,
+          text: `Hello ${patientName},\n\nYour appointment with Dr. ${doctorName} has been approved.\n\n📅 Date: ${appointmentDate}\n📍 Mode: ${appointmentMode}\n 🔗Url for meeting : ${meetingUrl}\n🔑 password: ${meetingPassword}\nThank you for using our platform.\n\n- Medi Mentor Team`,
         };
       } else {
         mailOptions = {
