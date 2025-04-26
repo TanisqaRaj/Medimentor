@@ -287,7 +287,7 @@ function App() {
       element: (
         <div>
           <NavBar />
-          <div className="flex">
+          <div className="w-full flex">
             <AdminSidebar />
             <TotalAppointmentList />
           </div>

@@ -62,7 +62,7 @@ const handleDiscard = (index) => {
 
 
 return (
-  <div className="w-full">
+  <div className="w-full overflow-scroll">
     <div className="pb-5 ">
       <p className="px-4 pt-10 lg:px-10 pb-6 text-2xl font-bold text-gray-700">
         User List

@@ -63,8 +63,8 @@ const AdminContent = () => {
     }, []);
 
     return (
-        <div className="w-full">
-            <div className="pt-20 px-2 pb-20 sm:px-4 lg:px-10">
+        <div className="w-full overflow-scroll">
+            <div className=" pt-20 px-2 pb-56 sm:px-4 lg:px-10">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pb-4">
                     <div className="border shadow-lg rounded-lg p-6 flex flex-col items-center justify-center bg-white hover:shadow-2xl duration-300">
                         <div className="text-4xl font-bold text-emerald-700 mb-4">
