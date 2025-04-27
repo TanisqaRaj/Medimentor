@@ -8,7 +8,7 @@ import doctorRoute from "./routes/doctorRoutes.js";
 import { Server } from "socket.io";
 import http from "http";
 import bodyParser from "body-parser";
-import nodemailer from "nodemailer";
+import mailerSystem from "./mailingconfig.js";
 import Appointment from "./models/Appointment.js";
 import Contract from "./models/Contract.js";
 
@@ -42,19 +42,19 @@ app.use("/auth", authRoutes);
 app.use("/appointments", appointmentRoute);
 app.use("/doctors", doctorRoute);
 
-// 📧 Nodemailer Transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+// 📧 NodemailermailerSystem
+// constmailerSystem = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 587,
+//   secure: false,
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASSWORD,
+//   },
+//   tls: {
+//     rejectUnauthorized: false,
+//   },
+// });
 
 // Contact Form Route
 app.post("/send", (req, res) => {
@@ -67,7 +67,7 @@ app.post("/send", (req, res) => {
     text: `You have received a new message from ${name} (${email}):\n\n${message}`,
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+ mailerSystem.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error("Error sending email:", error);
       return res.status(500).send(`Error sending message: ${error.message}`);
@@ -86,7 +86,7 @@ app.get("/test-email", (req, res) => {
     text: "This is a test email.",
   };
 
-  transporter.sendMail(mailOptions, (error, info) => {
+ mailerSystem.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error("Error sending test email:", error);
       return res.status(500).send("Error sending test email.");
@@ -191,7 +191,7 @@ io.on("connection", (socket) => {
         };
       }
 
-      transporter.sendMail(mailOptions, (error, info) => {
+     mailerSystem.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.error(
             `Error sending ${appointmentState} email to patient:`,

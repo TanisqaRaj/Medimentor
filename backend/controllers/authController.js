@@ -4,6 +4,7 @@ import Admin from "../models/Admin.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import sharp from "sharp";
+import mailerSystem from "../mailingconfig.js";
 
 
 // 🗜️ Compress Image Using Sharp
@@ -112,8 +113,8 @@ export const registerDoctor = async (req, res) => {
       certificate && certificate.startsWith("JVBER")
         ? certificate // Store PDF as-is
         : certificate
-        ? await compressImage(certificate) // Compress if it's an image
-        : null;
+          ? await compressImage(certificate) // Compress if it's an image
+          : null;
 
     const doctor = new Doctor({
       role,
@@ -245,5 +246,95 @@ export const checkTokenExpiry = async (req, res) => {
   } catch (error) {
     console.error("❌ Token verification failed:", error.message);
     return res.status(200).json({ success: false, message: "Invalid Token" });
+  }
+};
+
+/***************************** Forget Password **************************************/
+export const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 min expiry
+    await user.save();
+
+    await mailerSystem.sendMail({
+      to: email,
+      subject: "OTP for password reset",
+      text: `Your OTP is ${otp} valid for 5 minutes.`,
+    });
+
+    res.status(200).json({ success: true, message: "OTP sent to email" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Email not found" });
+    }
+    if (user.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+    if (user.otpExpires < Date.now()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    // Clear otp fields
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    // Create Reset Token
+    const resetToken = jwt.sign(
+      { email: user.email }, // Only email in token payload
+      process.env.JWT_SECRET || "secretkey",
+      { expiresIn: "05m" } // Token valid for 10 mins
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "OTP Verified. Use reset token to change password.",
+      resetToken,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+//update password
+export const updatePassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+    if (!resetToken) {
+      return res.status(400).json({ message: "Reset Token required" });
+    }
+
+    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET || "secretkey");
+    const user = await User.findOne({ email: decoded.email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Reset token expired. Please generate a new OTP." });
+    }
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
