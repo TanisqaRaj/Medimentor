@@ -2,7 +2,7 @@ import express from 'express';
 import { checkTokenExpiry, registerUser } from '../controllers/authController.js';
 import { registerDoctor } from '../controllers/authController.js';
 import { loginAuth } from '../controllers/authController.js';
-import{sendOtp,verifyOtp,updatepassword} from '../controllers/authController.js'
+import{sendOtp,verifyOtp,updatePassword} from '../controllers/authController.js'
 import { verifyToken } from '../middleware/verifyToken.js'; // Ensure the middleware is correctly imported
 
 const router = express.Router();
@@ -22,7 +22,7 @@ router.post('/verify-token', checkTokenExpiry);
 
 router.post('/send-otp', sendOtp);
 router.post('/verify-opt', verifyOtp);
-router.put('/update-password', updatepassword)
+router.put('/update-password', updatePassword)
 
 // Example of a protected route
 router.get('/protected', verifyToken, (req, res) => {
