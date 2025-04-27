@@ -3,6 +3,8 @@ import DetailedAppoitmentList from "./DetailedAppoitmentList";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { useDispatch} from "react-redux";
+import { appointmentDetails } from "../../../reduxslice/ScheduleMeetSlice";
 
 const socket = io("https://medimentorbackend.onrender.com"); // Replace with your backend URL
 
@@ -11,6 +13,7 @@ const AppointmentList = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [appointmentState, setAppointmentState] = useState([]);
   const userId = useSelector((state) => state.auth.user._id);
+  const dispatch = useDispatch();
 
   const handleShowDetails = (appointment) => {
     setSelectedAppointment(appointment);
@@ -29,6 +32,22 @@ const AppointmentList = () => {
 
       if (success) {
         setAppointmentState(response.data.appointments || []);
+
+        // dispatch(appointmentDetails({
+        //   patient: response.data.patient,
+        //   doctor: response.data.doctor,
+        //   appointment: response.data.appointment
+        // }));
+
+        response.data.appointments.forEach((appointmentData) => {
+          dispatch(appointmentDetails({
+            patient: appointmentData.patient, 
+            doctor: appointmentData.doctor,
+            appointment: appointmentData.appointment,
+          }));
+        });
+  
+
       } else {
         alert("Something went wrong");
       }
