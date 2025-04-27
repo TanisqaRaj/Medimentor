@@ -134,10 +134,7 @@ io.on("connection", (socket) => {
         appointmentId: appointment._id,
       });
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
+      
       if (existingContract) {
         return await callback({
           success: false,
