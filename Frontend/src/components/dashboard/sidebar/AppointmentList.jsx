@@ -32,21 +32,14 @@ const AppointmentList = () => {
 
       if (success) {
         setAppointmentState(response.data.appointments || []);
-
-        // dispatch(appointmentDetails({
-        //   patient: response.data.patient,
-        //   doctor: response.data.doctor,
-        //   appointment: response.data.appointment
-        // }));
-
-        response.data.appointments.forEach((appointmentData) => {
-          dispatch(appointmentDetails({
-            patient: appointmentData.patient, 
-            doctor: appointmentData.doctor,
-            appointment: appointmentData.appointment,
-          }));
-        });
+        
+        const meetDetailsArray = response.data.appointments.map((appointmentData) => ({
+          patient: appointmentData.patient,
+          doctor: appointmentData.doctor,
+          appointment: appointmentData.appointment,
+        }));
   
+        dispatch(appointmentDetails(meetDetailsArray));
 
       } else {
         alert("Something went wrong");
