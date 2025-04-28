@@ -37,6 +37,7 @@ import UserProfile from "./components/dashboard/sidebar/Profile/UserProfile";
 import DoctorProfile from "./components/dashboard/sidebar/Profile/DoctorProfile";
 import Map from "./components/Map";
 import ScheduledMeet from "./components/dashboard/sidebar/ScheduledMeet";
+import ForgotpasswordEmail from "./components/ForgotpasswordEmail";
 
 function App() {
   const router = createBrowserRouter([
@@ -357,6 +358,16 @@ function App() {
             <DocSidebar />
             <Map/>
           </div>
+          <Footer />
+        </div>
+      ),
+    },
+    {
+      path: "/forgotpasswordemail",
+      element: (
+        <div>
+          <NavBar />
+          <ForgotpasswordEmail/>
           <Footer />
         </div>
       ),

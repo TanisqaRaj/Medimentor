@@ -22,6 +22,9 @@ const Login = () => {
   const navigateRegister = () => {
     navigate("/registration");
   };
+  const navigatebackupemail = () => {
+    navigate("/forgotpasswordemail");
+  };
   const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
@@ -220,7 +223,10 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
               />
+              <div onClick={navigatebackupemail}>
               <p className="text-sm text-emerald-500 mt-2 hover:cursor-pointer">Forgot Password</p>
+              </div>
+              
             </div>
             {/* Submit Button */}
             <div className="mb-4">
