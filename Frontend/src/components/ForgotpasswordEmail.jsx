@@ -7,12 +7,13 @@ const ForgotpasswordEmail = () => {
   const handleOnClose = () => setAppVisible(false);
   const {
     register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm();
+
   const handleVerifyOtp = () => {
     setAppVisible(true);
   };
+  
   return (
     <div className="w-full h-[100vh] overflow-auto">
       <div className="m-10">
@@ -30,9 +31,12 @@ const ForgotpasswordEmail = () => {
         />
         {errors.email && <p className="text-red-700">{errors.email.message}</p>}
 
-        <button className="p-1 bg-emerald-200 rounded-lg"
+        <button
+          className="p-1 bg-emerald-200 rounded-lg"
           onClick={handleVerifyOtp}
-        >Send OTP</button>
+        >
+          Send OTP
+        </button>
       </div>
       <VerifyOtp onClose={handleOnClose} visible={appVisible} />
     </div>
