@@ -3,11 +3,18 @@ import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { MdAddLocationAlt } from "react-icons/md";
 
-const Map = ({ onclose, position, setPosition, appointmentId, appointmentState, updateAppointmentStatus}) => {
+const Map = ({
+  onclose,
+  position,
+  setPosition,
+  appointmentId,
+  appointmentState,
+  updateAppointmentStatus,
+}) => {
   const mapRef = useRef(null);
   const mapRefInstance = useRef(null); // Store map instance
   const markerRef = useRef(null);
-  
+
   const [locationText, setLocationText] = useState("Your location...");
 
   const handleOnClose = (e) => {
@@ -15,7 +22,13 @@ const Map = ({ onclose, position, setPosition, appointmentId, appointmentState, 
   };
 
   const onSubmit = async () => {
-    await updateAppointmentStatus(appointmentId, appointmentState, null, null, locationText);
+    await updateAppointmentStatus(
+      appointmentId,
+      appointmentState,
+      null,
+      null,
+      locationText
+    );
     console.log(locationText);
     onclose();
   };
@@ -36,9 +49,13 @@ const Map = ({ onclose, position, setPosition, appointmentId, appointmentState, 
           "Unknown City";
         const state = data.address.state || "Unknown State";
         const pincode = data.address.postcode || "Unknown Pincode";
+        const latitude = data.lat || lat;
+        const longitude = data.lon || lon;
 
         // Update the textarea with city, state, and pincode
-        setLocationText(`${city}, ${state}, ${pincode}`);
+        setLocationText(
+          `${city}, ${state}, ${pincode}, Lat: ${latitude}, Lon: ${longitude}`
+        );
       } else {
         setLocationText("Location not found");
       }
@@ -95,7 +112,7 @@ const Map = ({ onclose, position, setPosition, appointmentId, appointmentState, 
     );
 
     // Update state when marker is dragged
-    markerRef.current.on("dragend",async function (event) {
+    markerRef.current.on("dragend", async function (event) {
       const newPos = event.target.getLatLng();
       setPosition([newPos.lat, newPos.lng]);
       await fetchLocationDetails(newPos.lat, newPos.lng);
@@ -141,14 +158,11 @@ const Map = ({ onclose, position, setPosition, appointmentId, appointmentState, 
           <button
             className="w-[2vw] items-center justify-center text-emerald-300 bg-white rounded-b-lg font-bold text-xl"
             onClick={setLocation}
-           
           >
             <MdAddLocationAlt />
-       
           </button>
           <button
             className="w-[10vw] items-center justify-center text-emerald-300 bg-white rounded-b-lg font-bold text-xl"
-            
             onClick={onSubmit}
           >
             submit
