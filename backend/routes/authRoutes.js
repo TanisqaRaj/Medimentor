@@ -21,7 +21,7 @@ router.post('/verify-token', checkTokenExpiry);
 //Route for password reset 
 
 router.post('/send-otp', sendOtp);
-router.post('/verify-opt', verifyOtp);
+router.post('/verify-otp', verifyOtp);
 router.put('/update-password', updatePassword)
 
 // Example of a protected route
