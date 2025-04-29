@@ -30,6 +30,7 @@ const ScheduledMeet = () => {
     setSelectedDate(e.target.value);
   };
 
+  // Filter function
   const filteredMeetDetails = meetDetails.filter((item) => {
     const isOnline = item.appointment?.mode === "online";
     const isOffline = item.appointment?.mode === "offline";

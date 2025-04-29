@@ -4,8 +4,6 @@ const UserMeetingDetails = ({ visible, onClose }) => {
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm();
 
