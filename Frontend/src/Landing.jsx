@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import doctor from "./assets/images/doctorsGrpPic1.webp";
+//import doctor from "./assets/images/doctorsGrpPic1.webp";
 import doctors from "./assets/images/Doctors.png.png";
 import CountUp from "react-countup";
 import LazyImage from "./LazyImage";
@@ -90,7 +90,7 @@ const Landing = () => {
             </a>
           </div>
           <div className="md:w-1/2 mt-10 md:mt-0 flex justify-end h-[80vh]">
-            <LazyImage alt="Doctor" src={doctor} width={500} />
+            <LazyImage alt="Doctor" src="https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/frwtolhpafzp7cnsgndb" width={500} />
           </div>
         </div>
       </section>
@@ -105,7 +105,7 @@ const Landing = () => {
             alt="Doctor and Patient"
             className="rounded-lg shadow-lg w-full max-w-md"
             height={300}
-            src= "https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/frwtolhpafzp7cnsgndb"
+            src={doctors}
             width={500}
           />
         </div>
