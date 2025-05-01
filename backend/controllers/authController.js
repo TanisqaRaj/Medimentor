@@ -253,14 +253,20 @@ export const checkTokenExpiry = async (req, res) => {
 export const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
+
+    // Search in both User and Doctor collections
     const user = await User.findOne({ email });
-    if (!user) {
+    const doctor = await Doctor.findOne({ email });
+
+    if (!user && !doctor) {
       return res.status(400).json({ message: "User not found" });
     }
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.otp = otp;
-    user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 min expiry
-    await user.save();
+
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const target = user || doctor; // Determine which collection the email belongs to
+    target.otp = otp;
+    target.otpExpires = Date.now() + 5 * 60 * 1000; // 5 min expiry
+    await target.save();
 
     await mailerSystem.sendMail({
       to: email,
@@ -278,7 +284,8 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }) || await Doctor.findOne({ email });
+
     if (!user) {
       return res.status(400).json({ message: "Email not found" });
     }
@@ -298,7 +305,7 @@ export const verifyOtp = async (req, res) => {
     const resetToken = jwt.sign(
       { email: user.email }, // Only email in token payload
       process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "05m" } // Token valid for 10 mins
+      { expiresIn: "05m" } // Token valid for 05 mins
     );
 
     res.status(200).json({
