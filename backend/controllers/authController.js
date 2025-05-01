@@ -284,28 +284,34 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const user = await User.findOne({ email }) || await Doctor.findOne({ email });
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await Doctor.findOne({ email });
+    }
 
     if (!user) {
       return res.status(400).json({ message: "Email not found" });
     }
+
     if (user.otp !== otp) {
       return res.status(400).json({ message: "Invalid OTP" });
     }
+
     if (user.otpExpires < Date.now()) {
       return res.status(400).json({ message: "OTP expired" });
     }
 
-    // Clear otp fields
+    // Clear OTP
     user.otp = null;
     user.otpExpires = null;
     await user.save();
 
-    // Create Reset Token
+    // Generate JWT token
     const resetToken = jwt.sign(
-      { email: user.email }, // Only email in token payload
+      { email: user.email },
       process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "05m" } // Token valid for 05 mins
+      { expiresIn: "5m" } // 5 minutes token
     );
 
     res.status(200).json({
@@ -318,6 +324,7 @@ export const verifyOtp = async (req, res) => {
   }
 };
 
+
 //update password
 export const updatePassword = async (req, res) => {
   try {
@@ -327,7 +334,12 @@ export const updatePassword = async (req, res) => {
     }
 
     const decoded = jwt.verify(resetToken, process.env.JWT_SECRET || "secretkey");
-    const user = await User.findOne({ email: decoded.email });
+
+    let user = await User.findOne({ email: decoded.email });
+    if (!user) {
+      user = await Doctor.findOne({ email: decoded.email });
+    }
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
