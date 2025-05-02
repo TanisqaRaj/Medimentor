@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { configDotenv } from "dotenv";
+
 
 const Content = () => {
   const [trendingNews, setTrendingNews] = useState([]);

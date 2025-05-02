@@ -105,7 +105,7 @@ const Landing = () => {
             alt="Doctor and Patient"
             className="rounded-lg shadow-lg w-full max-w-md"
             height={300}
-            src={doctors}
+            src="https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/cpy1nxqbbl6xsugllirj"
             width={500}
           />
         </div>
