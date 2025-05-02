@@ -8,16 +8,14 @@ const Content = () => {
   useEffect(() => {
     const fetchTrendingNews = async () => {
       try {
-        const response = await fetch(
-          process.env.NEWS_API
-        );
+        const response = await fetch(import.meta.env.VITE_NEWS_API);
         const data = await response.json();
         setTrendingNews(data.results || []);
       } catch (error) {
         console.error("Error fetching trending news:", error);
       }
     };
-
+  
     fetchTrendingNews();
   }, []);
 
