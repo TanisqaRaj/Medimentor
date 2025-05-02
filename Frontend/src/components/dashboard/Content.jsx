@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { configDotenv } from "dotenv";
 
 const Content = () => {
   const [trendingNews, setTrendingNews] = useState([]);
@@ -8,7 +9,7 @@ const Content = () => {
     const fetchTrendingNews = async () => {
       try {
         const response = await fetch(
-          "https://newsdata.io/api/1/news?apikey=pub_66565584764af6605af174ba32fd202a15cfd&q=health&country=in&language=en,hi&category=health  "
+          process.env.NEWS_API
         );
         const data = await response.json();
         setTrendingNews(data.results || []);
