@@ -6,7 +6,8 @@ import {
     getUserAppointments,
     getDoctorAppointments,
     getAllAppointments,
-    getAppointmentStats
+    getAppointmentStats,
+    appointmentpasswordverify
    
     //deleteAppointment
 } from '../controllers/appointmentControl.js';
@@ -40,4 +41,9 @@ appointmentRoute.get('/all',getAllAppointments);
 // 📊 Get appointment statistics
 appointmentRoute.get('/stats', getAppointmentStats);
 
+//***************************************************************************************************** */
+
+//meeting password verify
+
+appointmentRoute.post('/veify',appointmentpasswordverify)
 export default appointmentRoute;

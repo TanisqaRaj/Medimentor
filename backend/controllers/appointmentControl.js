@@ -1,4 +1,5 @@
 import Appointment from "../models/Appointment.js";
+import Contract from "../models/Contract.js";
 import Doctor from "../models/Doctor.js";
 import User from "../models/user.js";
 
@@ -394,4 +395,31 @@ export const getAppointmentStats = async (req, res) => {
     }
 };
 
+export const appointmentpasswordverify = async (req, res) => {
+    try {
+        const { meetingPassword } = req.body;
+
+        // Validate input
+        if (!meetingPassword) {
+            return res.status(400).json({ success: false, message: "Meeting password is required" });
+        }
+
+        // Find the contract by meetingPassword
+        const contract = await Contract.findOne({ "meetingDetails.meetingPassword": meetingPassword });
+
+        if (!contract) {
+            return res.status(404).json({ success: false, message: "Invalid meeting password" });
+        }
+
+        // Return the meeting URL
+        return res.status(200).json({
+            success: true,
+            message: "Meeting password verified successfully",
+            meetingUrl: contract.meetingDetails.meetingUrl,
+        });
+    } catch (error) {
+        console.error("❌ Error verifying meeting password:", error.message);
+        res.status(500).json({ success: false, message: "Server Error: " + error.message });
+    }
+};
 

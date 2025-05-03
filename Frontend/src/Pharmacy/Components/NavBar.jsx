@@ -64,7 +64,7 @@ const NavBar = () => {
       <div className="container mx-auto flex justify-between items-center py-4 px-6">
         {/* Logo Section */}
         <div className="flex items-center hidden md:block">
-          <img alt="Logo" className="h-10" height={150} src={Logo} width={50} />
+          <img alt="Logo" className="h-10" height={150} src="https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/kidunrkrjfvaiubzr5lv" width={50} />
         </div>
 
         {/* Hamburger button */}
