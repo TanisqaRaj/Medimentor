@@ -54,7 +54,13 @@ const Map = ({
 
         // Update the textarea with city, state, and pincode
         setLocationText(
-          `${city}, ${state}, ${pincode}, Lat: ${latitude}, Lon: ${longitude}`
+          {
+            city: city,
+            state: state,
+            pincode: pincode,
+            latitude: latitude,
+            longitude: longitude,
+          }
         );
       } else {
         setLocationText("Location not found");
@@ -152,7 +158,14 @@ const Map = ({
           ref={mapRef}
         ></div>
         <div className="flex justify-center  shadow-lg">
-          <textarea className="w-[58vw] rounded-b-lg" value={locationText}>
+          <textarea
+            className="w-[58vw] rounded-b-lg"
+            value={
+              locationText.city
+                ? `${locationText.city}, ${locationText.state}, ${locationText.pincode}, Lat: ${locationText.latitude}, Lon: ${locationText.longitude}`
+                : "Fetching location..."
+            }
+          >
             {/* your location.... */}
           </textarea>
           <button

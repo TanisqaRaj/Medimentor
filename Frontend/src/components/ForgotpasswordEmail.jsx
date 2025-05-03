@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import VerifyOtp from "./VerifyOtp";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 const ForgotpasswordEmail = () => {
   const [appVisible, setAppVisible] = useState(false);
@@ -10,10 +11,30 @@ const ForgotpasswordEmail = () => {
     formState: { errors },
   } = useForm();
 
-  const handleVerifyOtp = () => {
-    setAppVisible(true);
+  // const SendOTP = async () => {
+  //   try {
+  //     const response = await axios.post("https://medimentorbackend.onrender.com/auth/send-otp");
+  //     alert("OTP sent successfully!");
+  //     if (response.data.success) {
+  //       alert("OTP sent successfully!");
+  //       return true;
+  //     } else {
+  //       alert("Failed to send OTP: " + response.data.message);
+  //       return false;
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to send OTP", error);
+  //     return false;
+  //   }
+  // };
+
+  const handleVerifyOtp = async () => {
+    // const result = await SendOTP();
+    // if (result) {
+      setAppVisible(true);
+    // }
   };
-  
+
   return (
     <div className="w-full h-[100vh] overflow-auto">
       <div className="m-10">
