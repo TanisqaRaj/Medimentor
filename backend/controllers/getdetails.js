@@ -22,151 +22,122 @@ const decodeBase64 = (base64String) => {
  ✅ Function to check if the query is a symptom using AI
  */
 const isSymptom = async (query) => {
-    try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const aiResponse = await model.generateContent({
-            contents: [
-                {
-                    role: "user",
-                    parts: [
-                        {
-                            text:`Is "${query}" a medical symptom or medical disease or a medical problem? Reply only "yes" or "no".`, 
-                        },
-                    ],
-                },
-            ],
-        });
-
-        const aiText = aiResponse.response?.candidates?.[0]?.content?.parts?.[0]?.text
-            ?.trim()
-            .toLowerCase();
-        return aiText === "yes";
-    } catch (error) {
-        console.error("❌ AI Error in Symptom Detection:", error.message);
-        return false; // Default to false if AI fails
-    }
+    const lower = query.toLowerCase();
+    return /\b(i have|pain|ache|fever|cold|dizzy|nausea|vomit|symptom|cough|suffering|infection)\b/.test(lower);
 };
 
 // ✅ Search Doctors
 export const searchdoctor = async (req, res) => {
+    const { query = '', page = 1, limit = 10, isDoctor } = req.query;
+    const safeQuery = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let searchQuery = {};
+
     try {
-        const { query, page = 1, limit = 10, isDoctor } = req.query;
-        let searchQuery = {};
+        let professions = [];
+        let departments = [];
 
-        let suggestedProfessions = [];
-        let suggestedDepartments = [];
+        if (isDoctor !== 'true' && safeQuery) {
+            const symptom = await isSymptom(safeQuery);
+            console.log("🔍 Symptom Detected?", symptom);
 
-        let symptom;
-        if (isDoctor === "true") {
-            symptom = false;
-        } else {
-            symptom = await isSymptom(query);
-            console.log("🔍 Symptom Detection Result:", symptom);
-            suggestedProfessions = await Doctor.aggregate([
-                { $unwind: "$profession" },
-                { $group: { _id: null, professions: { $addToSet: "$profession" } } },
-                { $project: { _id: 0, professions: 1 } },
-            ]);
+            if (symptom) {
+                // Fetch all professions & departments
+                const profAgg = await Doctor.aggregate([
+                    { $unwind: "$profession" },
+                    { $group: { _id: null, professions: { $addToSet: "$profession" } } },
+                    { $project: { _id: 0, professions: 1 } },
+                ]);
+                const deptAgg = await Doctor.aggregate([
+                    { $group: { _id: null, departments: { $addToSet: "$department" } } },
+                    { $project: { _id: 0, departments: 1 } },
+                ]);
+                professions = profAgg[0]?.professions || [];
+                departments = deptAgg[0]?.departments || [];
 
-            suggestedDepartments = await Doctor.aggregate([
-                { $group: { _id: null, departments: { $addToSet: "$department" } } },
-                { $project: { _id: 0, departments: 1 } },
-            ]);
-            console.log("🔍 Fetched Suggestions:", suggestedProfessions, suggestedDepartments);
+                // Ask AI to match
+                try {
+                    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    const prompt = `
+A patient reports: "${query}"
+Choose from:
+  professions: ${JSON.stringify(professions)}
+  departments: ${JSON.stringify(departments)}
+Return exactly:
+  { "professions": [...], "departments": [...] }
+          `.trim();
+
+                    const aiResp = await model.generateContent({
+                        contents: [{ role: "user", parts: [{ text: prompt }] }]
+                    });
+                    const raw = aiResp.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                    let parsed = { professions: [], departments: [] };
+                    try {
+                        parsed = JSON.parse(raw);
+                    } catch (e) {
+                        console.error("❌ AI JSON Parse Error:", raw);
+                    }
+
+                    professions = Array.isArray(parsed.professions) ? parsed.professions : [];
+                    departments = Array.isArray(parsed.departments) ? parsed.departments : [];
+                } catch (aiErr) {
+                    console.error("❌ AI Fetch Error:", aiErr.message);
+                }
+
+                const orQuery = [];
+                if (professions.length) orQuery.push({ profession: { $in: professions } });
+                if (departments.length) orQuery.push({ department: { $in: departments } });
+
+                if (orQuery.length) {
+                    searchQuery = { $or: orQuery };
+                } else {
+                    searchQuery = {
+                        $or: [
+                            { profession: { $regex: safeQuery, $options: 'i' } },
+                            { department: { $regex: safeQuery, $options: 'i' } }
+                        ]
+                    };
+                }
+            }
         }
 
-        // Convert user input to lowercase
-        const lowerCaseQuery = query.toLowerCase();
-
-        // ✅ Step 1: Use AI to Check if Query is a Symptom
-        if (query && symptom) {
-            try {
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = `A patient reports the following symptom: "${query}". 
-                   Return a JSON object with fields professions and departments from the following lists:
-                   - "professions": ${JSON.stringify(suggestedProfessions[0].professions)}
-                   - "departments": ${JSON.stringify(suggestedDepartments[0].departments)}`;
-                console.log("🔍 AI Prompt:", prompt);
-
-                const aiResponse = await model.generateContent({
-                    contents: [
-                        {
-                            role: "user",
-                            parts: [{ text: prompt }],
-                        },
-                    ],
-                });
-
-                const aiText = aiResponse.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-                if (aiText) {
-                    try {
-                        const cleanedJson = aiText.replace(/json|/g, "").trim();
-                        const aiData = JSON.parse(cleanedJson);
-
-                        console.log("🔍 AI Response:", aiData);
-
-                        suggestedProfessions = aiData.professions?.map((p) => p.trim()) || [];
-                        suggestedDepartments = aiData.departments?.map((d) => d.trim()) || [];
-                    } catch (parseError) {
-                        console.error("❌ Error Parsing AI Response:", parseError.message);
-                    }
-                }
-
-                if (!suggestedProfessions.length || !suggestedDepartments.length) {
-                    throw new Error("AI response did not return valid professions or departments");
-                }
-
-                searchQuery.$or = [
-                    { profession: { $in: suggestedProfessions } },
-                    { department: { $in: suggestedDepartments } },
-                ];
-            } catch (error) {
-                console.error("❌ AI Error:", error.message);
-
-                suggestedProfessions = ["General Physician"];
-                suggestedDepartments = ["General Medicine"];
-                searchQuery.profession = /General.*Physician/i;
-                searchQuery.department = /General.*Medicine/i;
-            }
-        } else {
-            // ✅ Step 2: Regular search for doctor name, profession, or department
+        // Fallback or normal doctor search
+        if (!Object.keys(searchQuery).length) {
+            const regex = new RegExp(safeQuery, 'i');
             searchQuery = {
                 $or: [
-                    { name: { $regex: lowerCaseQuery, $options: "i" } },
-                    { department: { $regex: lowerCaseQuery, $options: "i" } },
-                    { profession: { $regex: lowerCaseQuery, $options: "i" } },
-                ],
+                    { name: regex },
+                    { profession: regex },
+                    { department: regex }
+                ]
             };
-            console.log("🔍 Regular Search Query:", JSON.stringify(searchQuery, null, 2));
         }
 
-        // ✅ Step 3: Debug MongoDB Query Before Fetching
-        console.log("🔎 Searching MongoDB with Query:", JSON.stringify(searchQuery, null, 2));
+        console.log("🧾 Final MongoDB Query:", JSON.stringify(searchQuery, null, 2));
 
-        // ✅ Step 4: Fetch Matching Doctors from MongoDB
         const doctors = await Doctor.find(searchQuery)
-            .limit(parseInt(limit))
-            .skip((parseInt(page) - 1) * parseInt(limit))
+            .limit(Number(limit))
+            .skip((Number(page) - 1) * Number(limit))
             .select("image name department profession doctorId");
 
-        // ✅ Return Optimized Images
-        const doctorsWithImages = doctors.map((doctor) => ({
-            ...doctor.toObject(),
-            image: decodeBase64(doctor.image), // Return Base64 as is (already optimized)
+        const doctorsWithImages = doctors.map((doc) => ({
+            ...doc.toObject(),
+            image: decodeBase64(doc.image),
         }));
 
         res.status(200).json({
             success: true,
             totalResults: doctorsWithImages.length,
-            suggestedProfessions,
-            suggestedDepartments,
-            page: parseInt(page),
-            doctors: doctorsWithImages,
+            professions,
+            departments,
+            page: Number(page),
+            doctors: doctorsWithImages
         });
-    } catch (error) {
-        res.status(500).json({ message: "❌ Server Error: " + error.message });
+    } catch (err) {
+        console.error("❌ searchdoctor Error:", err.message);
+        res.status(500).json({ success: false, message: "Server Error: " + err.message });
     }
 };
+
 
 // ✅ Get All Doctors with Optimized Images
 export const getDoctors = async (req, res) => {
@@ -219,16 +190,16 @@ export const getTotalDoctors = async (req, res) => {
 
 //get total number of users
 
-export const getTotalUsers = async(req , res) =>{
-    try{
+export const getTotalUsers = async (req, res) => {
+    try {
         const totalUsers = await User.countDocuments();
         res.status(200).json({
             success: true,
             totalUsers,
         });
     }
-    catch(error){
-        res.status(500).json({ message: " server Error : "+ error.message});
+    catch (error) {
+        res.status(500).json({ message: " server Error : " + error.message });
     };
 
 };
