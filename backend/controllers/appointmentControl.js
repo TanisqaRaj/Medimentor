@@ -397,18 +397,27 @@ export const getAppointmentStats = async (req, res) => {
 
 export const appointmentpasswordverify = async (req, res) => {
     try {
-        const { meetingPassword } = req.body;
+        const { meetingPassword, appointmentID } = req.body;
 
         // Validate input
-        if (!meetingPassword) {
-            return res.status(400).json({ success: false, message: "Meeting password is required" });
+        if (!meetingPassword || !appointmentID) {
+            return res.status(400).json({ success: false, message: "Meeting password and appointment ID are required" });
         }
 
-        // Find the contract by meetingPassword
-        const contract = await Contract.findOne({ "meetingDetails.meetingPassword": meetingPassword });
+        // Check if appointment exists
+        const appointment = await Appointment.findOne({ appointmentID });
+        if (!appointment) {
+            return res.status(404).json({ success: false, message: "Appointment not found" });
+        }
+
+        // Check if the meeting password matches the one in the contract
+        const contract = await Contract.findOne({
+            appointmentID,
+            "meetingDetails.meetingPassword": meetingPassword
+        });
 
         if (!contract) {
-            return res.status(404).json({ success: false, message: "Invalid meeting password" });
+            return res.status(404).json({ success: false, message: "Invalid meeting password or appointment ID" });
         }
 
         // Return the meeting URL
@@ -422,4 +431,3 @@ export const appointmentpasswordverify = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
     }
 };
-
