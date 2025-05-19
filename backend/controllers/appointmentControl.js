@@ -399,20 +399,19 @@ export const appointmentpasswordverify = async (req, res) => {
     try {
         const { meetingPassword, appointmentID } = req.body;
 
-        // Validate input
         if (!meetingPassword || !appointmentID) {
             return res.status(400).json({ success: false, message: "Meeting password and appointment ID are required" });
         }
 
-        // Check if appointment exists
+        // Step 1: Find appointment using the appointmentID string
         const appointment = await Appointment.findOne({ appointmentID });
         if (!appointment) {
             return res.status(404).json({ success: false, message: "Appointment not found" });
         }
 
-        // Check if the meeting password matches the one in the contract
+        // Step 2: Use appointment._id to find the matching contract
         const contract = await Contract.findOne({
-            appointmentID,
+            appointmentId: appointment._id,
             "meetingDetails.meetingPassword": meetingPassword
         });
 
@@ -420,7 +419,6 @@ export const appointmentpasswordverify = async (req, res) => {
             return res.status(404).json({ success: false, message: "Invalid meeting password or appointment ID" });
         }
 
-        // Return the meeting URL
         return res.status(200).json({
             success: true,
             message: "Meeting password verified successfully",
