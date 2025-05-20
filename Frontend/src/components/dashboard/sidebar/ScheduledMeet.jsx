@@ -9,13 +9,16 @@ const ScheduledMeet = () => {
   const [offline, setOffline] = useState(false);
   const meetDetails = useSelector((state) => state.schedule.meetDetails);
   const today = new Date().toISOString().split("T")[0];
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
 
-  const handleMeeting = () => {
+  const handleMeeting = (appointmentId) => {
+    setSelectedAppointmentId(appointmentId);
     setMeetingDetailsVisible(true);
   };
 
   const handleMeetingDetailsClose = () => {
     setMeetingDetailsVisible(false);
+    setSelectedAppointmentId(null);
   };
 
   const handleOnline = () => {
@@ -112,7 +115,7 @@ const ScheduledMeet = () => {
                 </p>
                 <button
                   className="border bg-white p-1 m-2 shadow-md rounded-md text-sm font-medium text-emerald-700"
-                  onClick={handleMeeting}
+                  onClick={() => handleMeeting(item.appointmentID)}
                 >
                   Join meet
                 </button>
@@ -125,6 +128,7 @@ const ScheduledMeet = () => {
       <UserMeetingDetails
         visible={meetingDetailsVisible}
         onClose={handleMeetingDetailsClose}
+        selectedAppointmentId={selectedAppointmentId}
       />
     </div>
   );

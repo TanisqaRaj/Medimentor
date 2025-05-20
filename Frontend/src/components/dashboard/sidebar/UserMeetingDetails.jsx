@@ -1,20 +1,47 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-const UserMeetingDetails = ({ visible, onClose }) => {
+import axios from "axios";
+const UserMeetingDetails = ({ visible, onClose, selectedAppointmentId }) => {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
 
+  console.log("id is ", selectedAppointmentId);
   const handleOnClose = (e) => {
     if (e.target.id === "container") onClose();
   };
 
-  const onSubmit = (data) => {
-    console.log(data);
-    window.open("https://meet.google.com/wio-amdd-xnr", "_blank");
-    onClose();
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post(
+        "https://medimentorbackend.onrender.com/appointments/veify",
+        {
+          appointmentID: selectedAppointmentId,
+          meetingPassword: data.password,
+        }
+      );
+
+      const { success, meetingUrl } = response?.data || {};
+      if (success && meetingUrl) {
+        const url = meetingUrl.startsWith("http")
+          ? meetingUrl
+          : `https://${meetingUrl}`;
+        const popup = window.open(url, "_blank");
+
+        if (!popup) {
+          alert("Popup blocked! Please allow popups for this site.");
+        }
+      } else {
+        alert("Incorrect password or meeting URL not available.");
+      }
+    } catch (error) {
+      alert("Something went wrong.");
+      console.error(error);
+    } finally {
+      onClose();
+    }
   };
 
   if (!visible) return null;
@@ -51,6 +78,7 @@ const UserMeetingDetails = ({ visible, onClose }) => {
               type="submit"
               className="px-4 mb-4 py-2 text-white bg-emerald-500 rounded-lg hover:bg-emerald-600"
               disabled={isSubmitting}
+              // onClick={passwordVerify}
             >
               {isSubmitting ? "Submitting..." : "Submit"}
             </button>
