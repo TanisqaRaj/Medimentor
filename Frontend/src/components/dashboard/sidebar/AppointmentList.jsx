@@ -27,7 +27,6 @@ const AppointmentList = () => {
         `https://healthcare-platform-server.vercel.app/appointments/current/${userId}`
       );
       console.log("userId is", userId);
-      console.log("appointment list ", response.data);
       const success = response?.data?.success;
 
       if (success) {
@@ -37,10 +36,10 @@ const AppointmentList = () => {
           patient: appointmentData.patient,
           doctor: appointmentData.doctor,
           appointment: appointmentData.appointment,
+          appointmentID: appointmentData.customAppointmentID,
         }));
   
         dispatch(appointmentDetails(meetDetailsArray));
-
       } else {
         alert("Something went wrong");
       }
