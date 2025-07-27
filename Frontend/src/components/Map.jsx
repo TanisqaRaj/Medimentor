@@ -15,7 +15,7 @@ const Map = ({
   const mapRefInstance = useRef(null); // Store map instance
   const markerRef = useRef(null);
 
-  const [locationText, setLocationText] = useState("Your location...");
+  const [locationText, setLocationText] = useState({});
 
   const handleOnClose = (e) => {
     if (e.target.id === "container") onclose();
@@ -53,21 +53,31 @@ const Map = ({
         const longitude = data.lon || lon;
 
         // Update the textarea with city, state, and pincode
-        setLocationText(
-          {
-            city: city,
-            state: state,
-            pincode: pincode,
-            latitude: latitude,
-            longitude: longitude,
-          }
-        );
+        setLocationText({
+          city: city,
+          state: state,
+          pincode: pincode,
+          latitude: latitude,
+          longitude: longitude,
+        });
       } else {
-        setLocationText("Location not found");
+        setLocationText({
+          city: null,
+          state: null,
+          pincode: null,
+          latitude: null,
+          longitude: null,
+        });
       }
     } catch (error) {
       console.error("Error fetching location:", error);
-      setLocationText("Error fetching location");
+      setLocationText({
+        city: null,
+        state: null,
+        pincode: null,
+        latitude: null,
+        longitude: null,
+      });
     }
   };
 
