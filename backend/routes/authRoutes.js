@@ -16,7 +16,7 @@ router.post('/register/doctor', registerDoctor);
 // Route for login (public)
 router.post('/login', loginAuth);
 
-//router.post('/verify-token', checkTokenExpiry);
+router.post('/verify-token', checkTokenExpiry);
 
 //Route for password reset 
 
