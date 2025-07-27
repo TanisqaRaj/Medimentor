@@ -160,51 +160,54 @@ io.on("connection", (socket) => {
     await callback({ success: true, message: "Appointment status updated" });
 
     // 📧 Async Email to Patient
-    if (
-      appointmentState === "approved" ||
-      appointmentState === "rejected"
-    ) {
-      const patientEmail = appointment.patientEmail;
-      const patientName = appointment.patientName;
-      const doctorName = appointment.doctorID.name;
-      const appointmentDate = new Date(
-        appointment.expectedDate
-      ).toLocaleString();
-      const appointmentMode =
-        appointment.mode === "online" ? "Online" : "Offline";
 
-      let mailOptions;
 
-      if (appointmentState === "approved") {
-        mailOptions = {
-          from: process.env.EMAIL_USER,
-          to: patientEmail,
-          subject: `Appointment Approved - Dr. ${doctorName}`,
-          text: `Hello ${patientName},\n\nYour appointment with Dr. ${doctorName} has been approved.\n\n📅 Date: ${appointmentDate}\n📍 Mode: ${appointmentMode}\n 🔗Url for meeting : ${meetingUrl}\n🔑 password: ${meetingPassword}\nThank you for using our platform.\n\n- Medi Mentor Team`,
-        };
-      } else {
-        mailOptions = {
-          from: process.env.EMAIL_USER,
-          to: patientEmail,
-          subject: `Appointment Rejected - Dr. ${doctorName}`,
-          text: `Hello ${patientName},\n\nWe regret to inform you that your appointment with Dr. ${doctorName} scheduled on ${appointmentDate} has been rejected.\n\nPlease try rescheduling or contact support if you believe this was a mistake.\n\n- Medi Mentor Team`,
-        };
-      }
+if (appointmentState === "approved" || appointmentState === "rejected") {
+  const patientEmail = appointment.patientEmail;
+  const patientName = appointment.patientName;
+  const doctorName = appointment.doctorID.name;
+  const appointmentDate = new Date(appointment.expectedDate).toLocaleString();
+  const appointmentMode = appointment.mode === "online" ? "Online" : "Offline";
 
-     mailerSystem.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error(
-            `Error sending ${appointmentState} email to patient:`,
-            error
-          );
-        } else {
-          console.log(
-            `${appointmentState.charAt(0).toUpperCase() + appointmentState.slice(1)} email sent to patient:`,
-            info.response
-          );
-        }
-      });
+  // Fetch contract details using appointment._id
+  const contract = await Contract.findOne({ appointmentId: appointment._id });
+
+  let mailOptions;
+
+  if (appointmentState === "approved") {
+    // Prepare meeting or location info
+    let extraInfo = "";
+    if (appointment.mode === "online") {
+      extraInfo = `🔗 Meeting URL: ${contract?.meetingDetails?.meetingUrl || "Not Available"}\n🔑 Password: ${contract?.meetingDetails?.meetingPassword || "Not Available"}`;
+    } else {
+      extraInfo = `📍 Location: ${contract?.meetingDetails?.location || "Not Available"}`;
     }
+
+    mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: patientEmail,
+      subject: `Appointment Approved - Dr. ${doctorName}`,
+      text: `Hello ${patientName},\n\nYour appointment with Dr. ${doctorName} has been approved.\n\n📅 Date: ${appointmentDate}\n📍 Mode: ${appointmentMode}\n${extraInfo}\n\nThank you for using our platform.\n\n- Medi Mentor Team`,
+    };
+  } else {
+    mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: patientEmail,
+      subject: `Appointment Rejected - Dr. ${doctorName}`,
+      text: `Hello ${patientName},\n\nWe regret to inform you that your appointment with Dr. ${doctorName} scheduled on ${appointmentDate} has been rejected.\n\nPlease try rescheduling or contact support if you believe this was a mistake.\n\n- Medi Mentor Team`,
+    };
+  }
+
+  // Send the email
+  mailerSystem.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error(`Error sending ${appointmentState} email to patient:`, error);
+    } else {
+      console.log(`${appointmentState.charAt(0).toUpperCase() + appointmentState.slice(1)} email sent to patient:`, info.response);
+    }
+  });
+}
+
     // Generate dynamic event name
     const dynamicEventName = `updateAppointmentStatus/${appointment?.patientID}`;
    
