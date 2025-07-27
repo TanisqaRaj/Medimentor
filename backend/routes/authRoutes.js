@@ -3,7 +3,7 @@ import { checkTokenExpiry, registerUser } from '../controllers/authController.js
 import { registerDoctor } from '../controllers/authController.js';
 import { loginAuth } from '../controllers/authController.js';
 import{sendOtp,verifyOtp,updatePassword} from '../controllers/authController.js'
-import { verifyToken } from '../middleware/verifyToken.js'; // Ensure the middleware is correctly imported
+//import { verifyToken } from '../middleware/verifyToken.js'; // Ensure the middleware is correctly imported
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.post('/register/doctor', registerDoctor);
 // Route for login (public)
 router.post('/login', loginAuth);
 
-router.post('/verify-token', checkTokenExpiry);
+//router.post('/verify-token', checkTokenExpiry);
 
 //Route for password reset 
 
