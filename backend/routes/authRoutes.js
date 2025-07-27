@@ -25,8 +25,8 @@ router.post('/verify-otp', verifyOtp);
 router.put('/update-password', updatePassword)
 
 // Example of a protected route
-router.get('/protected', verifyToken, (req, res) => {
-  res.status(200).json({ message: 'Access granted to protected route', user: req.user });
-});
+// router.get('/protected', verifyToken, (req, res) => {
+//   res.status(200).json({ message: 'Access granted to protected route', user: req.user });
+// });
 
 export default router;
