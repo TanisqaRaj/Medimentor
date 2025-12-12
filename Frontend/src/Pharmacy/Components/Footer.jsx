@@ -84,11 +84,11 @@ const Footer = () => {
             <h1 className="text-xl font-bold text-slate-800">Contact</h1>
             <div className="flex items-center gap-x-3">
               <IoCallOutline />
-              <div className="text-slate-800 font-medium">9523709895</div>
+              <div className="text-slate-800 font-medium">222525445</div>
             </div>
             <div className="flex items-center gap-x-3">
               <MdMailOutline />
-              <div className="text-slate-800 font-medium">rajtanisqa@gmail.com</div>
+              <div className="text-slate-800 font-medium">14242cfbdbbdg@453543</div>
             </div>
           </div>
         </div>
