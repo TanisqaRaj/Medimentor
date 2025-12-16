@@ -40,35 +40,85 @@ const compressImage = async (base64String) => {
 };
 
 // ✅ User Registration
+// export const registerUser = async (req, res) => {
+//   const { name, email, phone, role, image, username, password, gender } =
+//     req.body;
+
+//   try {
+//     const userExists = await User.findOne({
+//       $or: [{ email }, { phone }, { username }],
+//     });
+//     if (userExists)
+//       return res.status(400).json({ message: "User already exists" });
+
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+
+//     // 🗜️ Compress Image if Provided
+//     const compressedImage = image ? await compressImage(image) : null;
+
+//     const user = new User({
+//       role,
+//       name,
+//       email,
+//       phone,
+//       username,
+//       image: compressedImage, // Store compressed image
+//       password: hashedPassword,
+//       gender,
+//     });
+
+//     await user.save();
+//     return res.status(201).json({ message: "User registered successfully" });
+//   } catch (error) {
+//     console.error("❌ Error in registerUser:", error.message);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
 export const registerUser = async (req, res) => {
-  const { name, email, phone, role, image, username, password, gender } =
-    req.body;
+  const { name, email, phone, role, image, username, password, gender } = req.body;
 
   try {
+    // ✅ Check if user exists (as before)
     const userExists = await User.findOne({
       $or: [{ email }, { phone }, { username }],
     });
     if (userExists)
       return res.status(400).json({ message: "User already exists" });
 
+    // ✅ Password hashing
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 🗜️ Compress Image if Provided
+    // 🗜️ Compress image if provided
     const compressedImage = image ? await compressImage(image) : null;
 
+    // ✅ Create user object
     const user = new User({
       role,
       name,
       email,
       phone,
       username,
-      image: compressedImage, // Store compressed image
+      image: compressedImage,
       password: hashedPassword,
       gender,
     });
 
-    await user.save();
+    // ✅ Save user (race-condition safe with try/catch for duplicate keys)
+    try {
+      await user.save();
+    } catch (err) {
+      if (err.code === 11000) {
+        return res.status(400).json({
+          message: "User already exists",
+          duplicateField: Object.keys(err.keyValue)[0],
+        });
+      }
+      throw err; // Re-throw other errors
+    }
+
     return res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error("❌ Error in registerUser:", error.message);
