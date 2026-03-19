@@ -6,7 +6,6 @@ import jwt from "jsonwebtoken";
 import sharp from "sharp";
 import mailerSystem from "../mailingconfig.js";
 
-
 // 🗜️ Compress Image Using Sharp
 const compressImage = async (base64String) => {
   if (!base64String) return null;
@@ -330,7 +329,6 @@ export const sendOtp = async (req, res) => {
   }
 };
 
-
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -373,7 +371,6 @@ export const verifyOtp = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
-
 
 //update password
 export const updatePassword = async (req, res) => {
