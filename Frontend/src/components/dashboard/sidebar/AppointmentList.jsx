@@ -84,74 +84,104 @@ const AppointmentList = () => {
 
   const handleClose = () => setPopupVisible(false);
 
+  const statusColor = (s) => {
+    const st = (s || "").toLowerCase().trim();
+    if (st === "pending")  return "bg-amber-100 text-amber-700";
+    if (st === "approved") return "bg-emerald-100 text-emerald-700";
+    if (st === "rejected") return "bg-red-100 text-red-700";
+    return "bg-surface-variant text-on-surface-variant";
+  };
+  const statusIcon = (s) => {
+    const st = (s || "").toLowerCase().trim();
+    if (st === "pending")  return "schedule";
+    if (st === "approved") return "check_circle";
+    if (st === "rejected") return "cancel";
+    return "info";
+  };
+
   return (
-    <div className="w-full overflow-auto">
-      <div className="pb-5">
-        <p className="px-4 pt-10 lg:px-10 pb-6 text-2xl font-bold text-gray-700">
-          Appointments
-        </p>
-        <div className="overflow-x-auto px-4 lg:px-10">
-          <table className="min-w-full border border-gray-300 rounded-lg shadow-md">
-            {/* Table Header */}
-            <thead className="bg-emerald-200 text-gray-700 font-semibold">
-              <tr>
-                <th className="px-4 py-3 border">Name</th>
-                <th className="px-4 py-3 border">Contact</th>
-                <th className="px-4 py-3 border">Title</th>
-                <th className="px-4 py-3 border">Mode</th>
-                <th className="px-4 py-3 border">Date</th>
-                <th className="px-4 py-3 border">Dr. Name</th>
-                <th className="px-4 py-3 border">Dr. Contact</th>
-                <th className="px-4 py-3 border">State</th>
-                <th className="px-4 py-3 border">Details</th>
-              </tr>
-            </thead>
-
-            {/* Table Body */}
-            <tbody>
-              {appointmentState.map((item, index) => (
-                <tr
-                  key={index}
-                  className="text-gray-800 text-center border hover:bg-gray-100"
-                >
-                  <td className="px-4 py-3 border">{item.patient.name}</td>
-                  <td className="px-4 py-3 border">{item.patient.phone}</td>
-                  <td className="px-4 py-3 border">{item.appointment.title}</td>
-                  <td className="px-4 py-3 border">{item.appointment.mode}</td>
-                  <td className="px-4 py-3 border">{item.appointment.date}</td>
-                  <td className="px-4 py-3 border">{item.doctor.name}</td>
-                  <td className="px-4 py-3 border">{item.doctor.phone}</td>
-
-                  {/* Appointment State */}
-                  <td
-                    className={`px-4 py-3 border ${
-                      item.status === "Pending".toLocaleLowerCase().trim()
-                        ? "text-yellow-500"
-                        : item.status === "Approved".toLocaleLowerCase().trim()
-                        ? "text-green-500"
-                        : item.status === "Rejected".toLocaleLowerCase().trim()
-                        ? "text-red-500"
-                        : "text-gray-800"
-                    }`}
-                  >
-                    {item.status}
-                  </td>
-
-                  {/* Get Details Button */}
-                  <td className="p-2"> 
-                    <button
-                      className="text-sm bg-emerald-400 text-white items-center py-1 px-3 rounded-lg hover:bg-emerald-700 duration-300"
-                      onClick={() => handleShowDetails(item)}
-                    >
-                      Get Details
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="w-full flex-grow max-w-[1280px] mx-auto px-6 py-8 font-manrope">
+      <div className="mb-8 flex items-end justify-between">
+        <div>
+          <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Appointments</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Your upcoming and active appointments.
+          </p>
         </div>
+        <span className="font-caption text-caption text-on-surface-variant bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/30">
+          {appointmentState.length} total
+        </span>
       </div>
+
+      {appointmentState.length === 0 ? (
+        <div className="py-20 flex flex-col items-center justify-center bg-surface-container-low rounded-xl border border-outline-variant/30">
+          <span className="material-symbols-outlined text-5xl text-outline mb-3">event_busy</span>
+          <p className="font-headline-md text-on-surface-variant">No active appointments</p>
+          <p className="font-body-md text-outline mt-1 text-sm">Book an appointment to get started.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {appointmentState.map((item, index) => (
+            <div
+              key={index}
+              className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 items-start md:items-center"
+            >
+              {/* Icon */}
+              <div className="shrink-0 w-12 h-12 rounded-full bg-primary-container/10 border border-primary-container/20 flex items-center justify-center">
+                <span className="material-symbols-outlined text-primary-container">event_upcoming</span>
+              </div>
+
+              {/* Info Grid */}
+              <div className="flex-grow grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4">
+                <div>
+                  <div className="font-caption text-caption text-outline mb-0.5">Patient</div>
+                  <div className="font-label-md text-label-md text-on-surface">{item.patient?.name}</div>
+                </div>
+                <div>
+                  <div className="font-caption text-caption text-outline mb-0.5">Contact</div>
+                  <div className="font-label-md text-label-md text-on-surface">{item.patient?.phone}</div>
+                </div>
+                <div>
+                  <div className="font-caption text-caption text-outline mb-0.5">Title</div>
+                  <div className="font-label-md text-label-md text-on-surface">{item.appointment?.title}</div>
+                </div>
+                <div>
+                  <div className="font-caption text-caption text-outline mb-0.5">Mode</div>
+                  <div className="font-label-md text-label-md text-on-surface capitalize">{item.appointment?.mode}</div>
+                </div>
+                <div>
+                  <div className="font-caption text-caption text-outline mb-0.5">Date</div>
+                  <div className="font-label-md text-label-md text-on-surface">{item.appointment?.date}</div>
+                </div>
+                <div>
+                  <div className="font-caption text-caption text-outline mb-0.5">Doctor</div>
+                  <div className="font-label-md text-label-md text-on-surface">{item.doctor?.name}</div>
+                </div>
+                <div>
+                  <div className="font-caption text-caption text-outline mb-0.5">Dr. Contact</div>
+                  <div className="font-label-md text-label-md text-on-surface">{item.doctor?.phone}</div>
+                </div>
+              </div>
+
+              {/* Actions: Status + Details */}
+              <div className="shrink-0 flex flex-col sm:flex-row gap-2 items-end sm:items-center">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-label-md font-semibold ${statusColor(item.status)}`}>
+                  <span className="material-symbols-outlined text-[14px]">{statusIcon(item.status)}</span>
+                  {item.status}
+                </span>
+                <button
+                  className="flex items-center gap-1.5 px-4 py-1.5 bg-surface-container hover:bg-primary-container/10 border border-outline-variant/50 hover:border-primary-container/30 text-on-surface-variant hover:text-primary-container text-xs font-label-md rounded-lg transition-all"
+                  onClick={() => handleShowDetails(item)}
+                >
+                  <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                  Details
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <DetailedAppoitmentList
         close={handleClose}
         show={popupVisible}
@@ -162,3 +192,4 @@ const AppointmentList = () => {
 };
 
 export default AppointmentList;
+

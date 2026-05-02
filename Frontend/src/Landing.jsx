@@ -63,246 +63,203 @@ const Landing = () => {
     fetchTotalUsers();
     fetchTotalDoctors();
   }, []);
-
   return (
-    <div className="w-full m-0 p-0 overflow-hidden">
-      <title>Doctor Appointment</title>
+    <main className="w-full pt-[80px] bg-background selection:bg-primary-container selection:text-on-primary-container m-0 p-0 overflow-hidden">
+      <title>Doctor Appointment - Clinical Clarity</title>
 
-      {/* Landing Hero Section */}
-      <section
-        className="bg-emerald-700 w-full min-h-screen text-white py-20"
-        data-aos="fade-up"
-      >
-        <div className="container mx-auto flex flex-col md:flex-row items-center p-4">
-          <div className="md:w-1/2">
-            <h1 className="text-4xl font-bold mb-4">
-              Doctor Appointment Booking
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-6 py-xl md:py-[80px]">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-xl items-center">
+          <div className="md:col-span-5 flex flex-col items-start space-y-md">
+            <div className="bg-surface-container px-sm py-xs rounded-full flex items-center gap-2 border border-outline-variant">
+              <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
+              <span className="font-label-md text-label-md text-on-surface-variant">
+                Trusted by <CountUp end={totalUsers} duration={4} />+ Patients &amp; <CountUp end={totalDoctors} duration={4} />+ Doctors
+              </span>
+            </div>
+            <h1 className="font-display-lg text-headline-lg sm:text-display-md md:text-display-lg text-on-surface text-balance">
+              Your Journey to <span className="text-primary">Clinical Excellence</span> Starts Here
             </h1>
-            <p className="mb-6">
-              Book your appointment with our experienced doctors. Get the best
-              healthcare services at your convenience.
+            <p className="font-body-lg text-body-md sm:text-body-lg text-on-surface-variant max-w-[480px]">
+              Access top-tier medical professionals, manage your prescriptions, and book consultations seamlessly through our secure, modern healthcare platform.
             </p>
-            <a
-              className="bg-white text-emerald-600 px-6 py-2 rounded-full font-semibold"
-              href="/login"
-            >
-              Book Appointment
-            </a>
+            <div className="flex flex-col sm:flex-row gap-sm pt-sm w-full sm:w-auto">
+              <a href="/login" className="bg-primary text-on-primary px-lg py-sm rounded-full font-label-md text-label-md shadow-[0_4px_14px_0_rgba(0,93,66,0.39)] hover:bg-on-primary-fixed-variant transition-all hover:-translate-y-1 text-center">
+                Book Appointment
+              </a>
+              <a href="/pharmacy-services" className="bg-transparent text-primary border-2 border-primary px-lg py-sm rounded-full font-label-md text-label-md hover:bg-primary/5 transition-all text-center">
+                Explore Services
+              </a>
+            </div>
           </div>
-          <div className="md:w-1/2 mt-10 md:mt-0 flex justify-end h-[80vh]">
-            <LazyImage alt="Doctor" src="https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/frwtolhpafzp7cnsgndb" width={500} />
+          <div className="md:col-span-7 relative mt-10 md:mt-0">
+            <div className="absolute inset-0 bg-gradient-to-tr from-surface-container-low to-secondary-container/20 rounded-[2rem] transform translate-x-4 translate-y-4 -z-10"></div>
+            <img alt="Modern Medical Clinic" className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-cover rounded-[2rem] border-4 border-surface-container-lowest shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI5Do1Pm2eJcPZL-GTT40jlo-1JJiqsgGSvyxeoAcu17qkWeFrInVSfPgjESLnHfYeS3XEikm37EGyeqC4nmmVWIJ5l47qLcDbt2dy2chL4BN20N-t_w2TH6Elh6AcekwjQgr02tMwihBw03YuW8VQWy01ifuCUHxrScQeTOEuolPT5Aj-CmIviyLTTq437v-UHHrS5YBz2aeDGwx_yn-_8OVPxHgP-GS1tyThYBhq9ELXYmX8UGxvvFg9WqDfrOyq16_aUpTQbKSa" />
           </div>
         </div>
       </section>
 
-      {/* Total registered doctors */}
-      <div
-        className="w-full flex flex-col lg:flex-row items-center gap-8 px-4 md:px-8 lg:px-16 py-10"
-        data-aos="fade-right"
-      >
-        <div className="w-full lg:w-1/2 flex justify-center">
-          <LazyImage
-            alt="Doctor and Patient"
-            className="rounded-lg shadow-lg w-full max-w-md"
-            height={300}
-            src="https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/cpy1nxqbbl6xsugllirj"
-            width={500}
-          />
-        </div>
-
-        <div className="w-full lg:w-1/2 text-center lg:text-left">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Trusted by Millions Globally
-          </h2>
-          <p className="text-sm md:text-base mb-6">
-            Explore the essential metrics that showcase our platform's trust,
-            quality, and commitment to healthcare excellence.
-          </p>
-
-          {/* Counter Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border p-6 bg-emerald-50 rounded-2xl shadow-md hover:bg-emerald-100 transition duration-300">
-              <div className="text-3xl font-semibold">
-                <CountUp end={totalDoctors} duration={4} />+
-              </div>
-              <div className="text-sm font-medium mt-2">Registered Doctors</div>
-            </div>
-            <div className="border p-6 bg-emerald-100 rounded-2xl shadow-md hover:bg-emerald-200 transition duration-300">
-              <div className="text-3xl font-semibold">
-                <CountUp end={totalUsers} duration={4} />+
-              </div>
-              <div className="text-sm font-medium mt-2">Registered Users</div>
-            </div>
+      {/* Service Highlights (Bento Grid) */}
+      <section className="bg-surface-container-lowest py-xl border-y border-outline-variant/30">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-xl">
+            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Comprehensive Care Solutions</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Integrated medical services designed for clarity, efficiency, and your peace of mind.</p>
           </div>
-        </div>
-      </div>
-
-      {/* Landing Services Section */}
-      <section className="py-20 px-4 w-full">
-        <div className="container mx-auto mr-0 justify-between">
-          <div
-            className="flex flex-col md:flex-row items-center mb-10"
-            data-aos="fade-right"
-          >
-            <div className="md:w-1/2">
-              <LazyImage
-                alt="Doctor and Patient"
-                className="rounded-lg shadow-lg"
-                height={300}
-                src="https://storage.googleapis.com/a1aa/image/buWFEDMxXxIfWqRLRKURPIjw9eej0uj94p012ovfpS4iae4fE.jpg"
-                width={500}
-              />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-md auto-rows-[280px]">
+            {/* Large Card: Online Consultation */}
+            <div className="md:col-span-2 bg-surface-container-low rounded-xl p-md border border-outline-variant/50 hover:shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] transition-all flex flex-col justify-between relative overflow-hidden group">
+              <div className="relative z-10">
+                <div className="bg-surface-container-lowest w-12 h-12 rounded-lg flex items-center justify-center mb-md shadow-sm">
+                  <span className="material-symbols-outlined text-primary text-[28px] icon-fill">video_camera_front</span>
+                </div>
+                <h3 className="font-headline-md text-headline-md text-on-surface mb-xs">Online Consultation</h3>
+                <p className="font-body-md text-body-md text-on-surface-variant max-w-md">Connect with specialists immediately from the comfort of your home. Secure, high-definition video calls for urgent and routine care.</p>
+              </div>
+              <div className="relative z-10 mt-auto">
+                <a className="inline-flex items-center font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant group-hover:translate-x-1 transition-transform" href="/login">
+                  Book Virtual Visit <span className="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+                </a>
+              </div>
+              <div className="absolute right-0 bottom-0 w-1/2 h-full bg-gradient-to-l from-secondary-container/20 to-transparent pointer-events-none"></div>
             </div>
-            <div className="md:w-1/2 md:pl-10 mt-10 md:mt-0 p-4">
-              <h2 className="text-3xl font-bold mb-4">
-                Pro Doctor Pharmacy Services
-              </h2>
-              <p className="mb-6">
-                Get professional pharmacy services from our experienced staff.
-                We ensure the best care for your health needs.
-              </p>
-              <a
-                className="bg-emerald-600 text-white px-6 py-2 rounded-full font-semibold"
-                href="/pharmacy-services"
-              >
-                Learn More
+            
+            {/* Small Card 1: Pharmacy */}
+            <div className="bg-surface-container rounded-xl p-md border border-outline-variant/50 hover:shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] transition-all flex flex-col">
+              <div className="bg-surface-container-lowest w-10 h-10 rounded-lg flex items-center justify-center mb-sm shadow-sm">
+                <span className="material-symbols-outlined text-secondary text-[24px]">medication</span>
+              </div>
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-xs text-[20px] leading-tight">Digital Pharmacy</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant text-[14px]">Manage prescriptions, request refills, and schedule home deliveries with clinical precision.</p>
+              <a className="mt-auto inline-flex items-center font-label-md text-label-md text-secondary hover:text-on-secondary-container" href="/pharmacy">
+                Order Meds <span className="material-symbols-outlined ml-1 text-[16px]">chevron_right</span>
+              </a>
+            </div>
+            
+            {/* Small Card 2: Health Tips */}
+            <div className="bg-surface-container rounded-xl p-md border border-outline-variant/50 hover:shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] transition-all flex flex-col">
+              <div className="bg-surface-container-lowest w-10 h-10 rounded-lg flex items-center justify-center mb-sm shadow-sm">
+                <span className="material-symbols-outlined text-secondary text-[24px]">health_metrics</span>
+              </div>
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-xs text-[20px] leading-tight">Safety &amp; Usages</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant text-[14px]">Learn about the safe usage of medications and stay informed with the most recent health tips.</p>
+              <a className="mt-auto inline-flex items-center font-label-md text-label-md text-secondary hover:text-on-secondary-container" href="/medication-usage">
+                Learn More <span className="material-symbols-outlined ml-1 text-[16px]">chevron_right</span>
               </a>
             </div>
           </div>
-          <div
-            className="flex flex-col md:flex-row items-center ml-8"
-            data-aos="fade-left"
-          >
-            <div className="md:w-1/2 md:pr-10">
-              <h2 className="text-3xl font-bold mb-4">
-                Basic Safety Medication Usages
-              </h2>
-              <p className="mb-6">
-                Learn about the safe usage of medications. Our experts provide
-                the best tips and guidelines for your safety.
-              </p>
-              <a
-                className="bg-emerald-600 text-white px-6 py-2 rounded-full font-semibold"
-                href="/medication-usage"
-              >
-                Learn More
+        </div>
+      </section>
+
+      {/* Featured Doctors */}
+      <section className="max-w-7xl mx-auto px-6 py-xl">
+        <div className="flex justify-between items-end mb-xl">
+          <div>
+            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Featured Specialists</h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant">Top-rated professionals dedicated to your well-being.</p>
+          </div>
+          <a href="/login" className="hidden md:flex bg-transparent text-primary font-label-md text-label-md items-center hover:underline underline-offset-4 cursor-pointer">
+            View All Doctors <span className="material-symbols-outlined ml-1 text-[20px]">arrow_forward</span>
+          </a>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
+          {/* Doctor 1 */}
+          <div className="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/60 shadow-sm hover:shadow-[0_10px_25px_-5px_rgba(4,120,87,0.1)] transition-shadow">
+            <img alt="Dr. Robert Chen" className="w-full h-[240px] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKWgv_g_O9qqL58VRqcHj278uHCMCd5XbXUJh-adRHUNtL2gfWkFLb5TqjcUJ6s1bVYLiVZ3JjDVRhEa3rGmW4YhSZZIndYQwfx7skRRz9bb_tk0sCWOz0xZemGa68WPxRayOOXNdWaFcpnmSGQt9lrcW0tBE8fek9evgR-ExVXf9qLpjQkoSuyA-LMZs9_EokqKkYorvda-k7eFg6SRMvHrpU4sXRCIbawVHLCtPgF20LTKat5HWnRdJrUUxsTTWfcLCB1MbLvHnq" />
+            <div className="p-md">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="font-headline-md text-headline-md text-on-surface text-[20px] leading-tight">Dr. Robert Chen</h3>
+                  <p className="font-body-md text-body-md text-primary text-[14px] font-medium">Cardiology</p>
+                </div>
+                <div className="flex items-center bg-surface-container px-2 py-1 rounded">
+                  <span className="material-symbols-outlined text-[#F59E0B] text-[16px] icon-fill">star</span>
+                  <span className="font-label-md text-label-md text-on-surface ml-1 text-[12px]">4.9</span>
+                </div>
+              </div>
+              <p className="font-body-md text-body-md text-on-surface-variant text-[14px] mb-md line-clamp-2">Specializing in preventative cardiology and advanced lipid management with 15+ years of clinical experience.</p>
+              <a href="/login" className="block text-center w-full bg-surface-container-high text-on-surface px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
+                Book Appointment
               </a>
             </div>
-            <div className="md:w-1/2 mt-10 md:mt-0 p-4 items-end">
-              <LazyImage
-                alt="Medication"
-                className="rounded-lg shadow-lg"
-                height={300}
-                src="https://storage.googleapis.com/a1aa/image/6Qgf5o3nTI2fmUNDlVYjG7jsJKfndHLAJjLHOlfUMNg8ae4fE.jpg"
-                width={500}
-              />
+          </div>
+          
+          {/* Doctor 2 */}
+          <div className="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/60 shadow-sm hover:shadow-[0_10px_25px_-5px_rgba(4,120,87,0.1)] transition-shadow">
+            <img alt="Dr. Sarah Jenkins" className="w-full h-[240px] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf0aCKXOx2eiTYv8WxVYd7fghgc-x7-x0gnMWyApsuhGr6Bg9sHeqEl4NHIZg5wsQNQrd29Dsf56ohMUfLuLOceuHgg6teQMZAIEUQVqXqQCVnc26dp973PGT67c3YpftT6z8jzfpAKbvT8KLd_Aw_GVyVI59zce8Cmb8ppB18wmfSeTstnHStHC37E22cGOS3THGYkMhXaoZhsJanfRDrqxPg62y62HCEl_Iy02fVy_vsMajVNN_HyVe8-N90KQbeeVImm2HONS5J" />
+            <div className="p-md">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="font-headline-md text-headline-md text-on-surface text-[20px] leading-tight">Dr. Sarah Jenkins</h3>
+                  <p className="font-body-md text-body-md text-primary text-[14px] font-medium">Pediatrics</p>
+                </div>
+                <div className="flex items-center bg-surface-container px-2 py-1 rounded">
+                  <span className="material-symbols-outlined text-[#F59E0B] text-[16px] icon-fill">star</span>
+                  <span className="font-label-md text-label-md text-on-surface ml-1 text-[12px]">5.0</span>
+                </div>
+              </div>
+              <p className="font-body-md text-body-md text-on-surface-variant text-[14px] mb-md line-clamp-2">Dedicated to comprehensive child healthcare from infancy through adolescence with a gentle approach.</p>
+              <a href="/login" className="block text-center w-full bg-surface-container-high text-on-surface px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
+                Book Appointment
+              </a>
+            </div>
+          </div>
+          
+          {/* Doctor 3 */}
+          <div className="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/60 shadow-sm hover:shadow-[0_10px_25px_-5px_rgba(4,120,87,0.1)] transition-shadow hidden md:block">
+            <img alt="Dr. Michael Torres" className="w-full h-[240px] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe5GIrgH_1hQNKlElKdKsHGyqXSnQFpPjpuG7MOPvnNhIy9xroLxbBXTCtyek2-bRuhWGLYIsZzQHRRtLzjHHVa_MU7E5YTFJ-W3-2MD05EiZoQAqKx06I70n79KTkEP2O-KfYxPxU10s1hwNGIOlZd0rKYxEbVynRXkwm7k5Cl7-d2joynxFIj-SmXDqsVaFLz76sWkFgdu7C3Eu5bXnU1zIwZyGfUe-bC9Myu_Is8ZyHNI4QNUZiXo4MHGZKLS4NCj4YryC0HLe2" />
+            <div className="p-md">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="font-headline-md text-headline-md text-on-surface text-[20px] leading-tight">Dr. Michael Torres</h3>
+                  <p className="font-body-md text-body-md text-primary text-[14px] font-medium">Internal Medicine</p>
+                </div>
+                <div className="flex items-center bg-surface-container px-2 py-1 rounded">
+                  <span className="material-symbols-outlined text-[#F59E0B] text-[16px] icon-fill">star</span>
+                  <span className="font-label-md text-label-md text-on-surface ml-1 text-[12px]">4.8</span>
+                </div>
+              </div>
+              <p className="font-body-md text-body-md text-on-surface-variant text-[14px] mb-md line-clamp-2">Expert in complex adult diseases, chronic condition management, and comprehensive health screenings.</p>
+              <a href="/login" className="block text-center w-full bg-surface-container-high text-on-surface px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-colors">
+                Book Appointment
+              </a>
             </div>
           </div>
         </div>
+        <a href="/login" className="md:hidden w-full mt-lg bg-transparent text-primary border-2 border-primary px-lg py-sm rounded-full font-label-md text-label-md block text-center">
+          View All Doctors
+        </a>
       </section>
 
       {/* Landing Video Section */}
-      <section
-        className="bg-gray-200 py-16 px-4 sm:px-6 lg:px-12 w-full"
-        data-aos="zoom-in"
-      >
+      <section className="bg-surface-container-lowest py-xl px-6 border-t border-outline-variant/30">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-4">
+          <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs">
             Doctor Pharmacy Reservation
           </h2>
-          <p className="text-sm sm:text-base mb-6">
-            Reserve your spot with our expert doctors. Get the best healthcare
-            services at your convenience.
+          <p className="font-body-lg text-body-lg text-on-surface-variant mb-lg">
+            Reserve your spot with our expert doctors. Get the best healthcare services at your convenience.
           </p>
-          <a
-            className="bg-emerald-600 text-white px-6 py-2 rounded-full font-semibold inline-block"
-            href="/login"
-          >
+          <a className="bg-primary text-on-primary px-lg py-sm rounded-full font-label-md text-label-md shadow-[0_4px_14px_0_rgba(0,93,66,0.39)] hover:bg-on-primary-fixed-variant transition-all hover:-translate-y-1 inline-block" href="/login">
             Reserve Now
           </a>
 
           {/* YouTube Video */}
-          <div className="mt-10 w-full max-w-5xl mx-auto">
-            <div
-              className="relative w-full"
-              style={{ paddingBottom: "56.25%" }}
-            >
+          <div className="mt-xl w-full max-w-5xl mx-auto">
+            <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
               <iframe
-                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
-                src="https://www.youtube.com/embed/74DWwSxsVSs?autoplay=1&mute=1&controls=1&rel=0"
+                className="absolute top-0 left-0 w-full h-full rounded-2xl shadow-lg border-4 border-surface-container-highest"
+                src="https://www.youtube.com/embed/74DWwSxsVSs?autoplay=0&mute=0&controls=1&rel=0"
                 title="YouTube video player"
                 frameBorder="0"
-                allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Landing Health Tips Section */}
-      <section className="py-20 w-[100vw] min-h-screen px-8">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-10">
-            Basic Safety Medication Usages
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div
-              className="bg-white p-6 rounded-lg shadow-lg"
-              data-aos="fade-up"
-            >
-              <LazyImage
-                alt="Health Tip 1"
-                className="rounded-lg mb-4"
-                height={200}
-                src="https://storage.googleapis.com/a1aa/image/6L2UhYwK4HI1JVepl0dQ3HR3Xc1mi8DWgUQQcSvl9UNZzjfTA.jpg"
-                width={300}
-              />
-              <h3 className="text-xl font-bold mb-2">Health Tip 1</h3>
-              <p>
-                Learn about the best practices for maintaining your health and
-                well-being.
-              </p>
-            </div>
-            <div
-              className="bg-white p-6 rounded-lg shadow-lg"
-              data-aos="fade-up"
-              data-aos-delay="200"
-            >
-              <LazyImage
-                alt="Health Tip 2"
-                className="rounded-lg mb-4"
-                height={200}
-                src="https://storage.googleapis.com/a1aa/image/LeUy9mmJnS33KC2JOV3mtC829bnGJkXDzKDb8sUeQhstmHfnA.jpg"
-                width={300}
-              />
-              <h3 className="text-xl font-bold mb-2">Health Tip 2</h3>
-              <p>
-                Discover the latest tips and advice from our healthcare experts.
-              </p>
-            </div>
-            <div
-              className="bg-white p-6 rounded-lg shadow-lg"
-              data-aos="fade-up"
-              data-aos-delay="400"
-            >
-              <LazyImage
-                alt="Health Tip 3"
-                className="rounded-lg mb-4"
-                height={200}
-                src="https://storage.googleapis.com/a1aa/image/kNs5YkmtMCYcFFxWDgsT7A4zudhyazFSuNYBlE04YeIazjfTA.jpg"
-                width={300}
-              />
-              <h3 className="text-xl font-bold mb-2">Health Tip 3</h3>
-              <p>
-                Stay informed with the most recent health and wellness
-                information.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+    </main>
   );
 };
 

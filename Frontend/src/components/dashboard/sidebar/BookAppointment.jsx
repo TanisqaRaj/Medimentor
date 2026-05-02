@@ -91,107 +91,127 @@ const BookAppointment = () => {
   const handleOnClose = () => setAppVisible(false);
 
   return (
-    <div className="w-full overflow-hidden">
+    <div className="w-full flex flex-col flex-grow bg-background font-manrope">
       <DashHeader setFilteredDoctors={setFilteredDoctors} />
-      <div className="pb-5 px-0 md:px-10 py-10">
+
+      <div className="flex-1 max-w-[1280px] mx-auto w-full px-6 py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Find Your Specialist</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Book appointments with top-rated doctors and specialists.
+            <span className="ml-2 font-label-md text-primary-container font-semibold">
+              {totalDoctors} specialists available
+            </span>
+          </p>
+        </div>
+
+        {/* Doctor Listing */}
         <InfiniteScroll
           dataLength={visibleDoctors.length}
           next={fetchData}
           hasMore={hasMore}
-          loader={<h4>Loading...</h4>}
+          loader={
+            <div className="flex items-center justify-center py-8 gap-2 text-on-surface-variant font-body-md">
+              <span className="material-symbols-outlined animate-spin text-primary-container">progress_activity</span>
+              Loading more specialists...
+            </div>
+          }
+          endMessage={
+            <p className="text-center py-6 text-outline font-caption">All specialists loaded.</p>
+          }
         >
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 self-start gap-6 px-1 sm:px-4 lg:px-14">
-            {/* Display Filtered Doctors if Available */}
-            {filteredDoctors.length > 0 ? (
-              filteredDoctors.map((item, index) => (
-                <div key={index} className="flex flex-row items-center bg-white border rounded-lg shadow-lg hover:shadow-2xl duration-300 p-4">
-                  <div className="hidden sm:block">
+          <div className="flex flex-col gap-5">
+            {/* Display Filtered or All Doctors */}
+            {(filteredDoctors.length > 0 ? filteredDoctors : visibleDoctors).length > 0 ? (
+              (filteredDoctors.length > 0 ? filteredDoctors : visibleDoctors).map((item, index) => (
+                <article
+                  key={index}
+                  className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col sm:flex-row gap-6 items-start"
+                >
+                  {/* Doctor Avatar */}
+                  <div className="w-32 h-32 shrink-0 rounded-xl overflow-hidden border border-surface-variant bg-surface-container">
                     <img
-                      src={`data:image/jpeg;base64,${item?.image}`} // Fixed: Use JPEG since Sharp outputs JPEG
+                      src={`data:image/jpeg;base64,${item?.image}`}
                       alt={item?.name}
-                      style={{ height: "250px", width: "350px", objectFit: "cover" }}
-                      className="border w-30 h-30 object-cover rounded-3xl shadow-lg hover:scale-105 duration-300"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="items-start pl-10 space-y-4">
-                    <div className="text-2xl font-semibold text-gray-800">{item.name}</div>
-                    <div className="flex gap-6">
-                      <div className="flex items-center justify-center gap-2">
-                        <FaStar />
-                        <div className="text-gray-800">{item.rating}</div>
-                        <div className="text-gray-600">67 reviews</div>
+
+                  {/* Doctor Info */}
+                  <div className="flex-grow flex flex-col gap-3 min-w-0">
+                    <div className="flex justify-between items-start flex-wrap gap-2">
+                      <div>
+                        <h3 className="font-headline-md text-headline-md text-on-surface">{item.name}</h3>
+                        <p className="font-body-md text-body-md text-primary mt-0.5 font-medium">
+                          {item.profession?.[0] || "General Practitioner"}
+                        </p>
                       </div>
-                      <div className="flex items-center justify-center gap-1">
-                        <FaIndianRupeeSign />
-                        <div className="font-semibold text-gray-800">{item.fee}</div>
-                        <div className="text-gray-600">per consultation</div>
+                      <span className="bg-tertiary-fixed text-on-tertiary-fixed font-caption text-xs px-2.5 py-1 rounded-full flex items-center gap-1 shrink-0">
+                        <span className="material-symbols-outlined text-[14px]">verified</span>
+                        Verified
+                      </span>
+                    </div>
+
+                    {/* Rating + Fee */}
+                    <div className="flex items-center gap-5 flex-wrap text-on-surface-variant">
+                      <div className="flex items-center gap-1">
+                        <FaStar className="text-amber-400 text-sm" />
+                        <span className="font-label-md text-label-md text-on-surface">{item.rating || "4.8"}</span>
+                        <span className="font-caption text-caption text-outline">(67 reviews)</span>
+                      </div>
+                      <div className="flex items-center gap-1 font-body-md text-body-md">
+                        <FaIndianRupeeSign className="text-base text-primary-container" />
+                        <span className="font-semibold text-on-surface">{item.fee}</span>
+                        <span className="text-outline text-sm">per consultation</span>
                       </div>
                     </div>
-                    <div className="w-full text-sm text-gray-600 text-left mt-2">{item.bio}</div>
-                    <div className="flex flex-col sm:flex-row gap-2 text-center text-gray-700">
-                      {item.profession.map((profession, index) => (
-                        <p key={index} className="border bg-slate-200 rounded-lg p-1">
-                          {profession}
-                        </p>
+
+                    {/* Bio */}
+                    <p className="font-body-md text-sm text-on-surface-variant line-clamp-2">{item.bio}</p>
+
+                    {/* Specialties */}
+                    <div className="flex flex-wrap gap-2">
+                      {item.profession?.map((p, i) => (
+                        <span key={i} className="px-3 py-1 bg-surface-container text-on-surface-variant font-caption text-xs rounded-full border border-outline-variant/50">
+                          {p}
+                        </span>
                       ))}
                     </div>
-                    <button
-                      className="mt-4 bg-emerald-500 text-white items-center py-2 px-6 w-full m:w-fit rounded-lg hover:bg-emerald-700 duration-300"
-                      onClick={() => handleBookAppointment(item._id)}
-                    >
-                      Book Appointment
-                    </button>
-                  </div>
-                </div>
-              ))
-            ) : visibleDoctors.length > 0 ? (
-              visibleDoctors.map((item, index) => (
-                <div key={index} className="flex flex-row items-center bg-white border rounded-lg shadow-lg hover:shadow-2xl duration-300 p-4">
-                  <div className="w-full sm:w-[250px] flex justify-center">
-                    <img
-                      src={`data:image/jpeg;base64,${item?.image}`} 
-                      alt={item?.name}
-                      style={{ height: "250px", width: "350px", objectFit: "cover" }}
-                      className="border hidden md:block w-30 h-30 object-cover rounded-3xl shadow-lg hover:scale-105 duration-300"
-                    />
-                  </div>
-                  <div className="items-start pl-10 space-y-4">
-                    <div className="text-2xl font-semibold text-gray-800">{item.name}</div>
-                    <div className="flex md:gap-6 gap-1">
-                      <div className="flex  items-center justify-center gap-0.5 md:gap-2">
-                        <FaStar />
-                        <div className="text-gray-800">{item.rating}</div>
-                        <div className="text-gray-600 hidden md:block">67 reviews</div>
+
+                    {/* CTA */}
+                    <div className="mt-2 pt-4 border-t border-surface-container-high flex flex-col sm:flex-row items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-on-surface-variant">
+                        <div className="bg-secondary-fixed/20 p-1.5 rounded-full">
+                          <span className="material-symbols-outlined text-base text-on-secondary-fixed-variant">calendar_clock</span>
+                        </div>
+                        <div>
+                          <p className="font-caption text-caption text-outline">Next Available</p>
+                          <p className="font-label-md text-label-md text-on-surface">Tomorrow, 9:00 AM</p>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-center gap-1">
-                        <FaIndianRupeeSign />
-                        <div className="font-semibold text-gray-800">{item.fee}</div>
-                        <div className="text-gray-600 text-sm">per consultation</div>
-                      </div>
+                      <button
+                        className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-label-md px-6 py-2.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
+                        onClick={() => handleBookAppointment(item._id)}
+                      >
+                        <span className="material-symbols-outlined text-base">event_available</span>
+                        Book Appointment
+                      </button>
                     </div>
-                    <div className="text-sm text-gray-600 text-center mt-2 w-full sm:w-fit">{item.bio}</div>
-                    <div className="flex flex-wrap gap-2 text-gray-700 max-h-10 overflow-y-auto">
-                      {item.profession.map((profession, index) => (
-                        <p key={index} className="border bg-slate-200 rounded-lg p-1">
-                          {profession}
-                        </p>
-                      ))}
-                    </div>
-                    <button
-                      className="mt-4 bg-emerald-500 text-white items-center py-2 px-6 w-full sm:w-fit rounded-lg hover:bg-emerald-700 duration-300"
-                      onClick={() => handleBookAppointment(item._id)}
-                    >
-                      Book Appointment
-                    </button>
                   </div>
-                </div>
+                </article>
               ))
             ) : (
-              <p>No doctors found</p>
+              <div className="col-span-full py-16 flex flex-col items-center justify-center bg-surface-container-low rounded-xl border border-outline-variant/30">
+                <span className="material-symbols-outlined text-5xl text-outline mb-3">person_search</span>
+                <p className="font-headline-md text-on-surface-variant">No doctors found</p>
+                <p className="font-body-md text-outline mt-1 text-sm">Try adjusting your search or filters.</p>
+              </div>
             )}
           </div>
         </InfiniteScroll>
       </div>
+
       <Appointment onClose={handleOnClose} visible={appVisible} doctorId={selectedDoctorId} />
     </div>
   );

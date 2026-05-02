@@ -67,82 +67,123 @@ const TrendingProductData = [
 
 const Hero = () => {
   return (
-    <div className="w-full min-h-screen bg-gray-100">
-      {/* Supplement */}
-      <header className="flex justify-between items-center py-5 px-5 bg-gradient-to-r from-emerald-500 to-green-700 text-white shadow-md">
-        <h2 className="text-2xl font-semibold">Supplement</h2>
-        <div>
-          <a
-            className="text-center border border-white bg-white text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 py-2 px-6 rounded-lg shadow-md transition duration-300"
-            href="#"
-          >
-            View All
+    <div className="w-full flex flex-col gap-10 max-w-[1280px] mx-auto px-6 py-8 font-manrope">
+
+      {/* Upload Prescription Banner */}
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="bg-tertiary-fixed p-3 rounded-full text-on-tertiary-fixed shrink-0">
+            <span className="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div>
+            <h3 className="font-label-md text-label-md text-on-surface">Upload Prescription</h3>
+            <p className="font-caption text-caption text-on-surface-variant">Fast &amp; secure processing — order in minutes</p>
+          </div>
+        </div>
+        <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-label-md px-6 py-2 rounded-lg transition-transform hover:-translate-y-0.5 shadow-sm">
+          Upload
+        </button>
+      </div>
+
+      {/* Supplements Section */}
+      <section>
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="font-headline-md text-headline-md text-on-surface">Supplements</h2>
+            <p className="font-caption text-caption text-on-surface-variant">Essential vitamins &amp; daily health</p>
+          </div>
+          <a href="#" className="flex items-center gap-1 font-label-md text-label-md text-primary hover:underline">
+            View All <span className="material-symbols-outlined text-base">arrow_forward</span>
           </a>
         </div>
-      </header>
 
-      {/* Product Section */}
-      <div className="py-6 px-4">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-          {ProductData.map((data) => (
+        {/* Featured + grid bento layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Featured card – takes 2 cols */}
+          {ProductData.slice(0, 1).map((data) => (
             <div
               key={data.id}
-              className="flex flex-col items-center bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden"
+              className="col-span-1 md:col-span-2 bg-surface-container-lowest rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col sm:flex-row overflow-hidden group relative"
             >
-              <img
-                src={data.img}
-                alt={data.title}
-                className="h-56 w-full object-cover"
-              />
-              <h3 className="mt-4 mb-2 text-lg font-medium text-gray-700 px-2 text-center">
-                {data.title}
-              </h3>
-              <button className="mb-4 px-16 py-1 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition duration-300"
-                // onClick={addtocart}
-              >
-                Add to cart
-              </button>
+              <span className="absolute top-4 left-4 z-10 bg-secondary-container text-on-secondary-container font-caption text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
+                Best Seller
+              </span>
+              <div className="sm:w-2/5 h-48 sm:h-auto bg-surface-container-low flex items-center justify-center overflow-hidden">
+                <img src={data.img} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
+              </div>
+              <div className="flex-1 p-6 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-headline-md text-headline-md text-on-surface mb-2">{data.title}</h3>
+                  <p className="font-body-md text-sm text-on-surface-variant line-clamp-2">Premium supplement for daily health and vitality.</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="flex items-center gap-1 text-xs font-label-md text-emerald-600">
+                    <span className="material-symbols-outlined text-[14px]">check_circle</span> In Stock
+                  </span>
+                  <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-label-md px-5 py-2 rounded-lg transition-all flex items-center gap-1">
+                    <span className="material-symbols-outlined text-base">add_shopping_cart</span>
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Remaining cards */}
+          {ProductData.slice(1).map((data) => (
+            <div
+              key={data.id}
+              className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col overflow-hidden group"
+            >
+              <div className="h-40 bg-surface-container-low flex items-center justify-center overflow-hidden">
+                <img src={data.img} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
+              </div>
+              <div className="p-4 flex flex-col flex-1">
+                <h3 className="font-label-md text-label-md text-on-surface mb-1">{data.title}</h3>
+                <p className="font-caption text-caption text-on-surface-variant mb-4 line-clamp-2 flex-grow">Trusted supplement for optimal wellness.</p>
+                <div className="flex items-center justify-between mt-auto">
+                  <span className="font-headline-md text-headline-md text-on-surface text-base">₹299</span>
+                  <button className="text-emerald-600 border border-emerald-600 hover:bg-emerald-50 font-label-md px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                    <span className="material-symbols-outlined text-base">add_shopping_cart</span>
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* trending medicine header */}
-      <header className="flex justify-between items-center py-5 px-5 bg-gradient-to-r from-emerald-500 to-green-700 text-white shadow-md">
-        <h2 className="text-2xl font-semibold">Trending Medicine</h2>
-        <div>
-          <a
-            className="text-center border border-white bg-white text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 py-2 px-6 rounded-lg shadow-md transition duration-300"
-            href="#"
-          >
-            View All
+      {/* Trending Medicine Section */}
+      <section>
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="font-headline-md text-headline-md text-on-surface">Trending Medicine</h2>
+            <p className="font-caption text-caption text-on-surface-variant">Most ordered this week</p>
+          </div>
+          <a href="#" className="flex items-center gap-1 font-label-md text-label-md text-primary hover:underline">
+            View All <span className="material-symbols-outlined text-base">arrow_forward</span>
           </a>
         </div>
-      </header>
 
-      {/* Trending Product Section */}
-      <div className="py-6 px-4">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {TrendingProductData.map((data) => (
             <div
               key={data.id}
-              className="flex flex-col items-center bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden"
+              className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col overflow-hidden group"
             >
-              <img
-                src={data.img}
-                alt={data.title}
-                className="h-56 w-full object-cover"
-              />
-              <h3 className="mt-4 mb-2 text-lg font-medium text-gray-700 px-2 text-center">
-                {data.title}
-              </h3>
-              <button className="mb-4  px-16 py-1 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition duration-300">
-                Buy now
-              </button>
+              <div className="h-36 bg-surface-container-low flex items-center justify-center overflow-hidden">
+                <img src={data.img} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
+              </div>
+              <div className="p-3 flex flex-col flex-1 items-center text-center">
+                <h3 className="font-label-md text-sm text-on-surface mb-2 line-clamp-1">{data.title}</h3>
+                <button className="w-full mt-auto bg-emerald-600 hover:bg-emerald-700 text-white font-caption py-1.5 rounded-lg transition-colors">
+                  Buy Now
+                </button>
+              </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
     </div>
   );
 };

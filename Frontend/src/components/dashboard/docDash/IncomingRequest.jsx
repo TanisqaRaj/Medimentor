@@ -108,79 +108,90 @@ const IncomingRequest = () => {
   const handleMap = () => setMapVisible(false);
 
   return (
-    <div className="w-full overflow-auto">
-      <div className="pb-5 ">
-        <p className="px-4 pt-10 lg:px-10 pb-6 text-2xl font-bold text-gray-700">
-          Appointments requests
-        </p>
-        <div className="overflow-x-auto px-4 lg:px-10 ">
-          <table className="min-w-full border border-gray-300 rounded-lg shadow-md">
-            {/* table column name */}
-            <thead className="bg-emerald-200 text-gray-700 font-semibold">
-              <tr>
-                <th className="px-4 py-3 border">Name</th>
-                <th className="px-4 py-3 border">Age</th>
-                <th className="px-4 py-3 border">Gender</th>
-                <th className="px-4 py-3 border">Contact</th>
-                <th className="px-4 py-3 border">Email</th>
-                <th className="px-4 py-3 border">Address</th>
-                <th className="px-4 py-3 border">Disease</th>
-                <th className="px-4 py-3 border">Description</th>
-                <th className="px-4 py-3 border">Mode</th>
-                <th className="px-4 py-3 border">Date</th>
-                <th className="px-4 py-3 border">State</th>
-              </tr>
-            </thead>
-
-            {/* table body */}
-            <tbody className="shadow-2xl">
-              {appointmens.map((item, index) => (
-                <tr
-                  key={index}
-                  className="text-gray-800 text-center border hover:bg-gray-100"
-                >
-                  <td className="px-4 py-3 border">{item.patient.name}</td>
-                  <td className="px-4 py-3 border">{item.patient.age}</td>
-                  <td className="px-4 py-3 border">{item.patient.gender}</td>
-                  <td className="px-4 py-3 border">{item.patient.phone}</td>
-                  <td className="px-4 py-3 border">{item.patient.email}</td>
-                  <td className="px-4 py-3 border">{item.patient.address}</td>
-                  <td className="px-4 py-3 border">{item.appointment.title}</td>
-                  <td className="px-4 py-3 border">
-                    {item.appointment.description}
-                  </td>
-                  <td className="px-4 py-3 border">{item.appointment.mode}</td>
-                  <td className="px-4 py-3 border">{item.appointment.date}</td>
-
-                  <td className="px-4 py-3 border">
-                    {item.status !== "approved" && (
-                      <button
-                        className="borde bg-emerald-600 rounded-2xl p-1 space-y-1 shadow-xl"
-                        // onClick={() => openPasswordPopup(item.appointmentID)}
-                        onClick={() => {
-                          if (item.appointment.mode === "offline") {
-                            openMap(item.appointmentID);
-                          } else if (item.appointment.mode === "online") {
-                            openPasswordPopup(item.appointmentID);
-                          }
-                        }}
-                      >
-                        Accept
-                      </button>
-                    )}
-                    <button
-                      onClick={async () => rejectAction(item.appointmentID)}
-                      className="border bg-red-400 rounded-2xl p-1 space-y-1 px-2 shadow-xl"
-                    >
-                      Reject
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+    <div className="w-full flex-grow max-w-[1280px] mx-auto px-6 py-8 font-manrope">
+      <div className="mb-8">
+        <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Appointment Requests</h1>
+        <p className="font-body-md text-body-md text-on-surface-variant">Review and manage incoming consultations.</p>
       </div>
+
+      {appointmens.length === 0 ? (
+        <div className="py-20 flex flex-col items-center justify-center bg-surface-container-low rounded-2xl border border-outline-variant/30">
+          <span className="material-symbols-outlined text-5xl text-outline mb-3">inbox</span>
+          <p className="font-headline-md text-on-surface-variant">No pending requests</p>
+          <p className="font-body-md text-outline mt-1 text-sm">New requests will appear here as they arrive.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {appointmens.map((item, index) => (
+            <div
+              key={index}
+              className="bg-surface-container-lowest rounded-2xl border border-outline-variant/50 shadow-sm hover:shadow-md transition-all p-6 flex flex-col gap-4 relative overflow-hidden"
+            >
+              {/* Top Section */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-secondary-container/30 flex items-center justify-center text-primary-container">
+                    <span className="material-symbols-outlined text-xl">person</span>
+                  </div>
+                  <div>
+                    <h3 className="font-label-md text-label-md text-on-surface">{item.patient.name}</h3>
+                    <p className="font-caption text-caption text-outline">{item.patient.age} yrs • {item.patient.gender}</p>
+                  </div>
+                </div>
+                <span className={`px-2.5 py-1 rounded-full font-label-md text-[10px] font-bold uppercase tracking-wider ${item.appointment.mode === 'online' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                  {item.appointment.mode}
+                </span>
+              </div>
+
+              {/* Details */}
+              <div className="space-y-3 py-2 border-y border-outline-variant/30">
+                <div>
+                  <div className="font-caption text-[10px] uppercase tracking-wider text-outline mb-0.5">Concern</div>
+                  <div className="font-body-md text-sm text-on-surface font-medium">{item.appointment.title}</div>
+                  <p className="font-caption text-xs text-on-surface-variant line-clamp-2 mt-1">{item.appointment.description}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-caption text-[10px] uppercase tracking-wider text-outline mb-0.5">Date & Time</div>
+                    <div className="font-label-md text-sm text-on-surface">{item.appointment.date}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-caption text-[10px] uppercase tracking-wider text-outline mb-0.5">Contact</div>
+                    <div className="font-label-md text-sm text-on-surface">{item.patient.phone}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 mt-2">
+                {item.status !== "approved" && (
+                  <button
+                    className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-label-md py-2.5 rounded-xl transition-all shadow-sm hover:shadow flex items-center justify-center gap-2"
+                    onClick={() => {
+                      if (item.appointment.mode === "offline") {
+                        openMap(item.appointmentID);
+                      } else if (item.appointment.mode === "online") {
+                        openPasswordPopup(item.appointmentID);
+                      }
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-base">check_circle</span>
+                    Accept
+                  </button>
+                )}
+                <button
+                  onClick={async () => rejectAction(item.appointmentID)}
+                  className="bg-surface-container-high hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 hover:border-red-200 font-label-md px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-base">cancel</span>
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <MeetingDetails
         onClose={handleOnClose}
         visible={appVisible}

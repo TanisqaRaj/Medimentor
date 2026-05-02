@@ -22,46 +22,47 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`${open ? "w-[250px]" : "w-[60px]"
-        } duration-400 px-0.5 pt-4 py-1 sm:p-4 flex flex-col  bg-emerald-500 text-black rounded-r-xl  justify-start sticky top-0`}
+      className={`${open ? "w-[250px]" : "w-[72px]"
+        } duration-300 px-2 py-6 flex flex-col bg-surface-container-lowest border-r border-outline-variant/30 text-on-surface h-screen sticky top-0 font-manrope z-40 shadow-sm`}
     >
       {/* Toggle Icon */}
       <div
-        className={`${!open && "rotate-180 justify-center"
-          } flex justify-end mb-6 cursor-pointer`}
+        className={`flex justify-end mb-8 cursor-pointer text-outline hover:text-primary-container transition-colors ${!open && "justify-center"}`}
         onClick={() => setOpen(!open)}
       >
-        <BsLayoutSidebarInset />
+        <BsLayoutSidebarInset className="text-2xl" />
       </div>
 
       {/* Profile Picture */}
       {open && (
-        <div className="flex flex-col items-center mb-12">
-          <div className="h-24 w-24 border shadow-lg rounded-full overflow-hidden">
+        <div className="flex flex-col items-center mb-10 fade-in">
+          <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-surface-variant shadow-sm bg-surface-container">
             <img
-              src={`data:image/png;base64,${user?.image}`}
+              src={user?.image ? `data:image/png;base64,${user.image}` : "https://lh3.googleusercontent.com/aida-public/AB6AXuCI5Do1Pm2eJcPZL-GTT40jlo-1JJiqsgGSvyxeoAcu17qkWeFrInVSfPgjESLnHfYeS3XEikm37EGyeqC4nmmVWIJ5l47qLcDbt2dy2chL4BN20N-t_w2TH6Elh6AcekwjQgr02tMwihBw03YuW8VQWy01ifuCUHxrScQeTOEuolPT5Aj-CmIviyLTTq437v-UHHrS5YBz2aeDGwx_yn-_8OVPxHgP-GS1tyThYBhq9ELXYmX8UGxvvFg9WqDfrOyq16_aUpTQbKSa"}
               className="h-full w-full object-cover"
+              alt="Profile"
             />
           </div>
-          <h2 className="mt-4 text-sm  text-gray-800 font-semibold">
-            {user?.name}
+          <h2 className="mt-3 text-label-md font-headline-md text-on-surface tracking-tight">
+            {user?.name || "Patient"}
           </h2>
+          <span className="text-caption font-body-md text-primary mt-0.5 bg-primary/10 px-2 py-0.5 rounded-full">User Account</span>
         </div>
       )}
 
       {/* Sidebar Items */}
-      <div className="space-y-6">
+      <div className="space-y-2 mt-2">
         {sidebarItems.map((item, index) => (
           <div
             key={index}
-            className={`flex items-center gap-4 cursor-pointer hover:bg-emerald-600 px-4 py-2 rounded-md ${!open && "justify-center"
+            className={`flex items-center gap-4 cursor-pointer px-3 py-3 rounded-lg transition-all duration-200 hover:bg-primary-container/10 hover:text-primary-container text-on-surface-variant group ${!open && "justify-center"
               }`}
             onClick={() => navigate(item.path)}
+            title={!open ? item.title : ""}
           >
-            <div className="text-xl">{item.icon}</div>
+            <div className="text-[20px] group-hover:scale-110 transition-transform">{item.icon}</div>
             {open && (
-              <span className="text-lg  text-gray-800 font-medium"
-              >
+              <span className="text-label-md font-label-md whitespace-nowrap">
                 {item.title}
               </span>
             )}

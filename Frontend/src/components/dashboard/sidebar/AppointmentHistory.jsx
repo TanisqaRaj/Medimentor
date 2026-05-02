@@ -29,69 +29,89 @@ const AppointmentHistory = () => {
     fetchAppointmentHistory();
   }, []);
 
+  const statusConfig = {
+    Pending:  { color: "bg-amber-100 text-amber-700",  icon: "schedule" },
+    Accepted: { color: "bg-emerald-100 text-emerald-700", icon: "check_circle" },
+    Rejected: { color: "bg-red-100 text-red-700", icon: "cancel" },
+  };
+
   return (
-    <div className="w-full">
-      <div className="pb-5">
-        <p className="px-4 pt-10 lg:px-10 pb-6 text-2xl font-bold text-gray-700">
-          Appointments History
+    <div className="w-full flex-grow max-w-[1280px] mx-auto px-6 py-8 font-manrope">
+      <div className="mb-8">
+        <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Appointment History</h1>
+        <p className="font-body-md text-body-md text-on-surface-variant">
+          Review all your past and completed visits.
         </p>
-        <div className="overflow-x-auto px-4 lg:px-10">
-          <table className="min-w-full border border-gray-300 rounded-lg shadow-md">
-            {/* table column name */}
-            <thead className="bg-emerald-200 text-gray-700 font-semibold">
-              <tr>
-                <th className="px-4 py-3 border">Appointment Id</th>
-                <th className="px-4 py-3 border">Name</th>
-                <th className="px-4 py-3 border">Contact</th>
-                <th className="px-4 py-3 border">Age</th>
-                <th className="px-4 py-3 border">Title</th>
-                <th className="px-4 py-3 border">Mode</th>
-                <th className="px-4 py-3 border">Date</th>
-                <th className="px-4 py-3 border">Dr. Name</th>
-                <th className="px-4 py-3 border">State</th>
-              </tr>
-            </thead>
-
-            {/* table body */}
-            <tbody>
-              {appointmentHistory.map((item, index) => (
-                <tr
-                  key={index}
-                  className="text-gray-800 text-center border hover:bg-gray-100"
-                >
-                  <td className="px-4 py-3 border">
-                    {item.customAppointmentID}
-                  </td>
-                  <td className="px-4 py-3 border">{item.patient.name}</td>
-                  <td className="px-4 py-3 border">{item.patient.phone}</td>
-                  <td className="px-4 py-3 border">{item.patient.age}</td>
-                  <td className="px-4 py-3 border">{item.appointment.title}</td>
-                  <td className="px-4 py-3 border">{item.appointment.mode}</td>
-                  <td className="px-4 py-3 border">{item.appointment.date}</td>
-                  <td className="px-4 py-3 border">{item.doctor.name}</td>
-
-                  {/* appointment state */}
-                  <td
-                    className={`px-4 py-3 border ${
-                      item.status === "Pending"
-                        ? "text-yellow-500"
-                        : item.status === "Accepted"
-                        ? "text-green-500"
-                        : item.status === "Rejected"
-                        ? "text-red-500"
-                        : "text-gray-800"
-                    }`}
-                  >
-                    {item.status}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
+
+      {appointmentHistory.length === 0 ? (
+        <div className="py-20 flex flex-col items-center justify-center bg-surface-container-low rounded-xl border border-outline-variant/30">
+          <span className="material-symbols-outlined text-5xl text-outline mb-3">history</span>
+          <p className="font-headline-md text-on-surface-variant">No appointment history found</p>
+          <p className="font-body-md text-outline mt-1 text-sm">Your completed appointments will appear here.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {appointmentHistory.map((item, index) => {
+            const status = item.status || "Pending";
+            const cfg = statusConfig[status] || { color: "bg-surface-variant text-on-surface-variant", icon: "info" };
+            return (
+              <div
+                key={index}
+                className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 items-start md:items-center"
+              >
+                {/* Left: Status Icon */}
+                <div className="shrink-0 w-12 h-12 rounded-full bg-surface-container flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary-container text-2xl">event_note</span>
+                </div>
+
+                {/* Center: Info */}
+                <div className="flex-grow grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  <div>
+                    <div className="font-caption text-caption text-outline mb-0.5">Patient</div>
+                    <div className="font-label-md text-label-md text-on-surface">{item.patient?.name}</div>
+                  </div>
+                  <div>
+                    <div className="font-caption text-caption text-outline mb-0.5">Doctor</div>
+                    <div className="font-label-md text-label-md text-on-surface">{item.doctor?.name}</div>
+                  </div>
+                  <div>
+                    <div className="font-caption text-caption text-outline mb-0.5">Title</div>
+                    <div className="font-label-md text-label-md text-on-surface">{item.appointment?.title}</div>
+                  </div>
+                  <div>
+                    <div className="font-caption text-caption text-outline mb-0.5">Date</div>
+                    <div className="font-label-md text-label-md text-on-surface">{item.appointment?.date}</div>
+                  </div>
+                  <div>
+                    <div className="font-caption text-caption text-outline mb-0.5">Mode</div>
+                    <div className="font-label-md text-label-md text-on-surface capitalize">{item.appointment?.mode}</div>
+                  </div>
+                  <div>
+                    <div className="font-caption text-caption text-outline mb-0.5">Contact</div>
+                    <div className="font-label-md text-label-md text-on-surface">{item.patient?.phone}</div>
+                  </div>
+                  <div>
+                    <div className="font-caption text-caption text-outline mb-0.5">Appt. ID</div>
+                    <div className="font-caption text-xs text-outline font-mono">{item.customAppointmentID}</div>
+                  </div>
+                </div>
+
+                {/* Right: Status Badge */}
+                <div className="shrink-0">
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-label-md font-semibold ${cfg.color}`}>
+                    <span className="material-symbols-outlined text-[14px]">{cfg.icon}</span>
+                    {status}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
 
 export default AppointmentHistory;
+

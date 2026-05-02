@@ -78,58 +78,63 @@ const TotalDoctorsList = () => {
   };
 
   return (
-    <div className="w-full overflow-scroll">
-      <div className="pb-5 ">
-        <p className="px-4 pt-10 lg:px-10 pb-6 text-2xl font-bold text-gray-700">
-          Doctor List
-        </p>
-        <div className="overflow-x-auto px-4 lg:px-10 ">
-          <table className="min-w-full border border-gray-300 rounded-lg shadow-md">
-            {/* table column name */}
-            <thead className="bg-emerald-200 text-gray-700 font-semibold">
-              <tr>
-                <th className="px-4 py-3 border">Name</th>
-                <th className="px-4 py-3 border">Contact</th>
-                <th className="px-4 py-3 border">Gender</th>
-                <th className="px-4 py-3 border">Username</th>
-                <th className="px-4 py-3 border" style={{ width: "90px" }}>Email</th>
-                <th className="px-4 py-3 border">Experience</th>
-                <th className="px-4 py-3 border">Bio</th>
-                <th className="px-4 py-3 border">Department</th>
-                <th className="px-4 py-3 border" style={{ width: "90px" }}>Profession</th>
-                <th className="px-4 py-3 border">Status</th>
+    <div className="w-full flex-grow max-w-[1280px] mx-auto px-6 py-8 font-manrope">
+      <div className="mb-8">
+        <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Doctor Directory</h1>
+        <p className="font-body-md text-body-md text-on-surface-variant">Review and manage registered medical professionals.</p>
+      </div>
+
+      <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/50 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-surface-container-low border-b border-outline-variant/50">
+                <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Doctor</th>
+                <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Specialty & Dept</th>
+                <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Experience</th>
+                <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
-
-            {/* table body */}
-            <tbody className="shadow-2xl">
+            <tbody className="divide-y divide-outline-variant/30">
               {doctorlist.map((item, index) => (
-                <tr
-                  key={index}
-                  className="text-gray-800 text-center border hover:bg-gray-100"
-                >
-                  <td className="px-4 py-3 border">{item.name}</td>
-                  <td className="px-4 py-3 border">{item.phone}</td>
-                  <td className="px-4 py-3 border">{item.gender}</td>
-                  <td className="px-4 py-3 border">{item.username}</td>
-                  <td className="px-4 py-3 border" style={{ width: "90px" }}>{item.email}</td>
-                  <td className="px-4 py-3 border">{item.experience}</td>
-                  <td className="px-4 py-3 border">{item.bio}</td>
-                  <td className="px-4 py-3 border">{item.department}</td>
-                  <td className="px-4 py-3 border" style={{ width: "90px" }}> {item.profession.map((profession, index) => (
-                        <p key={index} className="border bg-emerald-200 rounded-lg p-1">
-                          {profession}
-                        </p>
-                      ))}</td>
-                  <td className="px-4 py-3 border">
-                    <button className="borde bg-emerald-600 rounded-2xl p-1 space-y-1 shadow-xl">
-                      Approve
-                    </button>
-                    <button className="border bg-red-400 rounded-2xl p-1 space-y-1 px-2 shadow-xl"
-                      onClick={()=> handleDiscard(index)}
-                    >
-                      Discard
-                    </button>
+                <tr key={index} className="hover:bg-surface-container-lowest/50 transition-colors group">
+                  <td className="px-6 py-4">
+                    <div className="font-label-md text-on-surface">{item.name}</div>
+                    <div className="font-caption text-outline text-xs">{item.email}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="font-label-md text-on-surface">{item.department}</div>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {item.profession.map((prof, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded bg-primary-container/10 text-primary-container text-[10px] font-bold uppercase">
+                          {prof}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="font-body-md text-on-surface">{item.experience} Years</div>
+                    <div className="font-caption text-outline text-xs truncate max-w-[200px]">{item.bio}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      Active
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-sm px-4 py-2 rounded-xl transition-all shadow-sm">
+                        Approve
+                      </button>
+                      <button 
+                        onClick={() => handleDiscard(index)}
+                        className="bg-surface-container hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 hover:border-red-200 font-label-md text-sm px-4 py-2 rounded-xl transition-all"
+                      >
+                        Discard
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

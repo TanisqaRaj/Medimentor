@@ -60,131 +60,145 @@ const NavBar = () => {
   }, []);
 
   return (
-    <header className="bg-white shadow-md w-full sticky top-0 z-[999] ">
-      <div className="container mx-auto flex justify-between items-center py-4 px-6">
-        {/* Logo Section */}
-        <div className="flex items-center hidden md:block">
-          <img alt="Logo" className="h-10" height={150} src="https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/kidunrkrjfvaiubzr5lv" width={50} />
+    <header className="fixed top-0 w-full z-50 border-b border-gray-100 bg-white/95 backdrop-blur-md shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] font-manrope text-sm tracking-tight">
+      <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+        {/* Logo & Main Nav */}
+        <div className="flex items-center gap-8">
+          <div className="flex items-center hidden md:block">
+            <img alt="Logo" className="h-10" height={150} src="https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/kidunrkrjfvaiubzr5lv" width={50} />
+          </div>
+          
+          <nav className="hidden md:flex gap-6 items-center">
+            <a
+              className="text-slate-600 font-medium hover:text-emerald-600 transition-colors duration-200 active:scale-95 transition-transform duration-150 cursor-pointer"
+              onClick={() => { handleLogout(); navigate("/"); }}
+            >
+              Home
+            </a>
+            <a
+              className="text-slate-600 font-medium hover:text-emerald-600 transition-colors duration-200 active:scale-95 transition-transform duration-150 cursor-pointer"
+              onClick={() => navigate("/about")}
+            >
+              About
+            </a>
+            <div className="relative">
+              <div
+                className="flex items-center cursor-pointer text-slate-600 font-medium hover:text-emerald-600 transition-colors duration-200 active:scale-95 transition-transform duration-150"
+                onClick={toggleDropdown}
+              >
+                <span>Services</span>
+                <RiArrowDropDownLine className="ml-1 text-lg" />
+              </div>
+
+              {isOpen && (
+                <div className="absolute top-full mt-2 bg-white border border-gray-100 rounded-lg shadow-lg w-48 z-[100] overflow-hidden">
+                  <ul className="py-2">
+                    <li className="px-4 py-2 hover:bg-emerald-50 transition-colors">
+                      <a className="text-slate-700 hover:text-emerald-700 block w-full" href="/appointment">Appointment</a>
+                    </li>
+                    <li className="px-4 py-2 hover:bg-emerald-50 transition-colors">
+                      <a className="text-slate-700 hover:text-emerald-700 block w-full" href="/pharmacy">Pharmacy</a>
+                    </li>
+                    <li className="px-4 py-2 hover:bg-emerald-50 transition-colors">
+                      <a className="text-slate-700 hover:text-emerald-700 block w-full" href="/chatbot">Chatbot</a>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+            <a
+              className="text-slate-600 font-medium hover:text-emerald-600 transition-colors duration-200 active:scale-95 transition-transform duration-150 cursor-pointer"
+              onClick={() => navigate("/contact")}
+            >
+              Contact
+            </a>
+            <a
+              className="text-slate-600 font-medium hover:text-emerald-600 transition-colors duration-200 active:scale-95 transition-transform duration-150 cursor-pointer"
+              onClick={() => navigate("/pharmacy")}
+            >
+              Pharmacy
+            </a>
+          </nav>
         </div>
 
-        {/* Hamburger button */}
-        <button
-          onClick={toggleMenu}
-          className="md:hidden focus:outline-none z-50"
-        >
-          <div className="relative w-6 h-6">
-            <GiHamburgerMenu />
+        {/* Actions & Mobile Menu Toggle */}
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2 text-slate-600">
+            <button className="hover:text-emerald-600 transition-colors duration-200 active:scale-95 transition-transform duration-150 p-1 rounded-full flex items-center justify-center">
+              <span className="material-symbols-outlined text-[20px]">notifications</span>
+            </button>
+            <button className="hover:text-emerald-600 transition-colors duration-200 active:scale-95 transition-transform duration-150 p-1 rounded-full flex items-center justify-center">
+              <span className="material-symbols-outlined text-[20px]">help_outline</span>
+            </button>
           </div>
-        </button>
 
-        {/* Navigation Bar */}
-        <nav className="flex-grow flex justify-center space-x-6">
-          {/* home */}
-          <a
-            className="text-gray-700 hover:text-teal-600 hidden md:block"
-            href="/"
-            onClick={handleLogout}
-          >
-            Home
-          </a>
-          {/* About */}
-          <a
-            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer hidden md:block"
-            onClick={() => navigate("/about")}
-          >
-            About
-          </a>
-          {/* Services */}
-          <div className="relative hidden md:block">
-            <div
-              className="flex items-center cursor-pointer text-gray-700 hover:text-teal-600"
-              onClick={toggleDropdown}
-            >
-              <a>Services</a>
-              <RiArrowDropDownLine className="ml-1" />
-            </div>
-
-            {isOpen && (
-              <div className="absolute mt-2 bg-white border rounded shadow-lg w-48 z-[100]">
-                <ul className="py-2">
-                  <li className="px-4 py-2 hover:bg-teal-100">
-                    <a href="/appointment">Appointment</a>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-teal-100">
-                    <a href="/pharmacy">Pharmacy</a>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-teal-100">
-                    <a href="/chatbot">Chatbot</a>
-                  </li>
-                </ul>
-              </div>
+          <div className="hidden md:flex items-center space-x-3">
+            {user || doctor ? (
+              <button
+                onClick={handleLogout}
+                className="text-slate-600 font-medium hover:text-red-600 transition-colors"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <a className="text-slate-600 font-medium hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/login")}>
+                  Login
+                </a>
+                <button 
+                  onClick={() => navigate("/registration")}
+                  className="bg-emerald-700 text-white px-4 py-2 rounded-full font-medium text-sm hover:bg-emerald-800 transition-colors active:scale-95 transition-transform duration-150"
+                >
+                  Sign Up
+                </button>
+              </>
             )}
           </div>
 
-          {/* Contact */}
-          <a
-            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer hidden md:block"
-            onClick={() => navigate("/contact")}
-          >
-            Contact
-          </a>
-          <a
-            className="text-gray-700 hover:text-teal-600 hover:cursor-pointer hidden md:block"
-            onClick={() => navigate("/pharmacy")}
-          >
-            Pharmacy
-          </a>
-        </nav>
-        {/* Login/Register Section */}
-        <div className="flex items-center space-x-4">
-          {user || doctor ? (
+          {/* Hide menu on Login/Register pages for cleaner mobile UI */}
+          {!['/login', '/registration'].includes(window.location.pathname) && (
             <button
-              onClick={handleLogout}
-              className="text-gray-700 hover:text-red-600"
+              onClick={toggleMenu}
+              className="md:hidden focus:outline-none z-50 text-emerald-700"
             >
-              Logout
+              <div className="relative w-6 h-6 flex items-center justify-center">
+                <GiHamburgerMenu size={24} />
+              </div>
             </button>
-          ) : (
-            <>
-              <a className="text-gray-700 hover:text-teal-600" href="/login">
-                Login
-              </a>
-              <a
-                className="text-gray-700 hover:text-teal-600 hidden md:block"
-                href="/registration"
-              >
-                SignUp
-              </a>
-            </>
           )}
         </div>
 
+        {/* Mobile Menu Dropdown */}
         {isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-1/2 sm:w-1/4 bg-emerald-500 shadow-2xl px-2 py-4 z-40 rounded-md">
-            <ul className="flex flex-col space-y-2 text-white">
+          <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-gray-100 z-40">
+            <ul className="flex flex-col py-4 px-6 space-y-4 text-slate-700 font-medium">
               <li>
-                <a href="/" onClick={handleLogout}>
-                  Home
-                </a>
+                <a className="block hover:text-emerald-600 transition-colors" href="/" onClick={handleLogout}>Home</a>
               </li>
               <li>
-                <button onClick={() => navigate("/about")}>About</button>
+                <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/about")}>About</a>
               </li>
               <li>
-                <button onClick={() => navigate("/contact")}>Contact</button>
+                <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/contact")}>Contact</a>
               </li>
               <li>
-                <button onClick={() => navigate("/pharmacy")}>Pharmacy</button>
+                <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/pharmacy")}>Pharmacy</a>
               </li>
-              {!user && !doctor && (
+              {!user && !doctor ? (
                 <>
-                  <li>
-                    <a href="/login">Login</a>
+                  <li className="pt-2 border-t border-gray-100">
+                    <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/login")}>Login</a>
                   </li>
                   <li>
-                    <a href="/registration">SignUp</a>
+                    <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/registration")}>Sign Up</a>
                   </li>
                 </>
+              ) : (
+                <li className="pt-2 border-t border-gray-100">
+                  <button onClick={handleLogout} className="text-red-600 hover:text-red-700 transition-colors w-full text-left">
+                    Logout
+                  </button>
+                </li>
               )}
             </ul>
           </div>

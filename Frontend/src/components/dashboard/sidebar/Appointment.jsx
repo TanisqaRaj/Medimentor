@@ -74,269 +74,186 @@ export default function Appointment({ visible, onClose, doctorId }) {
   if (!visible) return null;
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-start pt-16 z-[200] px-4"
       id="container"
       onClick={handleOnClose}
     >
-      <div className="h-[90vh] md:h-[75vh] w-[90vw] md:w-[70vw] flex mt-16  rounded-lg bg-white shadow-lg overflow-auto">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="w-full min-w-10 p-2 md:p-10 space-y-3 bg-white  rounded-lg"
-        >
-          {/* Patient name */}
-          <div className="flex flex-col gap-1 md:w-fit">
-            <label className="font-medium text-gray-800">Patient Name</label>
+      <div className="w-full max-w-2xl bg-surface-container-lowest rounded-2xl shadow-2xl overflow-auto max-h-[85vh] font-manrope border border-outline-variant/50">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-8 py-5 border-b border-outline-variant/30 sticky top-0 bg-surface-container-lowest z-10">
+          <div>
+            <h2 className="font-headline-md text-headline-md text-on-surface">Book Appointment</h2>
+            <p className="font-caption text-caption text-on-surface-variant mt-0.5">Fill in your details to confirm your visit</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container text-on-surface-variant transition-colors"
+          >
+            <span className="material-symbols-outlined text-base">close</span>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-5">
+          {/* Patient Name */}
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface">Patient Name</label>
             <input
               {...register("patientName", {
                 required: true,
-                maxLength: {
-                  value: 100,
-                  message: "Max length is 100 characters.",
-                },
-                minLength: {
-                  value: 2,
-                  message: "Min length is 2 characters.",
-                },
+                maxLength: { value: 100, message: "Max length is 100 characters." },
+                minLength: { value: 2, message: "Min length is 2 characters." },
               })}
               placeholder="Enter patient name..."
               type="text"
-              className="w-full px-3 py-1 border border-gray-300 rounded-lg"
+              className="w-full px-4 py-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface placeholder:text-outline font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all"
             />
-            {errors.patientname && (
-              <p className="text-red-700 text-sm">
-                {errors.patientName.message}
-              </p>
-            )}
+            {errors.patientName && <p className="text-error text-xs font-label-md">{errors.patientName.message}</p>}
           </div>
 
-          {/* DOB */}
-          <div className="flex flex-row gap-4">
-            <div className="flex flex-col w-full">
-              <label className="font-medium text-gray-800">Date of Birth</label>
+          {/* DOB + Age */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="font-label-md text-label-md text-on-surface">Date of Birth</label>
               <input
                 {...register("birthdate", { required: true })}
                 type="date"
                 max={today}
                 defaultValue={today}
-                className="w-full px-3 py-1 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all"
               />
-              {errors.birthdate && (
-                <p className="text-red-700 text-sm">
-                  {errors.birthdate.message}
-                </p>
-              )}
+              {errors.birthdate && <p className="text-error text-xs font-label-md">{errors.birthdate.message}</p>}
             </div>
-            {/* Age */}
-            <div className="flex flex-col w-full">
-              <label className="font-medium text-gray-800">Age</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="font-label-md text-label-md text-on-surface">Age</label>
               <input
                 {...register("age", { required: true })}
                 value={age}
                 readOnly
-                className="w-full px-3 py-1 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/30 rounded-lg text-on-surface-variant font-body-md cursor-not-allowed"
               />
             </div>
           </div>
 
-          {/* contact and gender */}
-          <div className="flex flex-col md:flex-row gap-x-3 justify-between items-center">
-            {/* Gender */}
-            <div className="flex gap-0.5 md:gap-2 items-center w-full">
-              <label className="font-medium text-gray-800">Gender</label>
-              <input
-                type="radio"
-                {...register("gender")}
-                value="male"
-                id="male"
-              />
-              <label
-                htmlFor="male"
-                className="text-sm text-gray-700 cursor-pointer"
-              >
-                Male
-              </label>
-              <input
-                type="radio"
-                {...register("gender")}
-                value="female"
-                id="female"
-              />
-              <label
-                htmlFor="female"
-                className="text-sm text-gray-700 cursor-pointer"
-              >
-                Female
-              </label>
-              <input
-                type="radio"
-                {...register("gender")}
-                value="other"
-                id="other"
-              />
-              <label
-                htmlFor="other"
-                className="text-sm text-gray-700 cursor-pointer"
-              >
-                Other
-              </label>
+          {/* Gender + Contact */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="font-label-md text-label-md text-on-surface">Gender</label>
+              <div className="flex items-center gap-4 pt-2">
+                {["male", "female", "other"].map((g) => (
+                  <label key={g} className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" {...register("gender")} value={g} id={g} className="w-4 h-4 accent-emerald-600" />
+                    <span className="font-body-md text-sm text-on-surface capitalize">{g}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-
-            {/* Contact */}
-            <div className="flex flex-row gap-2 w-full">
-              <label className="font-medium text-gray-800">Contact</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="font-label-md text-label-md text-on-surface">Contact</label>
               <input
                 {...register("patientContact", {
                   required: true,
-                  pattern: {
-                    value: /^[0-9]{10}$/,
-                    message: "Please enter a valid 10-digit phone number.",
-                  },
+                  pattern: { value: /^[0-9]{10}$/, message: "Please enter a valid 10-digit phone number." },
                 })}
                 type="text"
-                placeholder="Enter your contact no..."
-                className="w-full px-3 py-1 border border-gray-300 rounded-lg"
+                placeholder="10-digit phone number..."
+                className="w-full px-4 py-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface placeholder:text-outline font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all"
               />
-              {errors.contact && (
-                <p className="text-red-700 text-sm">{errors.contact.message}</p>
-              )}
+              {errors.patientContact && <p className="text-error text-xs font-label-md">{errors.patientContact.message}</p>}
             </div>
           </div>
 
           {/* Email */}
-          <div className="flex flex-row gap-2">
-            <label className="font-medium text-gray-800">Email</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface">Email</label>
             <input
-              {...register("email", {
-                required: true,
-              })}
-              type="text"
-              placeholder="Enter your email..."
-              className="w-full px-3 py-1 border border-gray-300 rounded-lg"
+              {...register("email", { required: true })}
+              type="email"
+              placeholder="your.email@example.com"
+              className="w-full px-4 py-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface placeholder:text-outline font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all"
             />
-            {errors.email && (
-              <p className="text-red-700 text-sm">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-error text-xs font-label-md">{errors.email.message}</p>}
           </div>
 
           {/* Address */}
-          <div className="flex flex-row gap-2">
-            <label className="font-medium text-gray-800">Address</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="font-label-md text-label-md text-on-surface">Address</label>
             <input
-              {...register("patientAddress", {
-                required: true,
-              })}
+              {...register("patientAddress", { required: true })}
               type="text"
-              placeholder="Enter your address"
-              className="w-full px-3 py-1 border border-gray-300 rounded-lg"
+              placeholder="Enter your address..."
+              className="w-full px-4 py-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface placeholder:text-outline font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all"
             />
-            {errors.address && (
-              <p className="text-red-700 text-sm">
-                {errors.patientAddress.message}
-              </p>
-            )}
+            {errors.patientAddress && <p className="text-error text-xs font-label-md">{errors.patientAddress.message}</p>}
           </div>
 
-          {/* Title and disease */}
-          <div className="flex flex-col md:flex-row gap-y-2 md:gap-y-0 justify-between items-center gap-x-3">
-            {/* title */}
-            <div className="flex flex-row gap-2 w-full">
-              <label className="font-medium text-gray-800">Title</label>
+          {/* Title + Disease */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="font-label-md text-label-md text-on-surface">Title / Condition</label>
               <input
-                {...register("title", {
-                  required: true,
-                })}
+                {...register("title", { required: true })}
                 type="text"
-                placeholder="Enter your Disease name..."
-                className="w-full px-3 py-1 border border-gray-300 rounded-lg"
+                placeholder="e.g. Chest pain, Headache..."
+                className="w-full px-4 py-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface placeholder:text-outline font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all"
               />
-              {errors.title && (
-                <p className="text-red-700 text-sm">{errors.title.message}</p>
-              )}
+              {errors.title && <p className="text-error text-xs font-label-md">{errors.title.message}</p>}
             </div>
-
-            {/* Disease */}
-            <div className="flex gap-1 w-full items-center">
-              <label className="font-medium text-gray-800">Disease</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="font-label-md text-label-md text-on-surface">Description</label>
               <textarea
-                className="w-full px-3 py-2 border h-10 rounded-lg"
-                placeholder="Write about your disease..."
+                className="w-full px-4 py-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface placeholder:text-outline font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all resize-none h-[46px]"
+                placeholder="Describe your symptoms..."
                 {...register("desc", { required: true })}
               />
-              {errors.disease && (
-                <p className="text-red-700 text-sm">{errors.disease.message}</p>
-              )}
+              {errors.desc && <p className="text-error text-xs font-label-md">{errors.desc.message}</p>}
             </div>
           </div>
 
-          {/* Mode and Appointment date */}
-          <div className="flex flex-col md:flex-row gap-6 justify-center md:items-center">
-            {/* Mode */}
-            <div className="flex flex-col w-fit md:w-1/2">
-              <label className="font-medium text-gray-800">
-                Mode of Consultation
-              </label>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    {...register("mode")}
-                    value="offline"
-                    id="offline"
-                    className="w-4 h-4"
-                  />
-                  <label
-                    htmlFor="offline"
-                    className="text-sm text-gray-700 cursor-pointer"
-                  >
-                    Offline
+          {/* Mode + Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="font-label-md text-label-md text-on-surface">Mode of Consultation</label>
+              <div className="flex items-center gap-5 pt-2">
+                {["offline", "online"].map((m) => (
+                  <label key={m} className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" {...register("mode")} value={m} id={m} className="w-4 h-4 accent-emerald-600" />
+                    <span className="font-body-md text-sm text-on-surface capitalize">{m}</span>
                   </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    {...register("mode")}
-                    value="online"
-                    id="online"
-                    className="w-4 h-4"
-                  />
-                  <label
-                    htmlFor="online"
-                    className="text-sm text-gray-700 cursor-pointer"
-                  >
-                    Online
-                  </label>
-                </div>
+                ))}
               </div>
             </div>
-
-            {/* Appointment Date */}
-            <div className="flex flex-col w-fit md:w-1/2">
-              <label className="font-medium text-gray-800">
-                Select expected Date of Appointment
-              </label>
+            <div className="flex flex-col gap-1.5">
+              <label className="font-label-md text-label-md text-on-surface">Expected Date</label>
               <input
                 {...register("expectedDate", { required: true })}
                 type="date"
                 min={today}
                 defaultValue={today}
-                className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full px-4 py-2.5 bg-surface-container border border-outline-variant/50 rounded-lg text-on-surface font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all"
               />
-              {errors.appodate && (
-                <p className="mt-1 text-sm text-red-700">
-                  {errors.expectedDate.message}
-                </p>
-              )}
+              {errors.expectedDate && <p className="text-error text-xs font-label-md">{errors.expectedDate.message}</p>}
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end">
+          {/* Submit */}
+          <div className="flex justify-end pt-2">
             <button
               type="submit"
-              className="px-4 mb-4 py-2 text-white bg-emerald-500 rounded-lg hover:bg-emerald-600"
+              className="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-label-md rounded-lg shadow-sm transition-colors disabled:opacity-60 flex items-center gap-2"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : "Submit"}
+              {isSubmitting ? (
+                <>
+                  <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-base">check_circle</span>
+                  Confirm Appointment
+                </>
+              )}
             </button>
           </div>
         </form>

@@ -121,143 +121,157 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Login form section */}
-      <div className="w-full md:w-1/2  flex flex-col justify-center items-center p-8  rounded-lg">
-        <div className="w-full max-w-sm bg-white p-2 rounded-lg shadow-lg">
-          <button onClick={handleBackClick} className="text-emerald-600 mb-4">
-            <i className="fas fa-arrow-left"></i>
-          </button>
-          <div className="flex items-center justify-center">
-            <h2 className="text-2xl sm:text-4xl text-emerald-500 p-2 mb-6">
-              Let&apos;s you sign in
-            </h2>
+    <main className="w-full min-h-screen flex flex-col md:flex-row bg-surface pt-[80px]">
+      {/* Left Side: Image/Illustration */}
+      <section className="hidden md:flex w-full md:w-1/2 lg:w-7/12 bg-primary-container relative items-center justify-center overflow-hidden h-[calc(100vh-80px)]">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-container to-secondary opacity-90"></div>
+        {/* Background Pattern / Decoration */}
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+        {/* Content Container */}
+        <div className="relative z-10 w-full h-full flex flex-col justify-between p-xl">
+          {/* Brand Logo */}
+          <div className="flex items-center gap-xs text-on-primary">
+            <span className="material-symbols-outlined filled text-display-lg">health_and_safety</span>
+            <span className="font-display-lg text-headline-lg tracking-tight">MediMentor</span>
           </div>
+          <div className="flex-grow flex items-center justify-center w-full py-8">
+            <img alt="Medical Professional" className="w-4/5 max-w-lg h-auto object-cover rounded-xl shadow-2xl shadow-primary/20 aspect-[4/3]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2AWWGpu6opggMmqvMP_Js1cp3H3-OLiVbrAJcbQaQErG1EcrUhxb2qrEzY4TG-5_xBk1GgcUv_NbDGv1rMLa_E6i9D-whzgx0AxYGefd3iBlk0qPgCJ9EPYKmO9DfVzgIPxI5UsvT1jVZ43hA_48XcmIrkGfCmUmGj9_XQClkgFaMxUj_V0O154rqdcr7JxtHfHRenEDnu1FhR6vOI-5aLWYUZetZjQjdIcr_T1EysWVb5_RNziLogNijd76DbzCptde4cMiFKTCl" />
+          </div>
+          {/* Testimonial / Value Prop */}
+          <div className="max-w-md text-on-primary">
+            <p className="font-headline-md text-headline-md mb-sm text-balance">"Clinical Clarity Certified."</p>
+            <p className="font-body-lg text-body-lg text-primary-fixed-dim">Join thousands of healthcare professionals connecting and learning in a secure environment.</p>
+          </div>
+        </div>
+      </section>
+      
+      {/* Right Side: Login Form */}
+      <section className="w-full md:w-1/2 lg:w-5/12 flex flex-col items-center justify-between p-sm md:p-xl bg-surface min-h-[calc(100vh-80px)]">
+        <div className="w-full flex-grow flex items-center justify-center">
+          <div className="w-full max-w-md bg-surface-container-lowest p-lg rounded-xl border border-surface-container-highest shadow-sm">
+            {/* Back Button */}
+            <button onClick={handleBackClick} className="text-primary hover:text-primary-container mb-4 flex items-center transition-colors focus:outline-none">
+              <i className="fas fa-arrow-left mr-2"></i>
+            </button>
+            
+            {/* Mobile Brand (Hidden on Desktop) */}
+            <div className="md:hidden flex items-center gap-xs text-primary mb-xl justify-center">
+              <span className="material-symbols-outlined filled text-display-lg text-primary">health_and_safety</span>
+              <span className="font-display-lg text-headline-lg tracking-tight">MediMentor</span>
+            </div>
+            
+            <div className="mb-lg">
+              <h1 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Welcome back</h1>
+              <p className="font-body-md text-body-md text-tertiary">Please enter your credentials to access your account.</p>
+            </div>
+            
+            {/* Error Messages */}
+            {errorMessage.phoneError && <div className="mb-4 text-error text-sm">{errorMessage.phoneError}</div>}
+            {errorMessage.emailError && <div className="mb-4 text-error text-sm">{errorMessage.emailError}</div>}
+            {errorMessage.userNameError && <div className="mb-4 text-error text-sm">{errorMessage.userNameError}</div>}
+            {errorMessage.passwordError && <div className="mb-4 text-error text-sm">{errorMessage.passwordError}</div>}
+            {errorMessage.loginTypeError && <div className="mb-4 text-error text-sm">{errorMessage.loginTypeError}</div>}
+            {typeof errorMessage === 'string' && errorMessage && <div className="mb-4 text-error text-sm">{errorMessage}</div>}
 
-          {/* Error Message */}
-          {errorMessage.phoneError && (
-            <div className="mb-4 text-red-500 text-sm">
-              {errorMessage.phoneError}
-            </div>
-          )}
-          {errorMessage.emailError && (
-            <div className="mb-4 text-red-500 text-sm">
-              {errorMessage.emailError}
-            </div>
-          )}
-          {errorMessage.userNameError && (
-            <div className="mb-4 text-red-500 text-sm">
-              {errorMessage.userNameError}
-            </div>
-          )}
-          {errorMessage.passwordError && (
-            <div className="mb-4 text-red-500 text-sm">
-              {errorMessage.passwordError}
-            </div>
-          )}
-          {errorMessage.loginTypeError && (
-            <div className="mb-4 text-red-500 text-sm">
-              {errorMessage.loginTypeError}
-            </div>
-          )}
+            <form className="space-y-md" onSubmit={handleSubmit}>
+              {/* Login Type Dropdown */}
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface-variant mb-base" htmlFor="loginType">Select Role</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
+                    <span className="material-symbols-outlined">badge</span>
+                  </div>
+                  <select
+                    id="loginType"
+                    value={loginType}
+                    onChange={(e) => setLoginType(e.target.value)}
+                    className="block w-full pl-xl pr-sm py-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors appearance-none"
+                  >
+                    <option value="">Select role</option>
+                    <option value="user">User</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-tertiary">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                  </div>
+                </div>
+              </div>
 
-          <form
-            onSubmit={(e) => {
-              handleSubmit(e);
-            }}
-            className="p-5"
-          >
-            {/* Login Type Dropdown */}
-            <div className="mb-4 relative">
-              <label
-                className="block text-gray-600 text-sm font-medium mb-2"
-                htmlFor="loginType"
-              >
-                Select Role
-              </label>
-              <select
-                id="loginType"
-                value={loginType}
-                onChange={(e) => setLoginType(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 sm:py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              >
-                <option value="">Select role</option> {/* Updated default value */}
-                <option value="user">User</option>
-                <option value="doctor">Doctor</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            {/* Identifier Input */}
-            <div className="mb-4">
-              <label
-                className="block text-gray-600 text-sm font-medium mb-2"
-                htmlFor="identifier"
-              >
-                <span className="block sm:hidden">Username</span>
-                <span className="hidden sm:block">
-                  Email or Phone Number or Username
-                </span>
-              </label>
-              <input
-                className=" text-sm shadow appearance-none border rounded w-full py-2 sm:py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="identifier"
-                type="text"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="Email or Phone Number or Username"
-              />
-            </div>
-            {/* Password Input */}
-            <div className="mb-4">
-              <label
-                className="block text-gray-600 text-sm font-medium mb-2"
-                htmlFor="password"
-              >
-                Password
-              </label>
-              <input
-                className=" text-sm shadow appearance-none border rounded w-full py-2 sm:py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-              />
-              <div onClick={navigatebackupemail}>
-              <p className="text-sm text-emerald-500 mt-2 hover:cursor-pointer">Forgot Password</p>
+              {/* Identifier Input */}
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface-variant mb-base" htmlFor="identifier">Email, Phone, or Username</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
+                    <span className="material-symbols-outlined">person</span>
+                  </div>
+                  <input 
+                    className="block w-full pl-xl pr-sm py-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors placeholder:text-tertiary-fixed-dim" 
+                    id="identifier" 
+                    name="identifier" 
+                    placeholder="Email, Phone, or Username" 
+                    type="text"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                  />
+                </div>
               </div>
               
-            </div>
-            {/* Submit Button */}
-            <div className="mb-4">
-              <button
-                type="submit"
-                className="bg-emerald-400 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded w-full"
-              >
+              {/* Password Input */}
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface-variant mb-base" htmlFor="password">Password</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
+                    <span className="material-symbols-outlined">lock</span>
+                  </div>
+                  <input 
+                    className="block w-full pl-xl pr-sm py-sm font-body-md text-body-md text-on-surface bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors placeholder:text-tertiary-fixed-dim" 
+                    id="password" 
+                    name="password" 
+                    placeholder="••••••••" 
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end mt-xs">
+                  <span className="font-label-md text-label-md text-primary hover:text-primary-container transition-colors focus:ring-2 focus:ring-primary focus:outline-none rounded cursor-pointer" onClick={navigatebackupemail}>Forgot Password?</span>
+                </div>
+              </div>
+              
+              {/* Submit Button */}
+              <button className="w-full bg-primary-container text-on-primary font-label-md text-label-md py-sm px-md rounded-lg hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-container/20 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-primary-container flex items-center justify-center gap-xs" type="submit">
                 Sign In
+                <span className="material-symbols-outlined">arrow_forward</span>
               </button>
+            </form>
+            
+            {/* Divider */}
+            <div className="mt-lg mb-lg relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-surface-container-high"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-sm bg-surface-container-lowest font-caption text-caption text-tertiary">Secure Connection</span>
+              </div>
             </div>
-            {/* SignUp */}
-            <div
-              className="flex flex-row justify-center items-center"
-              onClick={navigateRegister}
-            >
-              <p className="text-center p-2 text-gray-600 text-sm">
-                Don&apos;t have an acoount?
+            
+            {/* Create Account Link */}
+            <div className="text-center">
+              <p className="font-body-md text-body-md text-tertiary">
+                Don't have an account? 
+                <span className="font-label-md text-label-md text-primary hover:text-primary-container transition-colors focus:ring-2 focus:ring-primary focus:outline-none rounded ml-xs cursor-pointer" onClick={navigateRegister}>Create an Account</span>
               </p>
-              <p className="text-sm text-emerald-500 hover:cursor-pointer">Signup</p>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
-
-      {/* Login Image Section */}
-      <div className="hidden md:flex md:w-1/2 p-1 justify-center items-center">
-        <div className="w-full max-w-lg bg-white p-2 rounded-lg shadow-lg">
-          <img src={LoginImg} alt="login img" className="max-w-full h-auto" />
+        
+        {/* Minimal Footer Note */}
+        <div className="w-full text-center py-6 hidden md:block">
+          <p className="font-caption text-caption text-tertiary">© 2024 MedCore Health Systems. Clinical Clarity Certified.</p>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
