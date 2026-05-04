@@ -12,3 +12,4 @@ node_modules
 dist
 dist-ssr
 *.local
+/stitch_medimentor_interactive_redesign/stitch_medimentor_interactive_redesign

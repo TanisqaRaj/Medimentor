@@ -21,24 +21,17 @@ const extractJSON = (raw = "") => {
   return match ? match[1].trim() : raw.trim();
 };
 
-// Upstash Redis — swap in when credentials are ready in .env
-// import { Redis } from "@upstash/redis";
-// const redis = new Redis({
-//   url: process.env.UPSTASH_REDIS_REST_URL,
-//   token: process.env.UPSTASH_REDIS_REST_TOKEN,
-// });
-// const CACHE_KEY = "doctor:meta";
-// const CACHE_TTL = 6 * 60 * 60;
-
-// In-memory fallback for local dev
-let _cache = { data: null, expiresAt: 0 };
+import { Redis } from "@upstash/redis";
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
+const CACHE_KEY = "doctor:meta";
+const CACHE_TTL = 6 * 60 * 60;
 
 const getProfessionsAndDepartments = async () => {
-  // TODO: swap to Redis when Upstash creds are set
-  // const cached = await redis.get(CACHE_KEY);
-  // if (cached) return cached;
-
-  if (_cache.data && Date.now() < _cache.expiresAt) return _cache.data;
+  const cached = await redis.get(CACHE_KEY);
+  if (cached) return cached;
 
   const [profAgg, deptAgg] = await Promise.all([
     Doctor.aggregate([{ $unwind: "$profession" }, { $group: { _id: null, professions: { $addToSet: "$profession" } } }]),
@@ -50,8 +43,7 @@ const getProfessionsAndDepartments = async () => {
     departments: deptAgg[0]?.departments || [],
   };
 
-  // await redis.set(CACHE_KEY, data, { ex: CACHE_TTL });
-  _cache = { data, expiresAt: Date.now() + 6 * 60 * 60 * 1000 };
+  await redis.set(CACHE_KEY, data, { ex: CACHE_TTL });
   return data;
 };
 
