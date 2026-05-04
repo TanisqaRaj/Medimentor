@@ -14,6 +14,7 @@ const VideoCall = ({ roomId, onEnd }) => {
   const remoteRef = useRef();
   const pcRef = useRef(null);
   const streamRef = useRef(null);
+  const iceCandidateBuffer = useRef([]); // buffer ICE candidates until remote desc is set
   const [status, setStatus] = useState("Connecting...");
   const [camOn, setCamOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
@@ -26,30 +27,43 @@ const VideoCall = ({ roomId, onEnd }) => {
 
   const toggleCam = () => {
     const track = streamRef.current?.getVideoTracks()[0];
-    if (track) { track.enabled = !track.enabled; setCamOn(track.enabled); }
+    if (!track) return;
+    track.enabled = !track.enabled;
+    setCamOn(track.enabled);
   };
 
   const toggleMic = () => {
     const track = streamRef.current?.getAudioTracks()[0];
-    if (track) { track.enabled = !track.enabled; setMicOn(track.enabled); }
+    if (!track) return;
+    track.enabled = !track.enabled;
+    setMicOn(track.enabled);
+  };
+
+  const flushIceCandidates = async (pc) => {
+    for (const c of iceCandidateBuffer.current) {
+      await pc.addIceCandidate(new RTCIceCandidate(c)).catch(() => {});
+    }
+    iceCandidateBuffer.current = [];
   };
 
   useEffect(() => {
     let pc;
 
     const start = async () => {
-      // 1. Get media first — so local preview shows immediately
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      } catch {
-        setStatus("Camera/mic access denied");
+      } catch (err) {
+        setStatus(err.name === "NotAllowedError" ? "Camera/mic permission denied" : "Camera/mic not available");
         return;
       }
       streamRef.current = stream;
       if (localRef.current) localRef.current.srcObject = stream;
 
-      // 2. Create peer connection and add tracks
+      // Reflect actual track state in UI
+      setCamOn(stream.getVideoTracks()[0]?.enabled ?? false);
+      setMicOn(stream.getAudioTracks()[0]?.enabled ?? false);
+
       pc = new RTCPeerConnection(ICE_SERVERS);
       pcRef.current = pc;
       stream.getTracks().forEach((t) => pc.addTrack(t, stream));
@@ -67,7 +81,6 @@ const VideoCall = ({ roomId, onEnd }) => {
         if (pc.connectionState === "disconnected" || pc.connectionState === "failed") handleEnd();
       };
 
-      // 3. Register signaling listeners before joining
       socket.on("user-joined", async () => {
         setStatus("Calling...");
         const offer = await pc.createOffer();
@@ -78,6 +91,7 @@ const VideoCall = ({ roomId, onEnd }) => {
       socket.on("offer", async ({ offer }) => {
         setStatus("Answering...");
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        await flushIceCandidates(pc);
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         socket.emit("answer", { roomId, answer });
@@ -85,10 +99,15 @@ const VideoCall = ({ roomId, onEnd }) => {
 
       socket.on("answer", async (answer) => {
         await pc.setRemoteDescription(new RTCSessionDescription(answer));
+        await flushIceCandidates(pc);
       });
 
       socket.on("ice-candidate", (candidate) => {
-        pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(() => {});
+        if (pc.remoteDescription) {
+          pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(() => {});
+        } else {
+          iceCandidateBuffer.current.push(candidate);
+        }
       });
 
       socket.on("user-left", () => {
@@ -96,7 +115,6 @@ const VideoCall = ({ roomId, onEnd }) => {
         setTimeout(onEnd, 1500);
       });
 
-      // 4. Join room only after everything is ready
       socket.emit("join-room", { roomId, token }, (res) => {
         if (res && !res.success) setStatus("Access denied: " + res.message);
       });
@@ -113,7 +131,7 @@ const VideoCall = ({ roomId, onEnd }) => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       pcRef.current?.close();
     };
-  }, [roomId]);
+  }, [roomId, handleEnd]);
 
   const btnBase = { border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 };
 
