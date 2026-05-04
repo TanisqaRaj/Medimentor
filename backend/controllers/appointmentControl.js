@@ -156,7 +156,7 @@ export const getDoctorAppointments = async (req, res) => {
             Appointment.find({ doctorID: doctorId, state: "pending" })
                 .populate({ path: "patientID", select: "name email phone gender" })
                 .select('-__v').lean(),
-            Appointment.find({ doctorID: doctorId, state: "approved" })
+            Appointment.find({ doctorID: doctorId, state: { $in: ["approved", "completed"] } })
                 .populate({ path: "patientID", select: "name email phone gender" })
                 .select('-__v').lean(),
         ]);

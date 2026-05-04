@@ -264,9 +264,18 @@ io.on("connection", (socket) => {
     recordSocketEvent("videoSignal");
   });
 
-  socket.on("leave-room", (roomId) => {
+  socket.on("leave-room", async (roomId) => {
     socket.to(roomId).emit("user-left");
     socket.leave(roomId);
+    try {
+      const appointment = await Appointment.findByIdAndUpdate(roomId, { state: "completed" }, { new: true });
+      if (appointment) {
+        io.emit(`updateAppointmentStatus/${appointment.patientID}`, { appointmentState: "completed", appointmentId: roomId });
+        io.emit(`updateAppointmentStatus/${appointment.doctorID}`, { appointmentState: "completed", appointmentId: roomId });
+      }
+    } catch (err) {
+      logger.error("leave-room update error:", err.message);
+    }
   });
 
   socket.on("disconnect", () => {

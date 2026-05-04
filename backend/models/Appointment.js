@@ -11,7 +11,7 @@ const appointmentSchema = new mongoose.Schema({
     age: { type: Number, required: true },
     title:{type: String, required: true},
     desc: { type: String, required: true },
-    state: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    state: { type: String, enum: ['pending', 'approved', 'rejected', 'completed'], default: 'pending' },
     expectedDate: { type: Date, required: true },
     patientAddress: { type: String, required: true },
     disease: { type: String, required: false},

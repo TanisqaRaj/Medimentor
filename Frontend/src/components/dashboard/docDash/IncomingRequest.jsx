@@ -16,14 +16,13 @@ const IncomingRequest = () => {
   const [action, setAction] = useState("");
   const [position, setPosition] = useState([51.505, -0.09]);
   const [activeCall, setActiveCall] = useState(null);
-  const [endedCalls, setEndedCalls] = useState(new Set()); // appointmentId of active call
+  const [endedCalls, setEndedCalls] = useState(new Set());
 
   const doctorId = useSelector((state) => state.auth.doctor._id);
   const token = useSelector((state) => state.auth.accessToken);
 
   const fetchAppointments = async () => {
     try {
-      
       const response = await api.get(`${BACKEND}/appointments/docapp/${doctorId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -39,6 +38,12 @@ const IncomingRequest = () => {
   };
 
   useEffect(() => { fetchAppointments(); }, []);
+
+  useEffect(() => {
+    const eventName = `updateAppointmentStatus/${doctorId}`;
+    socket.on(eventName, () => fetchAppointments());
+    return () => socket.off(eventName);
+  }, [doctorId]);
 
   const openPasswordPopup = (id) => { setAppointmentId(id); setAction("approved"); setAppVisible(true); };
   const openMap = (id) => { setAppointmentId(id); setAction("approved"); setMapVisible(true); };
@@ -125,9 +130,9 @@ const IncomingRequest = () => {
                     <span className="material-symbols-outlined text-base">cancel</span>
                     Rejected
                   </div>
-                ) : endedCalls.has(item.appointmentID) ? (
+                ) : item.status === "completed" || endedCalls.has(item.appointmentID) ? (
                   <div className="flex-grow flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 font-label-md">
-                    <span className="material-symbols-outlined text-base">check_circle</span>
+                    <span className="material-symbols-outlined text-base">task_alt</span>
                     Completed
                   </div>
                 ) : (
