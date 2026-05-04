@@ -82,7 +82,7 @@ const AppointmentHistory = () => {
                   </div>
                   <div>
                     <div className="font-caption text-caption text-outline mb-0.5">Date</div>
-                    <div className="font-label-md text-label-md text-on-surface">{item.appointment?.date}</div>
+                    <div className="font-label-md text-label-md text-on-surface">{item.appointment?.date ? new Date(item.appointment.date).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—"}</div>
                   </div>
                   <div>
                     <div className="font-caption text-caption text-outline mb-0.5">Mode</div>

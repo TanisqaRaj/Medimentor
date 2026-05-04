@@ -65,7 +65,7 @@ const DetailedAppoitmentList = ({ show, close, appointment }) => {
               { label: "Title", value: appointment?.appointment?.title },
               { label: "Description", value: appointment?.appointment?.description },
               { label: "Mode", value: appointment?.appointment?.mode },
-              { label: "Date", value: appointment?.appointment?.date },
+              { label: "Date", value: appointment?.appointment?.date ? new Date(appointment.appointment.date).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—" },
               { label: "Status", value: appointment?.status },
             ].map(({ label, value }) => (
               <div key={label}>
