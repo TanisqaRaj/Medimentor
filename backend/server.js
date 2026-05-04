@@ -68,7 +68,9 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   req.body   = mongoSanitize(req.body);
   req.params = mongoSanitize(req.params);
-  req.query  = mongoSanitize(req.query);
+  const sanitizedQuery = mongoSanitize({ ...req.query });
+  Object.keys(req.query).forEach((k) => delete req.query[k]);
+  Object.assign(req.query, sanitizedQuery);
   next();
 });
 
