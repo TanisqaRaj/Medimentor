@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -9,7 +8,7 @@ const doctorSchema = new mongoose.Schema(
         doctorId: {
             type: String,
             unique: true,
-        }, // Auto-generated ID based on department
+        },
         role: {
             type: String,
             required: true,
@@ -20,7 +19,7 @@ const doctorSchema = new mongoose.Schema(
         phone: {
             type: Number,
             required: true,
-            match: /^[0-9]{10}$/, // Ensures a valid 10-digit phone number
+            match: /^[0-9]{10}$/,
         },
         email: {
             type: String,
@@ -29,22 +28,24 @@ const doctorSchema = new mongoose.Schema(
             trim: true,
             lowercase: true,
         },
-        username: { type: String, required: true, unique: true }, // Unique username
-        certificate: { type: String, required: true }, // Certificate upload (URL or file path)
-        bio: { type: String, required: true }, // Short biography
-        image: { type: String, required: false }, // Profile picture (URL or file path)
+        username: { type: String, required: true, unique: true },
+        certificate: { type: String, required: true },
+        bio: { type: String, required: true },
+        image: { type: String, required: false },
         gender: {
             type: String,
             required: true,
             enum: ['male', 'female', 'other'],
         },
         rating: { type: Number, default: 4.5 },
-        profession:{type:[String],required:true},
-        experience: { type: Number, required: true }, // Experience in years
-        department: { type: String, required: true }, // Profession (e.g., General Physician, Surgeon)
-        fee:{type:Number, required: false,default: 500},
-        mciNumber: { type: String, required: true, unique: true }, // Unique Medical Council of India number
-        password: { type: String, required: true, minlength: 6 }, // Encrypted password
+        profession: { type: [String], required: true },
+        experience: { type: Number, required: true },
+        department: { type: String, required: true },
+        fee: { type: Number, required: false, default: 500 },
+        mciNumber: { type: String, required: true, unique: true },
+        password: { type: String, required: true, minlength: 6 },
+        otp: { type: String },
+        otpExpires: { type: Date },
     },
     { timestamps: true }
 );
@@ -52,13 +53,12 @@ const doctorSchema = new mongoose.Schema(
 // Middleware to auto-generate doctor ID
 doctorSchema.pre('save', async function (next) {
     if (!this.doctorId) {
-        const departmentCode = this.department.slice(0, 3).toUpperCase(); // First 3 letters of department
+        const departmentCode = this.department.slice(0, 3).toUpperCase();
         let newIdNumber = 1;
         let newDoctorId;
 
-        // Loop to ensure unique doctorId
         do {
-            newDoctorId = `${departmentCode}-${String(newIdNumber).padStart(4, '0')}`; // Format: DEP-0001
+            newDoctorId = `${departmentCode}-${String(newIdNumber).padStart(4, '0')}`;
             const existingDoctor = await mongoose.model('Doctor').findOne({ doctorId: newDoctorId });
             if (!existingDoctor) break;
             newIdNumber++;
@@ -68,6 +68,11 @@ doctorSchema.pre('save', async function (next) {
     }
     next();
 });
+
+// Query indexes
+doctorSchema.index({ department: 1 });
+doctorSchema.index({ profession: 1 });
+doctorSchema.index({ name: 'text', department: 'text', profession: 'text' });
 
 const Doctor = mongoose.models.Doctor || mongoose.model('Doctor', doctorSchema);
 export default Doctor;

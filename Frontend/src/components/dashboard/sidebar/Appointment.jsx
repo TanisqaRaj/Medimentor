@@ -1,8 +1,10 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../../api";
 import { useSelector } from "react-redux";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 export default function Appointment({ visible, onClose, doctorId }) {
   const handleOnClose = (e) => {
@@ -10,6 +12,7 @@ export default function Appointment({ visible, onClose, doctorId }) {
   };
 
   const userId = useSelector((state) => state.auth.user._id);
+  const token = useSelector((state) => state.auth.accessToken);
 
   const {
     register,
@@ -26,8 +29,8 @@ export default function Appointment({ visible, onClose, doctorId }) {
     console.log("userId", userId);
 
     try {
-      const response = await axios.post(
-        "https://medimentorbackend.onrender.com/appointments/create",
+      const response = await api.post(
+        `${BACKEND}/appointments/create`,
         appointmentData
       );
       if (response.data.success) {

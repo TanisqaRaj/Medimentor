@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    match: /^[0-9]{10}$/ // Ensures a valid 10-digit phone number
+    match: /^[0-9]{10}$/
   },
   username: {
     type: String,
@@ -52,26 +52,28 @@ const userSchema = new mongoose.Schema({
     enum: ['male', 'female', 'other'],
     default: 'male'
   },
+  otp: { type: String },
+  otpExpires: { type: Date },
 }, {
   timestamps: true,
-  toJSON: { virtuals: true }, // Include virtual fields in JSON output
-  toObject: { virtuals: true } // Include virtual fields in object output
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
-// Middleware to auto-assign numericId
 userSchema.pre('save', async function (next) {
   if (!this.numericId) {
     const lastUser = await mongoose.model('User').findOne().sort({ numericId: -1 });
-    this.numericId = lastUser ? lastUser.numericId + 1 : 1; // Start from 1
+    this.numericId = lastUser ? lastUser.numericId + 1 : 1;
   }
 
-  // Hash password before saving
-  
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
 
   next();
 });
 
-// Virtual to exclude sensitive data
 userSchema.virtual('publicProfile').get(function () {
   return {
     numericId: this.numericId,
@@ -86,5 +88,7 @@ userSchema.virtual('publicProfile').get(function () {
     updatedAt: this.updatedAt,
   };
 });
+
+// Query indexes
 
 export default mongoose.model('User', userSchema);

@@ -5,13 +5,15 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../reduxslice/AuthSlice";
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
 const Login = () => {
   const [identifier, setIdentifier] = useState(""); // Can be email, phone, or username
   const [password, setPassword] = useState("");
   const [loginType, setLoginType] = useState("");
   const [errorMessage, setErrorMessage] = useState({});
   const navigate = useNavigate();
-  const token = useSelector((state) => state.auth.token);
+  const token = useSelector((state) => state.auth.accessToken);
   console.log(token);
   // Regex validations
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -79,7 +81,7 @@ const Login = () => {
 
       console.log("Request Body:", requestBody); // Log the request body for debugging
 
-      const response = await fetch("https://medimentorbackend.onrender.com/auth/login", {
+      const response = await fetch(`${BACKEND}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,9 +93,7 @@ const Login = () => {
         const data = await response.json();
 
         // Store the token in local storage
-        dispatch(
-          login({
-            token: data.token,
+        dispatch(login({ accessToken: data.accessToken,
             user: data.user,
           })
         );
@@ -121,9 +121,9 @@ const Login = () => {
   };
 
   return (
-    <main className="w-full min-h-screen flex flex-col md:flex-row bg-surface pt-[80px]">
+    <main className="w-full min-h-screen flex flex-col md:flex-row bg-surface">
       {/* Left Side: Image/Illustration */}
-      <section className="hidden md:flex w-full md:w-1/2 lg:w-7/12 bg-primary-container relative items-center justify-center overflow-hidden h-[calc(100vh-80px)]">
+      <section className="hidden md:flex w-full md:w-1/2 lg:w-7/12 bg-primary-container relative items-center justify-center overflow-hidden h-screen">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-container to-secondary opacity-90"></div>
         {/* Background Pattern / Decoration */}
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
@@ -146,7 +146,7 @@ const Login = () => {
       </section>
       
       {/* Right Side: Login Form */}
-      <section className="w-full md:w-1/2 lg:w-5/12 flex flex-col items-center justify-between p-sm md:p-xl bg-surface min-h-[calc(100vh-80px)]">
+      <section className="w-full md:w-1/2 lg:w-5/12 flex flex-col items-center justify-between p-sm md:p-xl bg-surface min-h-screen">
         <div className="w-full flex-grow flex items-center justify-center">
           <div className="w-full max-w-md bg-surface-container-lowest p-lg rounded-xl border border-surface-container-highest shadow-sm">
             {/* Back Button */}

@@ -1,81 +1,28 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../../api";
+import { useSelector } from "react-redux";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const TotalDoctorsList = () => {
+  const [doctorList, setDoctorList] = useState([]);
+  const token = useSelector((state) => state.auth.accessToken);
 
-  //Api call
-  // const [DocList, setDocList] = useState([]);
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await api.get(`${BACKEND}/doctors/listdoctors?limit=100`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data.success) setDoctorList(response.data.doctors);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+      }
+    };
+    fetchDoctors();
+  }, []);
 
-  // const fetchDoclist = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://localhost:8080/registration/users`
-  //     );
-  //     const success = response?.data?.success;
-  //     console.log("response data is", response.data);
-  //     if (success) {
-  //       console.log(response.data);
-  //       setDocList(List);
-  //     } else {
-  //       alert("Something went wrong");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchDoclist();
-  // }, []);
-
-  const [doctorlist, setDoctorlist] =useState([
-    {
-      name: "Dr. Priya Sharma",
-      phone: 9876543210,
-      email: "priya.sharma@example.com",
-      username: "drpriyasharma",
-      certificate: "https://example.com/uploads/certificate.pdf",
-      bio: "Experienced general physician with over 10 years of practice.",
-      image: "https://example.com/uploads/profile-image.jpg",
-      gender: "female",
-      profession: ["General Physician", "Diabetologist"],
-      experience: 10,
-      department: "General Medicine",
-      mciNumber: "MCI-123456",
-    },
-    {
-      name: "Dr. Priya Sharma",
-      phone: 9876543210,
-      email: "priya.sharma@example.com",
-      username: "drpriyasharma",
-      certificate: "https://example.com/uploads/certificate.pdf",
-      bio: "Experienced general physician with over 10 years of practice.",
-      image: "https://example.com/uploads/profile-image.jpg",
-      gender: "female",
-      profession: ["General Physician", "Diabetologist"],
-      experience: 10,
-      department: "General Medicine",
-      mciNumber: "MCI-123456",
-    },
-    {
-      name: "Dr. Priya Sharma",
-      phone: 9876543210,
-      email: "priya.sharma@example.com",
-      username: "drpriyasharma",
-      certificate: "https://example.com/uploads/certificate.pdf",
-      bio: "Experienced general physician with over 10 years of practice.",
-      image: "https://example.com/uploads/profile-image.jpg",
-      gender: "female",
-      profession: ["General Physician", "Diabetologist"],
-      experience: 10,
-      department: "General Medicine",
-      mciNumber: "MCI-123456",
-    },
-  ]) 
-   
-  const handleDiscard = (index) => {
-    const updatedList = doctorlist.filter((_, i) => i !== index);
-    setDoctorlist(updatedList);
-  };
+  const handleDiscard = (index) => setDoctorList((prev) => prev.filter((_, i) => i !== index));
 
   return (
     <div className="w-full flex-grow max-w-[1280px] mx-auto px-6 py-8 font-manrope">
@@ -97,44 +44,31 @@ const TotalDoctorsList = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/30">
-              {doctorlist.map((item, index) => (
-                <tr key={index} className="hover:bg-surface-container-lowest/50 transition-colors group">
+              {doctorList.length === 0 ? (
+                <tr><td colSpan={5} className="px-6 py-12 text-center text-on-surface-variant font-body-md">No doctors found</td></tr>
+              ) : doctorList.map((item, index) => (
+                <tr key={index} className="hover:bg-surface-container-lowest/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="font-label-md text-on-surface">{item.name}</div>
-                    <div className="font-caption text-outline text-xs">{item.email}</div>
+                    <div className="font-caption text-outline text-xs">{item.doctorId}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="font-label-md text-on-surface">{item.department}</div>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {item.profession.map((prof, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded bg-primary-container/10 text-primary-container text-[10px] font-bold uppercase">
-                          {prof}
-                        </span>
+                    <div className="flex flex-wrap gap-1">
+                      {item.profession?.map((p, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded bg-primary-container/10 text-primary-container text-[10px] font-bold uppercase">{p}</span>
                       ))}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="font-body-md text-on-surface">{item.experience} Years</div>
-                    <div className="font-caption text-outline text-xs truncate max-w-[200px]">{item.bio}</div>
-                  </td>
+                  <td className="px-6 py-4 font-body-md text-on-surface">{item.experience} yrs</td>
                   <td className="px-6 py-4">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      Active
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Active
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-sm px-4 py-2 rounded-xl transition-all shadow-sm">
-                        Approve
-                      </button>
-                      <button 
-                        onClick={() => handleDiscard(index)}
-                        className="bg-surface-container hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 hover:border-red-200 font-label-md text-sm px-4 py-2 rounded-xl transition-all"
-                      >
-                        Discard
-                      </button>
-                    </div>
+                    <button onClick={() => handleDiscard(index)} className="bg-surface-container hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 font-label-md text-sm px-4 py-2 rounded-xl transition-all">
+                      Remove
+                    </button>
                   </td>
                 </tr>
               ))}

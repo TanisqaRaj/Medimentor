@@ -1,16 +1,20 @@
 import  { useEffect, useState } from "react";
 import PopupDetailedAppointment from "./PopupDetailedAppointment";
-import axios from "axios"; // Import axios for API calls
+import api from "../../api";
+import { useSelector } from "react-redux";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080"; // Import axios for API calls
 
 const TotalAppointmentList = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [appointmentState, setAppointmentState] = useState([]);
+  const token = useSelector((state) => state.auth.accessToken);
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await axios.get("https://healthcare-platform-server.vercel.app/appointments/all");
+        const response = await api.get(`${BACKEND}/appointments/all`);
         setAppointmentState(response.data.appointments); // Update state with fetched data
       } catch (error) {
         console.error("Error fetching appointments:", error);

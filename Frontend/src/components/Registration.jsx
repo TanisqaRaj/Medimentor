@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Multiselect from "multiselect-react-dropdown";
 import axios from "axios";
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
 const Registration = () => {
   const {
     register,
@@ -64,8 +66,8 @@ const Registration = () => {
   async function onSubmit(data) {
     let url =
       data.role === "patient"
-        ? "https://medimentorbackend.onrender.com/auth/register/user"
-        : "https://medimentorbackend.onrender.com/auth/register/doctor";
+        ? `${BACKEND}/auth/register/user`
+        : `${BACKEND}/auth/register/doctor`;
 
     const registerObj = {
       name: data.firstname.trim() + " " + data.lastname.trim(),
@@ -111,9 +113,9 @@ const Registration = () => {
   }
 
   return (
-    <main className="w-full min-h-screen flex flex-col lg:flex-row bg-surface pt-[80px]">
+    <main className="w-full min-h-screen flex flex-col lg:flex-row bg-surface">
       {/* Left Side: Image/Illustration */}
-      <div className="hidden lg:flex lg:w-5/12 relative bg-primary-container items-center justify-center p-xl overflow-hidden fixed top-[80px] left-0 h-[calc(100vh-80px)]">
+      <div className="hidden lg:flex lg:w-5/12 relative bg-primary-container items-center justify-center p-xl overflow-hidden sticky top-0 h-screen">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-container to-secondary opacity-90"></div>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
         <div className="relative z-10 w-full h-full flex flex-col justify-between p-xl">

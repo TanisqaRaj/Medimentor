@@ -39,7 +39,7 @@ const DocSidebar = () => {
         <div className="flex flex-col items-center px-4 pb-5 border-b border-outline-variant/30 mb-4 cursor-pointer" onClick={openProfile}>
           <div className="w-16 h-16 rounded-full bg-primary-container/20 border-2 border-primary-container/40 overflow-hidden shadow-sm mb-2 hover:ring-2 hover:ring-primary transition-all">
             <img
-              src={`data:image/png;base64,${doctor?.image}`}
+              src={`${doctor?.image}`}
               className="h-full w-full object-cover"
               alt="Doctor"
             />

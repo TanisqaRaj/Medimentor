@@ -1,65 +1,30 @@
-import React, { useState } from 'react'
+import { useEffect, useState } from "react";
+import api from "../../api";
+import { useSelector } from "react-redux";
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
+// Backend doesn't have a list-all-users endpoint yet — using totaldoctors route pattern
+// We'll add a /users/list route; for now fetch from auth verify or use existing data
 const TotalUserList = () => {
+  const [userList, setUserList] = useState([]);
+  const token = useSelector((state) => state.auth.accessToken);
 
-// const [userList , setUserList] = useState([]);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get(`${BACKEND}/auth/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data.success) setUserList(response.data.users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
- //Api call
-//  const fetchUserlist = async () => {
-//     try {
-//       const response = await axios.get(
-//         `http://localhost:8080/registration/users`
-//       );
-//       const success = response?.data?.success;
-//       console.log("response data is",response.data);
-//       if (success) {
-//         console.log(response.data);
-//         setUserList(List);
-//       } else {
-//         alert("Something went wrong");
-//       }
-//     } catch (error) {
-//       console.error("Error:", error);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchUserlist();
-//   }, []);
-
-
-const [userList, setUserList] = useState([
-  {
-    name: "Dr. Priya Sharma",
-    address: "123 Main St, Springfield",
-    phone: 9876543210,
-    email: "priya.sharma@example.com",
-    username: "drpriyasharma",
-    gender: "female",
-  },
-  {
-    name: "Dr. Priya Sharma",
-    address: "123 Main St, Springfield",
-    phone: 9876543210,
-    email: "priya.sharma@example.com",
-    username: "drpriyasharma",
-    gender: "female",
-  },
-  {
-    name: "Dr. Priya Sharma",
-    address: "123 Main St, Springfield",
-    phone: 9876543210,
-    email: "priya.sharma@example.com",
-    username: "drpriyasharma",
-    gender: "female",
-  },
-]) 
-
-const handleDiscard = (index) => {
-  const updatedList = userList.filter((_, i) => i !== index);
-  setUserList(updatedList);
-};
-
+  const handleDiscard = (index) => setUserList((prev) => prev.filter((_, i) => i !== index));
 
   return (
     <div className="w-full flex-grow max-w-[1280px] mx-auto px-6 py-8 font-manrope">
@@ -75,43 +40,34 @@ const handleDiscard = (index) => {
               <tr className="bg-surface-container-low border-b border-outline-variant/50">
                 <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">User</th>
                 <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Contact & Email</th>
-                <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Address</th>
+                <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Gender</th>
                 <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider">Status</th>
                 <th className="px-6 py-4 font-label-md text-label-md text-on-surface uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/30">
-              {userList.map((item, index) => (
-                <tr key={index} className="hover:bg-surface-container-lowest/50 transition-colors group">
+              {userList.length === 0 ? (
+                <tr><td colSpan={5} className="px-6 py-12 text-center text-on-surface-variant font-body-md">No users found</td></tr>
+              ) : userList.map((item, index) => (
+                <tr key={index} className="hover:bg-surface-container-lowest/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="font-label-md text-on-surface">{item.name}</div>
-                    <div className="font-caption text-outline text-xs">@{item.username} • {item.gender}</div>
+                    <div className="font-caption text-outline text-xs">@{item.username}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="font-label-md text-on-surface">{item.phone}</div>
                     <div className="font-caption text-outline text-xs">{item.email}</div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="font-body-md text-sm text-on-surface max-w-[250px] truncate">{item.address}</div>
-                  </td>
+                  <td className="px-6 py-4 font-body-md text-on-surface capitalize">{item.gender}</td>
                   <td className="px-6 py-4">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      Verified
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Verified
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-label-md text-sm px-4 py-2 rounded-xl transition-all shadow-sm">
-                        Approve
-                      </button>
-                      <button 
-                        onClick={() => handleDiscard(index)}
-                        className="bg-surface-container hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 hover:border-red-200 font-label-md text-sm px-4 py-2 rounded-xl transition-all"
-                      >
-                        Discard
-                      </button>
-                    </div>
+                    <button onClick={() => handleDiscard(index)} className="bg-surface-container hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 font-label-md text-sm px-4 py-2 rounded-xl transition-all">
+                      Remove
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -123,4 +79,4 @@ const handleDiscard = (index) => {
   );
 };
 
-export default TotalUserList
+export default TotalUserList;

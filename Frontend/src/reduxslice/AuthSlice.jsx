@@ -4,13 +4,12 @@ export const AuthSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    token: 1234,
+    accessToken: null,
     doctor: null,
   },
   reducers: {
-    //functions logic
     login: (state, action) => {
-      state.token = action.payload.token;
+      state.accessToken = action.payload.accessToken;
       if (action.payload.user.role === "doctor") {
         state.doctor = action.payload.user;
         state.user = null;
@@ -19,14 +18,17 @@ export const AuthSlice = createSlice({
         state.doctor = null;
       }
     },
+    // Called by axios interceptor when a new accessToken is issued
+    setAccessToken: (state, action) => {
+      state.accessToken = action.payload;
+    },
     logout: (state) => {
       state.user = null;
-      state.token = null;
+      state.accessToken = null;
       state.doctor = null;
     },
   },
 });
 
-export const { login, logout } = AuthSlice.actions;
-
+export const { login, logout, setAccessToken } = AuthSlice.actions;
 export default AuthSlice.reducer;

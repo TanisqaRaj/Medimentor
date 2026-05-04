@@ -1,16 +1,17 @@
-import axios from "axios";
+import api from "../../../api";
 import  { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const AppointmentHistory = () => {
   const [appointmentHistory, setAppointmentHistory] = useState([]);
   const userId = useSelector((state) => state.auth.user._id);
+  const token = useSelector((state) => state.auth.accessToken);
 
   const fetchAppointmentHistory = async () => {
     try {
-      const response = await axios.get(
-        `https://healthcare-platform-server.vercel.app/appointments/history/${userId}`
-      );
+      const response = await api.get(`${BACKEND}/appointments/history/${userId}`);
       console.log("userId is", userId);
       console.log("appointment history list ", response.data);
       const success = response?.data?.success;

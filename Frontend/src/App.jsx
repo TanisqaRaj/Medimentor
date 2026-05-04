@@ -1,381 +1,118 @@
 import "./App.css";
-import About from "./components/pages/About";
-import Header from "./Pharmacy/Components/Header";
-import Footer from "./Pharmacy/Components/Footer";
-import Hero from "./Pharmacy/Components/hero/Hero";
+import { lazy, Suspense } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+// Always-loaded (tiny, needed on every page)
 import NavBar from "./Pharmacy/Components/NavBar";
-import Services from "./Pharmacy/Components/navbar/Services";
-import Contact from "./components/pages/Contact/Contact";
-import NotFound from "./Pharmacy/Components/navbar/NotFound";
-import Carousel from "./Pharmacy/Components/hero/Carousel";
-import TermsAndCond from "./Pharmacy/Components/hero/footer/TermsAndCond";
-import HelpCenter from "./Pharmacy/Components/hero/footer/HelpCenter";
-import Registration from "./components/Registration";
-import PrivacyPolicy from "./Pharmacy/Components/hero/footer/PrivacyPolicy";
-import Landing from "./Landing";
-import Login from "./components/Login";
-import Sidebar from "./components/dashboard/Sidebar";
-import Content from "./components/dashboard/Content";
-import AppointmentList from "./components/dashboard/sidebar/AppointmentList";
-import Appointment from "./components/dashboard/sidebar/Appointment";
-import BookAppointment from "./components/dashboard/sidebar/BookAppointment";
-import DocSidebar from "./components/dashboard/docDash/DocSidebar";
-import DocContent from "./components/dashboard/docDash/DocContent";
-import IncomingRequest from "./components/dashboard/docDash/IncomingRequest";
-import AppointmentHistory from "./components/dashboard/sidebar/AppointmentHistory";
-import AdminSidebar from "./components/Admin/AdminSidebar";
-import AdminContent from "./components/Admin/AdminContent";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  useNavigate,
-} from "react-router-dom";
-import TotalDoctorsList from "./components/Admin/TotalDoctorsList";
-import TotalUserList from "./components/Admin/TotalUserList";
-import TotalAppointmentList from "./components/Admin/TotalAppointmentList";
-import UserProfile from "./components/dashboard/sidebar/Profile/UserProfile";
-import DoctorProfile from "./components/dashboard/sidebar/Profile/DoctorProfile";
-import Map from "./components/Map";
-import ScheduledMeet from "./components/dashboard/sidebar/ScheduledMeet";
-import ForgotpasswordEmail from "./components/ForgotpasswordEmail";
+import Footer from "./Pharmacy/Components/Footer";
+
+// Lazy-loaded — each becomes its own chunk, loaded only when navigated to
+const Landing        = lazy(() => import("./Landing"));
+const Login          = lazy(() => import("./components/Login"));
+const Registration   = lazy(() => import("./components/Registration"));
+const About          = lazy(() => import("./components/pages/About"));
+const Services       = lazy(() => import("./Pharmacy/Components/navbar/Services"));
+const Contact        = lazy(() => import("./components/pages/Contact/Contact"));
+const NotFound       = lazy(() => import("./Pharmacy/Components/navbar/NotFound"));
+const Header         = lazy(() => import("./Pharmacy/Components/Header"));
+const Hero           = lazy(() => import("./Pharmacy/Components/hero/Hero"));
+const Carousel       = lazy(() => import("./Pharmacy/Components/hero/Carousel"));
+const TermsAndCond   = lazy(() => import("./Pharmacy/Components/hero/footer/TermsAndCond"));
+const HelpCenter     = lazy(() => import("./Pharmacy/Components/hero/footer/HelpCenter"));
+const PrivacyPolicy  = lazy(() => import("./Pharmacy/Components/hero/footer/PrivacyPolicy"));
+const ForgotpasswordEmail = lazy(() => import("./components/ForgotpasswordEmail"));
+const ThankYou = lazy(() => import("./components/ThankYou"));
+
+// User dashboard
+const Sidebar           = lazy(() => import("./components/dashboard/Sidebar"));
+const Content           = lazy(() => import("./components/dashboard/Content"));
+const AppointmentList   = lazy(() => import("./components/dashboard/sidebar/AppointmentList"));
+const Appointment       = lazy(() => import("./components/dashboard/sidebar/Appointment"));
+const BookAppointment   = lazy(() => import("./components/dashboard/sidebar/BookAppointment"));
+const AppointmentHistory = lazy(() => import("./components/dashboard/sidebar/AppointmentHistory"));
+const UserProfile       = lazy(() => import("./components/dashboard/sidebar/Profile/UserProfile"));
+const ScheduledMeet     = lazy(() => import("./components/dashboard/sidebar/ScheduledMeet"));
+const Map               = lazy(() => import("./components/Map"));
+
+// Doctor dashboard
+const DocSidebar      = lazy(() => import("./components/dashboard/docDash/DocSidebar"));
+const DocContent      = lazy(() => import("./components/dashboard/docDash/DocContent"));
+const IncomingRequest = lazy(() => import("./components/dashboard/docDash/IncomingRequest"));
+const DoctorProfile   = lazy(() => import("./components/dashboard/sidebar/Profile/DoctorProfile"));
+
+// Admin dashboard
+const AdminSidebar          = lazy(() => import("./components/Admin/AdminSidebar"));
+const AdminContent          = lazy(() => import("./components/Admin/AdminContent"));
+const TotalDoctorsList      = lazy(() => import("./components/Admin/TotalDoctorsList"));
+const TotalUserList         = lazy(() => import("./components/Admin/TotalUserList"));
+const TotalAppointmentList  = lazy(() => import("./components/Admin/TotalAppointmentList"));
+const AdminMonitor          = lazy(() => import("./components/Admin/AdminMonitor"));
+
+// Spinner shown while lazy chunks load
+const Loader = () => (
+  <div className="w-full min-h-screen flex items-center justify-center">
+    <span className="material-symbols-outlined text-4xl text-emerald-600 animate-spin">progress_activity</span>
+  </div>
+);
+
+const Page = ({ children }) => (
+  <div className="flex flex-col min-h-screen">
+    <NavBar />
+    <Suspense fallback={<Loader />}>{children}</Suspense>
+    <Footer />
+  </div>
+);
+
+const DashLayout = ({ sidebar, content }) => (
+  <Page>
+    <div className="flex flex-1 min-h-[calc(100vh-64px)]">
+      <Suspense fallback={null}>{sidebar}</Suspense>
+      <Suspense fallback={<Loader />}>{content}</Suspense>
+    </div>
+  </Page>
+);
 
 function App() {
   const router = createBrowserRouter([
-    {
-      path: "/",
-      element: (
-        <div className="relative">
-          <NavBar />
-          <Landing />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/about",
-      element: (
-        <div>
-          <NavBar />
-          <About />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/services",
-      element: (
-        <div>
-          <NavBar />
-          <Services />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/contact",
-      element: (
-        <div>
-          <NavBar />
-          <Contact />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/pharmacy",
-      element: (
-        <div>
-          <NavBar />
-          <Header />
-          <Carousel />
-          <Hero />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/login",
-      element: (
-        <div>
-          <NavBar />
-          <Login />,
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/registration",
-      element: (
-        <div>
-          <NavBar />
-          <Registration />,
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/terms",
-      element: (
-        <div>
-          <NavBar />
-          <TermsAndCond />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/privacypolicy",
-      element: (
-        <div>
-          <NavBar />
-          <Carousel />
-          <PrivacyPolicy />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/helpcenter",
-      element: (
-        <div>
-          <NavBar />
-          <HelpCenter />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/dashboard",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <Sidebar />
-            <Content />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/appointmentlist",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <Sidebar />
-            <AppointmentList />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/appointment",
-      element: (
-        <div>
-          <NavBar />
-          <Appointment />
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/bookappointment",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <Sidebar />
-            <BookAppointment />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/appointmenthistory",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <Sidebar />
-            <AppointmentHistory/>
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/doctordashboard",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <DocSidebar/>
-            <DocContent />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/incomingrequest",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <DocSidebar />
-            <IncomingRequest />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/appointmenthistory",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <DocSidebar />
-            <AppointmentHistory />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/admindashboard",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <AdminSidebar />
-            <AdminContent />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/doctorlist",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <AdminSidebar />
-            <TotalDoctorsList />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/userlist",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <AdminSidebar />
-            <TotalUserList />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path:"/totalappointmentlist",
-      element: (
-        <div>
-          <NavBar />
-          <div className="w-full flex">
-            <AdminSidebar />
-            <TotalAppointmentList />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path:"/userprofile",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <Sidebar />
-            <UserProfile />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path:"/doctorprofile",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <DocSidebar />
-            <DoctorProfile />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path:"/scheduledmeet",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <Sidebar />
-            <ScheduledMeet />
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/map",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <Sidebar />
-            <Map/>
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/docmap",
-      element: (
-        <div>
-          <NavBar />
-          <div className="flex">
-            <DocSidebar />
-            <Map/>
-          </div>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/forgotpasswordemail",
-      element: (
-        <div>
-          <NavBar />
-          <ForgotpasswordEmail/>
-          <Footer />
-        </div>
-      ),
-    },
-    {
-      path: "/*",
-      element: <NotFound />,
-    },
+    // Public
+    { path: "/",              element: <Page><Landing /></Page> },
+    { path: "/about",         element: <Page><About /></Page> },
+    { path: "/services",      element: <Page><Services /></Page> },
+    { path: "/contact",       element: <Page><Contact /></Page> },
+    { path: "/pharmacy",      element: <Page><Header /><Carousel /><Hero /></Page> },
+    { path: "/login",         element: <Page><Login /></Page> },
+    { path: "/registration",  element: <Page><Registration /></Page> },
+    { path: "/terms",         element: <Page><TermsAndCond /></Page> },
+    { path: "/privacypolicy", element: <Page><Carousel /><PrivacyPolicy /></Page> },
+    { path: "/helpcenter",    element: <Page><HelpCenter /></Page> },
+    { path: "/forgotpasswordemail", element: <Page><ForgotpasswordEmail /></Page> },
+    { path: "/thankyou", element: <Page><ThankYou /></Page> },
+
+    // User
+    { path: "/dashboard",          element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<Content />} />} /> },
+    { path: "/appointmentlist",    element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<AppointmentList />} />} /> },
+    { path: "/bookappointment",    element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<BookAppointment />} />} /> },
+    { path: "/appointmenthistory", element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<AppointmentHistory />} />} /> },
+    { path: "/userprofile",        element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<UserProfile />} />} /> },
+    { path: "/scheduledmeet",      element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<ScheduledMeet />} />} /> },
+    { path: "/map",                element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<Map />} />} /> },
+    { path: "/appointment",        element: <ProtectedRoute allowedRoles={["user"]} element={<Page><Appointment /></Page>} /> },
+
+    // Doctor
+    { path: "/doctordashboard", element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<DocContent />} />} /> },
+    { path: "/incomingrequest", element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<IncomingRequest />} />} /> },
+    { path: "/doctorprofile",   element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<DoctorProfile />} />} /> },
+    { path: "/docmap",          element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<Map />} />} /> },
+
+    // Admin
+    { path: "/admindashboard",       element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<AdminContent />} />} /> },
+    { path: "/doctorlist",           element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalDoctorsList />} />} /> },
+    { path: "/userlist",             element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalUserList />} />} /> },
+    { path: "/totalappointmentlist", element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalAppointmentList />} />} /> },
+    { path: "/monitor",              element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<AdminMonitor />} />} /> },
+
+    { path: "/*", element: <NotFound /> },
   ]);
 
   return <RouterProvider router={router} />;

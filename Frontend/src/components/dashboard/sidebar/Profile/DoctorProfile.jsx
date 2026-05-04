@@ -9,7 +9,7 @@ const DoctorProfile = () => {
       <div className="w-full shadow-lg rounded-lg p-16 items-center justify-center border">
         <div className="h-24 w-24 border shadow-lg rounded-full overflow-hidden">
           <img
-            src={`data:image/png;base64,${user?.image}`}
+            src={`${user?.image}`}
             className="h-full w-full object-cover"
           />
         </div>

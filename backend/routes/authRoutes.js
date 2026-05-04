@@ -1,32 +1,23 @@
 import express from 'express';
-import { checkTokenExpiry, registerUser } from '../controllers/authController.js';
-import { registerDoctor } from '../controllers/authController.js';
-import { loginAuth } from '../controllers/authController.js';
-import{sendOtp,verifyOtp,updatePassword} from '../controllers/authController.js'
-//import { verifyToken } from '../middleware/verifyToken.js'; // Ensure the middleware is correctly imported
+import {
+  checkTokenExpiry, registerUser, registerDoctor, loginAuth,
+  sendOtp, verifyOtp, updatePassword, listUsers,
+  refreshToken, logoutAuth, updateProfile
+} from '../controllers/authController.js';
+import { verifyToken } from '../middleware/verifyToken.js';
 
 const router = express.Router();
 
-// Route for user registration (public)
 router.post('/register/user', registerUser);
-
-// Route for doctor registration (public)
 router.post('/register/doctor', registerDoctor);
-
-// Route for login (public)
 router.post('/login', loginAuth);
-
+router.post('/refresh', refreshToken);
+router.post('/logout', logoutAuth);
 router.post('/verify-token', checkTokenExpiry);
-
-//Route for password reset 
-
 router.post('/send-otp', sendOtp);
 router.post('/verify-otp', verifyOtp);
-router.put('/update-password', updatePassword)
-
-// Example of a protected route
-// router.get('/protected', verifyToken, (req, res) => {
-//   res.status(200).json({ message: 'Access granted to protected route', user: req.user });
-// });
+router.put('/update-password', updatePassword);
+router.put('/update-profile', verifyToken, updateProfile);
+router.get('/users', verifyToken, listUsers);
 
 export default router;

@@ -2,33 +2,60 @@ import Doctor from "../models/Doctor.js";
 import User from "../models/user.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
-import sharp from "sharp";
 
 dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Hoist model — no need to re-instantiate per request
+const geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// 🔓 Decode Base64 Image
-const decodeBase64 = (base64String) => {
-  try {
-    if (!base64String) return null;
-    return base64String; // Image is already optimized using Sharp
-  } catch (error) {
-    console.error("❌ Decode Error:", error.message);
-    return null;
-  }
-};
+const decodeBase64 = (base64String) => base64String || null;
 
-/**
- ✅ Function to check if the query is a symptom using AI
- */
-const isSymptom = async (query) => {
+const isSymptom = (query) => {
   const lower = query.toLowerCase();
-  return /\b(i have|pain|ache|fever|cold|dizzy|nausea|vomit|symptom|cough|suffering|infection)\b/.test(
-    lower
-  );
+  return /\b(i have|pain|ache|fever|cold|dizzy|nausea|vomit|symptom|cough|suffering|infection|headache|fatigue|swelling|rash|bleeding|breathing|chest|stomach|back|joint|skin|eye|ear|throat|heart|kidney|liver|diabetes|cancer|allergy)\b/.test(lower);
 };
 
-// ✅ Search Doctors
+// Strip markdown code fences Gemini sometimes wraps around JSON
+const extractJSON = (raw = "") => {
+  const match = raw.match(/```(?:json)?\s*([\s\S]*?)```/) || raw.match(/(\{[\s\S]*\})/);
+  return match ? match[1].trim() : raw.trim();
+};
+
+// Upstash Redis — swap in when credentials are ready in .env
+// import { Redis } from "@upstash/redis";
+// const redis = new Redis({
+//   url: process.env.UPSTASH_REDIS_REST_URL,
+//   token: process.env.UPSTASH_REDIS_REST_TOKEN,
+// });
+// const CACHE_KEY = "doctor:meta";
+// const CACHE_TTL = 6 * 60 * 60;
+
+// In-memory fallback for local dev
+let _cache = { data: null, expiresAt: 0 };
+
+const getProfessionsAndDepartments = async () => {
+  // TODO: swap to Redis when Upstash creds are set
+  // const cached = await redis.get(CACHE_KEY);
+  // if (cached) return cached;
+
+  if (_cache.data && Date.now() < _cache.expiresAt) return _cache.data;
+
+  const [profAgg, deptAgg] = await Promise.all([
+    Doctor.aggregate([{ $unwind: "$profession" }, { $group: { _id: null, professions: { $addToSet: "$profession" } } }]),
+    Doctor.aggregate([{ $group: { _id: null, departments: { $addToSet: "$department" } } }]),
+  ]);
+
+  const data = {
+    professions: profAgg[0]?.professions || [],
+    departments: deptAgg[0]?.departments || [],
+  };
+
+  // await redis.set(CACHE_KEY, data, { ex: CACHE_TTL });
+  _cache = { data, expiresAt: Date.now() + 6 * 60 * 60 * 1000 };
+  return data;
+};
+
+// Search Doctors
 export const searchdoctor = async (req, res) => {
   const { query = "", page = 1, limit = 10, isDoctor } = req.query;
   const safeQuery = query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -38,177 +65,99 @@ export const searchdoctor = async (req, res) => {
     let professions = [];
     let departments = [];
 
-    if (isDoctor !== "true" && safeQuery) {
-      const symptom = await isSymptom(safeQuery);
-      console.log("🔍 Symptom Detected?", symptom);
+    if (isDoctor !== "true" && safeQuery && isSymptom(safeQuery)) {
+      ({ professions, departments } = await getProfessionsAndDepartments());
 
-      if (symptom) {
-        // Fetch all professions & departments
-        const profAgg = await Doctor.aggregate([
-          { $unwind: "$profession" },
-          { $group: { _id: null, professions: { $addToSet: "$profession" } } },
-          { $project: { _id: 0, professions: 1 } },
-        ]);
-        const deptAgg = await Doctor.aggregate([
-          { $group: { _id: null, departments: { $addToSet: "$department" } } },
-          { $project: { _id: 0, departments: 1 } },
-        ]);
-        professions = profAgg[0]?.professions || [];
-        departments = deptAgg[0]?.departments || [];
+      try {
+        const prompt = `A patient reports: "${query}"\nChoose from:\n  professions: ${JSON.stringify(professions)}\n  departments: ${JSON.stringify(departments)}\nReturn ONLY valid JSON, no markdown: { "professions": [...], "departments": [...] }`;
 
-        // Ask AI to match
+        const aiResp = await geminiModel.generateContent({ contents: [{ role: "user", parts: [{ text: prompt }] }] });
+        const raw = aiResp.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
         try {
-          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-          const prompt = `
-A patient reports: "${query}"
-Choose from:
-  professions: ${JSON.stringify(professions)}
-  departments: ${JSON.stringify(departments)}
-Return exactly:
-  { "professions": [...], "departments": [...] }
-          `.trim();
-
-          const aiResp = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-          });
-          const raw =
-            aiResp.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-          let parsed = { professions: [], departments: [] };
-          try {
-            parsed = JSON.parse(raw);
-          } catch (e) {
-            console.error("❌ AI JSON Parse Error:", raw);
-          }
-
-          professions = Array.isArray(parsed.professions)
-            ? parsed.professions
-            : [];
-          departments = Array.isArray(parsed.departments)
-            ? parsed.departments
-            : [];
-        } catch (aiErr) {
-          console.error("❌ AI Fetch Error:", aiErr.message);
+          const parsed = JSON.parse(extractJSON(raw));
+          professions = Array.isArray(parsed.professions) ? parsed.professions : [];
+          departments = Array.isArray(parsed.departments) ? parsed.departments : [];
+        } catch {
+          console.error("AI JSON parse error:", raw);
         }
+      } catch (aiErr) {
+        console.error("AI fetch error:", aiErr.message);
+      }
 
-        const orQuery = [];
-        if (professions.length)
-          orQuery.push({ profession: { $in: professions } });
-        if (departments.length)
-          orQuery.push({ department: { $in: departments } });
+      const orQuery = [];
+      if (professions.length) orQuery.push({ profession: { $in: professions } });
+      if (departments.length) orQuery.push({ department: { $in: departments } });
 
-        if (orQuery.length) {
-          searchQuery = { $or: orQuery };
-        } else {
-          searchQuery = {
-            $or: [
-              { profession: { $regex: safeQuery, $options: "i" } },
-              { department: { $regex: safeQuery, $options: "i" } },
-            ],
-          };
-        }
+      if (orQuery.length) {
+        searchQuery = { $or: orQuery };
+      } else {
+        searchQuery = { $or: [{ profession: { $regex: safeQuery, $options: "i" } }, { department: { $regex: safeQuery, $options: "i" } }] };
       }
     }
 
-    // Fallback or normal doctor search
     if (!Object.keys(searchQuery).length) {
       const regex = new RegExp(safeQuery, "i");
-      searchQuery = {
-        $or: [{ name: regex }, { profession: regex }, { department: regex }],
-      };
+      searchQuery = { $or: [{ name: regex }, { profession: regex }, { department: regex }] };
     }
-
-    console.log(
-      "🧾 Final MongoDB Query:",
-      JSON.stringify(searchQuery, null, 2)
-    );
 
     const doctors = await Doctor.find(searchQuery)
       .limit(Number(limit))
       .skip((Number(page) - 1) * Number(limit))
       .select("image name department profession doctorId");
 
-    const doctorsWithImages = doctors.map((doc) => ({
-      ...doc.toObject(),
-      image: decodeBase64(doc.image),
-    }));
-
     res.status(200).json({
       success: true,
-      totalResults: doctorsWithImages.length,
+      totalResults: doctors.length,
       professions,
       departments,
       page: Number(page),
-      doctors: doctorsWithImages,
+      doctors: doctors.map((doc) => ({ ...doc.toObject(), image: decodeBase64(doc.image) })),
     });
   } catch (err) {
-    console.error("❌ searchdoctor Error:", err.message);
-    res
-      .status(500)
-      .json({ success: false, message: "Server Error: " + err.message });
+    console.error("searchdoctor error:", err.message);
+    res.status(500).json({ success: false, message: "Server Error: " + err.message });
   }
 };
 
-// ✅ Get All Doctors with Optimized Images
+// Get all doctors (paginated)
 export const getDoctors = async (req, res) => {
   try {
-    const { page = 1, limit = 10, lastId } = req.query;
+    const { limit = 10, lastId } = req.query;
+    const filter = lastId ? { _id: { $gt: lastId } } : {};
 
-    let filter = {};
-    if (lastId) {
-      filter = { _id: { $gt: lastId } }; // Fetch doctors after last seen _id
-    }
+    const [doctors, totalDoctors] = await Promise.all([
+      Doctor.find(filter).sort({ _id: 1 }).limit(parseInt(limit)).select("image name rating fee bio profession doctorId"),
+      Doctor.countDocuments(),
+    ]);
 
-    const doctors = await Doctor.find(filter)
-      .sort({ _id: 1 })
-      .limit(parseInt(limit))
-      .select("image name rating fee bio profession doctorId");
-
-    const totalDoctors = await Doctor.countDocuments();
-
-    // ✅ Return Optimized Images
-    const doctorsWithImages = doctors.map((doctor) => ({
-      ...doctor.toObject(),
-      image: decodeBase64(doctor.image), // Return Base64 as is (already optimized)
-    }));
-
-    console.log("📥 Fetched Doctors:", doctorsWithImages.length);
+    const result = doctors.map((doc) => ({ ...doc.toObject(), image: decodeBase64(doc.image) }));
 
     res.status(200).json({
       success: true,
       totalDoctors,
-      doctors: doctorsWithImages,
-      lastId: doctorsWithImages.length
-        ? doctorsWithImages[doctorsWithImages.length - 1]._id
-        : null,
+      doctors: result,
+      lastId: result.length ? result[result.length - 1]._id : null,
     });
   } catch (error) {
-    res.status(500).json({ message: "❌ Server Error: " + error.message });
+    res.status(500).json({ message: "Server Error: " + error.message });
   }
 };
 
-// ✅ Get Total Number of Doctors
 export const getTotalDoctors = async (req, res) => {
   try {
     const totalDoctors = await Doctor.countDocuments();
-    res.status(200).json({
-      success: true,
-      totalDoctors,
-    });
+    res.status(200).json({ success: true, totalDoctors });
   } catch (error) {
-    res.status(500).json({ message: "❌ Server Error: " + error.message });
+    res.status(500).json({ message: "Server Error: " + error.message });
   }
 };
-
-//get total number of users
 
 export const getTotalUsers = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
-    res.status(200).json({
-      success: true,
-      totalUsers,
-    });
+    res.status(200).json({ success: true, totalUsers });
   } catch (error) {
-    res.status(500).json({ message: " server Error : " + error.message });
+    res.status(500).json({ message: "Server Error: " + error.message });
   }
 };

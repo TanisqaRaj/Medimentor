@@ -48,4 +48,9 @@ appointmentSchema.methods.generateAppointmentID = async function () {
     this.appointmentID = `${departmentCode}${date}${randomNumber}`;
 };
 
+// Query indexes
+appointmentSchema.index({ patientID: 1, expectedDate: 1 });
+appointmentSchema.index({ doctorID: 1, state: 1 });
+appointmentSchema.index({ state: 1 });
+
 export default mongoose.model('Appointment', appointmentSchema);

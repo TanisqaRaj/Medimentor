@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 import AOS from "aos";
 import "aos/dist/aos.css";
 //import doctor from "./assets/images/doctorsGrpPic1.webp";
@@ -26,7 +28,7 @@ const Landing = () => {
   const fetchTotalUsers = async () => {
     try {
       const response = await axios.get(
-        "https://healthcare-platform-server.vercel.app/doctors/totalusers"
+        `${BACKEND}/doctors/totalusers`
       );
       const success = response?.data?.success;
 
@@ -44,7 +46,7 @@ const Landing = () => {
   const fetchTotalDoctors = async () => {
     try {
       const response = await axios.get(
-        "https://healthcare-platform-server.vercel.app/doctors/totaldoctors"
+        `${BACKEND}/doctors/totaldoctors`
       );
       const success = response?.data?.success;
 
@@ -64,7 +66,7 @@ const Landing = () => {
     fetchTotalDoctors();
   }, []);
   return (
-    <main className="w-full pt-[80px] bg-background selection:bg-primary-container selection:text-on-primary-container m-0 p-0 overflow-hidden">
+    <main className="w-full bg-background selection:bg-primary-container selection:text-on-primary-container m-0 p-0 overflow-hidden">
       <title>Doctor Appointment - Clinical Clarity</title>
 
       {/* Hero Section */}

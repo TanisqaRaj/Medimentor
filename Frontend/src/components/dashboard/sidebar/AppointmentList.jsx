@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
 import DetailedAppoitmentList from "./DetailedAppoitmentList";
 import { useSelector } from "react-redux";
-import axios from "axios";
-import { io } from "socket.io-client";
+import api from "../../../api";
 import { useDispatch} from "react-redux";
 import { appointmentDetails } from "../../../reduxslice/ScheduleMeetSlice";
 
-const socket = io("https://medimentorbackend.onrender.com"); // Replace with your backend URL
+import socket from "../../../socket";
+import { CardSkeleton } from "../../Skeleton";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const AppointmentList = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [appointmentState, setAppointmentState] = useState([]);
+  const [loading, setLoading] = useState(true);
   const userId = useSelector((state) => state.auth.user._id);
+  const token = useSelector((state) => state.auth.accessToken);
   const dispatch = useDispatch();
 
   const handleShowDetails = (appointment) => {
@@ -23,14 +27,13 @@ const AppointmentList = () => {
   // API call to fetch appointments
   const fetchAppointmentlist = async () => {
     try {
-      const response = await axios.get(
-        `https://healthcare-platform-server.vercel.app/appointments/current/${userId}`
-      );
+      const response = await api.get(`${BACKEND}/appointments/current/${userId}`);
       console.log("userId is", userId);
       const success = response?.data?.success;
 
       if (success) {
         setAppointmentState(response.data.appointments || []);
+        setLoading(false);
         
         const meetDetailsArray = response.data.appointments.map((appointmentData) => ({
           patient: appointmentData.patient,
@@ -46,6 +49,7 @@ const AppointmentList = () => {
     } catch (error) {
       console.error("Error:", error);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -54,32 +58,8 @@ const AppointmentList = () => {
 
   useEffect(() => {
     const eventName = `updateAppointmentStatus/${userId}`;
-
-    socket.on(eventName, (updatedAppointment) => {
-      console.log("Previous appointments:", appointmentState);
-      console.log("Received updated appointment:", updatedAppointment);
-
-      setAppointmentState((prevAppointments) => {
-        let updatedIndex = prevAppointments.findIndex(
-          (appointment) =>
-            appointment.appointmentID === updatedAppointment.appointmentId
-        );
-
-        console.log("updatedIndex", updatedIndex);
-
-        if (updatedIndex !== -1) {
-          let updatedAppointments = [...prevAppointments];
-          updatedAppointments[updatedIndex] = updatedAppointment.appointment;
-          return updatedAppointments;
-        }
-
-        return prevAppointments;
-      });
-    });
-
-    return () => {
-      socket.off(eventName);
-    };
+    socket.on(eventName, () => fetchAppointmentlist());
+    return () => socket.off(eventName);
   }, [userId]); // Remove `appointmentState` from dependencies
 
   const handleClose = () => setPopupVisible(false);
@@ -113,7 +93,9 @@ const AppointmentList = () => {
         </span>
       </div>
 
-      {appointmentState.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{[...Array(4)].map((_, i) => <CardSkeleton key={i} />)}</div>
+      ) : appointmentState.length === 0 ? (
         <div className="py-20 flex flex-col items-center justify-center bg-surface-container-low rounded-xl border border-outline-variant/30">
           <span className="material-symbols-outlined text-5xl text-outline mb-3">event_busy</span>
           <p className="font-headline-md text-on-surface-variant">No active appointments</p>

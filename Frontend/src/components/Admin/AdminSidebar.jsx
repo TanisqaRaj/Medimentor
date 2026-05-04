@@ -18,6 +18,7 @@ const AdminSidebar = () => {
         { title: "registered User", icon: <FaUser />, path:"/userlist" },
         { title: "Verify Doctor", icon: <FaUserCheck />, path: "https://www.nmc.org.in/information-desk/indian-medical-register/" },
         { title: "Dashboard", icon: <FaBookMedical /> ,path:"/admindashboard"},
+        { title: "Monitor", icon: <FaBookMedical />, path: "/monitor" },
       ];
 
   return (
@@ -37,7 +38,7 @@ const AdminSidebar = () => {
         <div className="flex flex-col items-center px-4 pb-5 border-b border-outline-variant/30 mb-4">
           <div className="w-16 h-16 rounded-full bg-primary-container/20 border-2 border-primary-container/40 overflow-hidden shadow-sm mb-2">
             <img
-              src={`data:image/png;base64,${user?.image}`}
+              src={`${user?.image}`}
               className="h-full w-full object-cover"
               alt="Admin"
             />

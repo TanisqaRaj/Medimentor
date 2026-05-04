@@ -4,7 +4,10 @@ import Appointment from "./Appointment";
 import { FaStar } from "react-icons/fa";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import InfiniteScroll from "react-infinite-scroll-component";
-import axios from "axios";
+import api from "../../../api";
+import { DoctorCardSkeleton } from "../../Skeleton";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const BookAppointment = () => {
   const [appVisible, setAppVisible] = useState(false);
@@ -14,45 +17,22 @@ const BookAppointment = () => {
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [totalDoctors, setTotalDoctors] = useState(0);
   const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
   useEffect(() => {
-    fetchTotalDoctors();
+    fetchInitialData();
   }, []);
 
-  // Count Total Doctors
-  const fetchTotalDoctors = async () => {
-    try {
-      const response = await axios.get("https://medimentorbackend.onrender.com/doctors/totaldoctors");
-      const success = response?.data?.success;
-
-      if (success) {
-        const total = response.data.totalDoctors;
-        setTotalDoctors(total);
-
-        if (total > 0) {
-          await fetchInitialData();
-        }
-      } else {
-        alert("Something went wrong");
-      }
-    } catch (error) {
-      console.error("Error fetching total doctors:", error);
-    }
-  };
-
-  // Fetch Initial Data
   const fetchInitialData = async () => {
     try {
-      const response = await axios.get("https://medimentorbackend.onrender.com/doctors/listdoctors?page=0&limit=10");
-      const success = response?.data?.success;
-
-      if (success) {
+      const response = await api.get(`${BACKEND}/doctors/listdoctors?page=0&limit=10`);
+      setLoadingDoctors(false);
+      if (response?.data?.success) {
         setVisibleDoctors(response.data.doctors);
+        setTotalDoctors(response.data.totalDoctors);
         setPage((prev) => prev + 1);
-      } else {
-        alert("Something went wrong");
       }
     } catch (error) {
-      console.error(" Error fetching initial data:", error);
+      console.error("Error fetching doctors:", error);
     }
   };
 
@@ -63,13 +43,13 @@ const BookAppointment = () => {
       return;
     }
     try {
-      let url = `https://healthcare-platform-server.vercel.app/doctors/listdoctors?page=${page}&limit=10`;
+      let url = `${BACKEND}/doctors/listdoctors?page=${page}&limit=10`;
       if (visibleDoctors.length > 0) {
         const lastDoctor = visibleDoctors[visibleDoctors.length - 1];
-        url = `https://healthcare-platform-server.vercel.app/doctors/listdoctors?page=${page}&limit=10&lastId=${lastDoctor._id}`;
+        url = `${BACKEND}/doctors/listdoctors?page=${page}&limit=10&lastId=${lastDoctor._id}`;
       }
 
-      const response = await axios.get(url);
+      const response = await api.get(url);
       const success = response?.data?.success;
 
       if (success) {
@@ -107,6 +87,9 @@ const BookAppointment = () => {
         </div>
 
         {/* Doctor Listing */}
+        {loadingDoctors ? (
+          <div className="flex flex-col gap-5">{[...Array(3)].map((_, i) => <DoctorCardSkeleton key={i} />)}</div>
+        ) : (
         <InfiniteScroll
           dataLength={visibleDoctors.length}
           next={fetchData}
@@ -132,7 +115,7 @@ const BookAppointment = () => {
                   {/* Doctor Avatar */}
                   <div className="w-32 h-32 shrink-0 rounded-xl overflow-hidden border border-surface-variant bg-surface-container">
                     <img
-                      src={`data:image/jpeg;base64,${item?.image}`}
+                      src={`${item?.image}`}
                       alt={item?.name}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                     />
@@ -210,6 +193,7 @@ const BookAppointment = () => {
             )}
           </div>
         </InfiniteScroll>
+        )}
       </div>
 
       <Appointment onClose={handleOnClose} visible={appVisible} doctorId={selectedDoctorId} />

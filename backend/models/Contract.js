@@ -26,18 +26,15 @@ const contractSchema = new mongoose.Schema(
   }
 );
 
-contractSchema.pre("save", function (next) {
+contractSchema.pre("save", async function () {
   if (!this.meetingDetails) this.meetingDetails = {};
-
   if (!this.meetingDetails.meetingId) {
     const date = new Date();
-    this.meetingDetails.meetingId = `${this.appointmentId}${date
-      .toISOString()
-      .replace(/[^0-9]/g, "")}`;
-    console.log("Generated meeting ID:", this.meetingDetails.meetingId);
+    this.meetingDetails.meetingId = `${this.appointmentId}${date.toISOString().replace(/[^0-9]/g, "")}`;
   }
-
-  next();
 });
+
+// Query indexes
+contractSchema.index({ appointmentId: 1 });
 
 export default mongoose.model("Contract", contractSchema);

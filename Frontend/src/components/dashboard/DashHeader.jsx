@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { RiArrowDropDownLine } from "react-icons/ri";
-import axios from "axios";
+import api from "../../api";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const DashHeader = ({ setFilteredDoctors }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +41,7 @@ useEffect(() => {
     // debouncing
     timeoutId = setTimeout(() => {
       filterDoctors();
-    }, 2000);
+    }, 600);
   }
 
   return () => {
@@ -53,8 +55,8 @@ useEffect(() => {
       setFilteredDoctors([]);
       return;
     }
-    const response = await axios.get(
-      `https://healthcare-platform-server.vercel.app/doctors/searchdoctor?query=${searchTerm}&isDoctor=${isDoctor}`
+    const response = await api.get(
+      `${BACKEND}/doctors/searchdoctor?query=${encodeURIComponent(searchTerm)}&isDoctor=${isDoctor}`
     );
     let success = response?.data?.success;
     if (success) {
@@ -72,7 +74,6 @@ useEffect(() => {
         setFilteredDoctors(newDoctors);
       }
     } else {
-      alert("something went wrong");
       setFilteredDoctors([]);
     }
   };

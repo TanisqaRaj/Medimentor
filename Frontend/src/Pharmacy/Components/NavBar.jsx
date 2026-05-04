@@ -8,7 +8,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../reduxslice/AuthSlice";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,8 +16,9 @@ const NavBar = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const doctor = useSelector((state) => state.auth.doctor);
-  const token = useSelector((state) => state.auth.token);
-  const handleLogout = () => {
+  const token = useSelector((state) => state.auth.accessToken);
+  const handleLogout = async () => {
+    try { await api.post("/auth/logout"); } catch {}
     dispatch(logout());
     navigate("/");
   };
@@ -36,7 +37,7 @@ const NavBar = () => {
     };
     if (token) {
       axios
-        .post("http://localhost:8080/auth/verify-token", tokenObj)
+        .post(import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/auth/verify-token` : "http://localhost:8080/auth/verify-token", tokenObj)
         .then((response) => {
           if (response.data.success) {
             response.data.user.role === "user"
@@ -60,7 +61,7 @@ const NavBar = () => {
   }, []);
 
   return (
-    <header className="fixed top-0 w-full z-50 border-b border-gray-100 bg-white/95 backdrop-blur-md shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] font-manrope text-sm tracking-tight">
+    <header className="w-full z-10 border-b border-gray-100 bg-white shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] font-manrope text-sm tracking-tight">
       <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
         {/* Logo & Main Nav */}
         <div className="flex items-center gap-8">

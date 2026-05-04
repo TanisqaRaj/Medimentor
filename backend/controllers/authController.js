@@ -3,119 +3,48 @@ import User from "../models/user.js";
 import Admin from "../models/Admin.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import sharp from "sharp";
 import mailerSystem from "../mailingconfig.js";
-
-// 🗜️ Compress Image Using Sharp
-const compressImage = async (base64String) => {
-  if (!base64String) return null;
-
-  // ✅ Detect Image Format (JPEG or PNG)
-  let format = "jpeg";
-  if (base64String.startsWith("/9j")) format = "jpeg";
-  else if (base64String.startsWith("iVBORw0KGgo")) format = "png";
-
-  // ✅ Ensure Prefix Exists
-  const base64Data = base64String.startsWith("data:image")
-    ? base64String
-    : `data:image/${format};base64,${base64String}`;
-
-  // ✅ Convert Base64 to Buffer
-  const buffer = Buffer.from(base64Data.split(",")[1], "base64");
-
-  // ✅ Compress Using Sharp
-  try {
-    const compressedBuffer = await sharp(buffer)
-      .resize({ width: 300 }) // Resize to 300px width
-      .toFormat(format) // Explicitly set the image format
-      .jpeg({ quality: 60 }) // Compress as JPEG with 60% quality
-      .toBuffer();
-
-    return compressedBuffer.toString("base64");
-  } catch (error) {
-    console.error("❌ Sharp Error:", error.message);
-    throw new Error("Image compression failed");
-  }
-};
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 // ✅ User Registration
-// export const registerUser = async (req, res) => {
-//   const { name, email, phone, role, image, username, password, gender } =
-//     req.body;
-
-//   try {
-//     const userExists = await User.findOne({
-//       $or: [{ email }, { phone }, { username }],
-//     });
-//     if (userExists)
-//       return res.status(400).json({ message: "User already exists" });
-
-//     const salt = await bcrypt.genSalt(10);
-//     const hashedPassword = await bcrypt.hash(password, salt);
-
-//     // 🗜️ Compress Image if Provided
-//     const compressedImage = image ? await compressImage(image) : null;
-
-//     const user = new User({
-//       role,
-//       name,
-//       email,
-//       phone,
-//       username,
-//       image: compressedImage, // Store compressed image
-//       password: hashedPassword,
-//       gender,
-//     });
-
-//     await user.save();
-//     return res.status(201).json({ message: "User registered successfully" });
-//   } catch (error) {
-//     console.error("❌ Error in registerUser:", error.message);
-//     return res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
-
 export const registerUser = async (req, res) => {
   const { name, email, phone, role, image, username, password, gender } = req.body;
 
+  // Input validation
+  if (!name || !email || !phone || !username || !password || !gender) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  if (name.trim().length < 2) {
+    return res.status(400).json({ message: "Name must be at least 2 characters" });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+  if (!/^[0-9]{10}$/.test(phone)) {
+    return res.status(400).json({ message: "Phone must be 10 digits" });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  }
+  if (!['male', 'female', 'other'].includes(gender)) {
+    return res.status(400).json({ message: "Invalid gender value" });
+  }
+
   try {
-    // ✅ Check if user exists (as before)
-    const userExists = await User.findOne({
-      $or: [{ email }, { phone }, { username }],
-    });
-    if (userExists)
-      return res.status(400).json({ message: "User already exists" });
+    const userExists = await User.findOne({ $or: [{ email }, { phone }, { username }] });
+    if (userExists) return res.status(400).json({ message: "User already exists" });
 
-    // ✅ Password hashing
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const imageUrl = await uploadToCloudinary(image, "medimentor/users");
 
-    // 🗜️ Compress image if provided
-    const compressedImage = image ? await compressImage(image) : null;
+    const user = new User({ role, name, email, phone, username, image: imageUrl, password, gender });
 
-    // ✅ Create user object
-    const user = new User({
-      role,
-      name,
-      email,
-      phone,
-      username,
-      image: compressedImage,
-      password: hashedPassword,
-      gender,
-    });
-
-    // ✅ Save user (race-condition safe with try/catch for duplicate keys)
     try {
       await user.save();
     } catch (err) {
       if (err.code === 11000) {
-        return res.status(400).json({
-          message: "User already exists",
-          duplicateField: Object.keys(err.keyValue)[0],
-        });
+        return res.status(400).json({ message: "User already exists", duplicateField: Object.keys(err.keyValue)[0] });
       }
-      throw err; // Re-throw other errors
+      throw err;
     }
 
     return res.status(201).json({ message: "User registered successfully" });
@@ -127,67 +56,32 @@ export const registerUser = async (req, res) => {
 
 // ✅ Doctor Registration
 export const registerDoctor = async (req, res) => {
-  const {
-    role,
-    name,
-    email,
-    phone,
-    username,
-    bio,
-    gender,
-    mciNumber,
-    department,
-    experience,
-    password,
-    certificate,
-    profession,
-    image,
-  } = req.body;
+  const { role, name, email, phone, username, bio, gender, mciNumber, department, experience, password, certificate, profession, image } = req.body;
+
+  // Input validation
+  if (!name || !email || !phone || !username || !bio || !gender || !mciNumber || !department || !experience || !password || !certificate || !profession) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ message: "Invalid email format" });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ message: "Password must be at least 6 characters" });
+  }
 
   try {
-    const doctorExists = await Doctor.findOne({
-      $or: [{ email }, { phone }, { username }, { mciNumber }],
-    });
-    if (doctorExists)
-      return res.status(400).json({ message: "Doctor already exists" });
+    const doctorExists = await Doctor.findOne({ $or: [{ email }, { phone }, { username }, { mciNumber }] });
+    if (doctorExists) return res.status(400).json({ message: "Doctor already exists" });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // 🗜️ Compress Profile Image if Provided (JPEG/PNG Only)
     const compressedImage = image ? await compressImage(image) : null;
+    const certificateData = certificate && certificate.startsWith("JVBER")
+      ? certificate
+      : certificate ? await compressImage(certificate) : null;
 
-    // 📄 Store Certificate as-is if PDF, Otherwise Compress if Image
-    const certificateData =
-      certificate && certificate.startsWith("JVBER")
-        ? certificate // Store PDF as-is
-        : certificate
-          ? await compressImage(certificate) // Compress if it's an image
-          : null;
-
-    const doctor = new Doctor({
-      role,
-      name,
-      email,
-      phone,
-      username,
-      certificate: certificateData, // Store PDF or Compressed Image
-      image: compressedImage, // Store Compressed Profile Image
-      bio,
-      gender,
-      mciNumber,
-      department,
-      experience,
-      profession,
-      password: hashedPassword,
-    });
+    const doctor = new Doctor({ role, name, email, phone, username, certificate: certificateData, image: imageUrl, bio, gender, mciNumber, department, experience, profession, password });
 
     await doctor.save();
-    // Send minimal data in the response
-    return res.status(201).json({
-      message: "Doctor registered successfully",
-      doctor: { _id: doctor._id, name: doctor.name, email: doctor.email },
-    });
+    return res.status(201).json({ message: "Doctor registered successfully", doctor: { _id: doctor._id, name: doctor.name, email: doctor.email } });
   } catch (error) {
     console.error("❌ Error in registerDoctor:", error.message);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -195,132 +89,132 @@ export const registerDoctor = async (req, res) => {
 };
 
 // ✅ Create JWT Token
-const createToken = (userId) => {
-  return jwt.sign({ _id: userId }, process.env.JWT_SECRET, {
-    algorithm: "HS256",
-    expiresIn: process.env.JWT_EXPIRY,
-  });
+// ✅ Token helpers
+const createAccessToken = (userId, role) =>
+  jwt.sign({ _id: userId, role }, process.env.JWT_SECRET, { algorithm: "HS256", expiresIn: "15m" });
+
+const createRefreshToken = (userId, role) =>
+  jwt.sign({ _id: userId, role }, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET + "_refresh", { algorithm: "HS256", expiresIn: "7d" });
+
+const COOKIE_OPTS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
-// ✅ Login Function
+// ✅ Login
 export const loginAuth = async (req, res) => {
   const { email, username, password, role } = req.body;
 
   if ((!email && !username) || !password || !role) {
-    console.error("❌ Missing fields in login request:", { email, username, role });
     return res.status(400).json({ message: "Please fill all the fields" });
+  }
+  if (!['user', 'doctor', 'admin'].includes(role)) {
+    return res.status(400).json({ message: "Invalid role" });
   }
 
   try {
     let user;
     if (role === "user") {
-      user = await User.findOne(
-        { $or: [{ email }, { username }] },
-        { password: 1, name: 1, email: 1, role: 1, image: 1 } // Added image field
-      );
+      user = await User.findOne({ $or: [{ email }, { username }] }, { password: 1, name: 1, email: 1, role: 1, image: 1 });
     } else if (role === "doctor") {
-      user = await Doctor.findOne(
-        { $or: [{ email }, { username }] },
-        { password: 1, name: 1, email: 1, role: 1, image: 1 } // Added image field
-      );
+      user = await Doctor.findOne({ $or: [{ email }, { username }] }, { password: 1, name: 1, email: 1, role: 1, image: 1 });
     } else if (role === "admin") {
-      user = await Admin.findOne(
-        { $or: [{ email }, { username }] },
-        { password: 1, name: 1, username: 1, role: 1, email: 1 }
-      );
+      user = await Admin.findOne({ $or: [{ email }, { username }] }, { password: 1, name: 1, username: 1, role: 1, email: 1 });
     }
-    if (!user) {
-      console.error("❌ User not found:", { email, username, role });
-      return res.status(401).json({ message: "Invalid Credentials" });
-    }
+
+    if (!user) return res.status(401).json({ message: "Invalid Credentials" });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      console.error("❌ Invalid password for user:", { email, username, role });
-      return res.status(401).json({ message: "Invalid Credentials" });
-    }
+    if (!isPasswordValid) return res.status(401).json({ message: "Invalid Credentials" });
 
-    const token = createToken(user._id);
-    console.log("✅ Login successful:", { userId: user._id, role });
+    const accessToken = createAccessToken(user._id, user.role);
+    const refreshToken = createRefreshToken(user._id, user.role);
 
-    // Send minimal user/admin data in the response
-    const responseData = {
-      _id: user._id,
-      name: user.name,
-      role: user.role,
-      image: user.image, // Include image in response
-    };
+    // Set refresh token in httpOnly cookie
+    res.cookie("refreshToken", refreshToken, COOKIE_OPTS);
 
+    const responseData = { _id: user._id, name: user.name, role: user.role, image: user.image };
     if (role === "admin") {
       responseData.username = user.username;
-      responseData.redirectUrl = "/admindashboard"; // Add redirect URL for admin
     } else {
       responseData.email = user.email;
     }
 
-    return res.status(200).json({
-      message: "Login Success",
-      token,
-      success: true,
-      user: responseData,
-    });
+    return res.status(200).json({ message: "Login Success", accessToken, success: true, user: responseData });
   } catch (error) {
     console.error("❌ Login error:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
 
-// ✅ Token Expiry Check
+// ✅ Refresh — issues new accessToken using httpOnly cookie
+export const refreshToken = (req, res) => {
+  const token = req.cookies?.refreshToken;
+  if (!token) return res.status(401).json({ message: "No refresh token" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET + "_refresh");
+    const accessToken = createAccessToken(decoded._id, decoded.role);
+    return res.status(200).json({ accessToken });
+  } catch {
+    res.clearCookie("refreshToken", COOKIE_OPTS);
+    return res.status(401).json({ message: "Refresh token expired. Please login again." });
+  }
+};
+
+// ✅ Logout — clears the refresh token cookie
+export const logoutAuth = (req, res) => {
+  res.clearCookie("refreshToken", COOKIE_OPTS);
+  return res.status(200).json({ success: true, message: "Logged out" });
+};
+
+
+// ✅ Token Expiry Check — checks User, Doctor, and Admin
 export const checkTokenExpiry = async (req, res) => {
   const token = req.body?.token;
   if (!token) {
-    return res
-      .status(200)
-      .json({ success: false, message: "Access Denied. No token provided." });
+    return res.status(200).json({ success: false, message: "No token provided." });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded._id);
+
+    const user =
+      (await User.findById(decoded._id).select('-password -otp -otpExpires')) ||
+      (await Doctor.findById(decoded._id).select('-password -otp -otpExpires')) ||
+      (await Admin.findById(decoded._id).select('-password'));
 
     if (!user) {
-      return res
-        .status(200)
-        .json({ success: false, message: "User not found" });
+      return res.status(200).json({ success: false, message: "User not found" });
     }
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Token is valid", user });
+    return res.status(200).json({ success: true, message: "Token is valid", user });
   } catch (error) {
     console.error("❌ Token verification failed:", error.message);
     return res.status(200).json({ success: false, message: "Invalid Token" });
   }
 };
 
-/***************************** Forget Password **************************************/
+// ✅ Send OTP
 export const sendOtp = async (req, res) => {
   try {
     const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
 
-    // Search in both User and Doctor collections
-    const user = await User.findOne({ email });
-    const doctor = await Doctor.findOne({ email });
-
-    if (!user && !doctor) {
-      return res.status(400).json({ message: "User not found" });
-    }
+    const user = (await User.findOne({ email })) || (await Doctor.findOne({ email }));
+    if (!user) return res.status(400).json({ message: "User not found" });
 
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const target = user || doctor; // Determine which collection the email belongs to
-    target.otp = otp;
-    target.otpExpires = Date.now() + 5 * 60 * 1000; // 5 min expiry
-    await target.save();
+    user.otp = otp;
+    user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    await user.save();
 
     await mailerSystem.sendMail({
       to: email,
       subject: "OTP for password reset",
-      text: `Your OTP is ${otp} valid for 5 minutes.`,
+      text: `Your OTP is ${otp}. Valid for 5 minutes.`,
     });
 
     res.status(200).json({ success: true, message: "OTP sent to email" });
@@ -329,71 +223,43 @@ export const sendOtp = async (req, res) => {
   }
 };
 
+// ✅ Verify OTP
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
+    if (!email || !otp) return res.status(400).json({ message: "Email and OTP are required" });
 
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = await Doctor.findOne({ email });
-    }
+    const user = (await User.findOne({ email })) || (await Doctor.findOne({ email }));
+    if (!user) return res.status(400).json({ message: "Email not found" });
 
-    if (!user) {
-      return res.status(400).json({ message: "Email not found" });
-    }
+    if (user.otp !== otp) return res.status(400).json({ message: "Invalid OTP" });
+    if (!user.otpExpires || user.otpExpires < Date.now()) return res.status(400).json({ message: "OTP expired" });
 
-    if (user.otp !== otp) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
-
-    if (user.otpExpires < Date.now()) {
-      return res.status(400).json({ message: "OTP expired" });
-    }
-
-    // Clear OTP
     user.otp = null;
     user.otpExpires = null;
     await user.save();
 
-    // Generate JWT token
-    const resetToken = jwt.sign(
-      { email: user.email },
-      process.env.JWT_SECRET || "secretkey",
-      { expiresIn: "5m" } // 5 minutes token
-    );
+    const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: "5m" });
 
-    res.status(200).json({
-      success: true,
-      message: "OTP Verified. Use reset token to change password.",
-      resetToken,
-    });
+    res.status(200).json({ success: true, message: "OTP verified.", resetToken });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
 
-//update password
+// ✅ Update Password
 export const updatePassword = async (req, res) => {
   try {
     const { resetToken, newPassword } = req.body;
-    if (!resetToken) {
-      return res.status(400).json({ message: "Reset Token required" });
-    }
+    if (!resetToken || !newPassword) return res.status(400).json({ message: "Reset token and new password are required" });
+    if (newPassword.length < 6) return res.status(400).json({ message: "Password must be at least 6 characters" });
 
-    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET || "secretkey");
+    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
 
-    let user = await User.findOne({ email: decoded.email });
-    if (!user) {
-      user = await Doctor.findOne({ email: decoded.email });
-    }
+    const user = (await User.findOne({ email: decoded.email })) || (await Doctor.findOne({ email: decoded.email }));
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-    user.password = hashedPassword;
+    user.password = newPassword; // pre-save hook will hash it
     await user.save();
 
     res.status(200).json({ success: true, message: "Password updated successfully" });
@@ -402,5 +268,57 @@ export const updatePassword = async (req, res) => {
       return res.status(401).json({ message: "Reset token expired. Please generate a new OTP." });
     }
     res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+
+// ✅ List all users (admin only)
+export const listUsers = async (req, res) => {
+  if (req.user?.role !== "admin") return res.status(403).json({ message: "Admin access required" });
+  try {
+    const users = await User.find().select('-password -otp -otpExpires').lean();
+    res.status(200).json({ success: true, users });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error: " + error.message });
+  }
+};
+
+// ✅ Update profile — name, image, password
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, image, currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+    const role = req.user.role;
+
+    const Model = role === "doctor" ? Doctor : role === "user" ? User : null;
+    if (!Model) return res.status(400).json({ message: "Invalid role" });
+
+    const user = await Model.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (name) user.name = name.trim();
+
+    if (image) {
+      const folder = role === "doctor" ? "medimentor/doctors" : "medimentor/users";
+      user.image = await uploadToCloudinary(image, folder);
+    }
+
+    if (newPassword) {
+      if (!currentPassword) return res.status(400).json({ message: "Current password required" });
+      const valid = await bcrypt.compare(currentPassword, user.password);
+      if (!valid) return res.status(401).json({ message: "Current password is incorrect" });
+      if (newPassword.length < 6) return res.status(400).json({ message: "New password must be at least 6 characters" });
+      user.password = newPassword; // pre-save hook hashes it
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: { _id: user._id, name: user.name, image: user.image, role: user.role },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error: " + error.message });
   }
 };

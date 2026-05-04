@@ -3,58 +3,63 @@ import Contract from "../models/Contract.js";
 import Doctor from "../models/Doctor.js";
 import User from "../models/user.js";
 
-// Helper function to find doctor and user by their IDs
 const findDoctorAndUser = async (doctorId, userId) => {
-    const doctor = await Doctor.findById(doctorId);
-    const user = await User.findById(userId);
+    const [doctor, user] = await Promise.all([
+        Doctor.findById(doctorId),
+        User.findById(userId)
+    ]);
     return { doctor, user };
 };
 
-// Helper function to get total number of appointments in the database
-const getTotalAppointmentsCount = async () => {
-    return await Appointment.countDocuments();
-};
+// Map appointment document to structured response object
+const mapAppointment = (appointment) => ({
+    appointmentID: appointment._id,
+    customAppointmentID: appointment.appointmentID,
+    patientID: appointment.patientID?._id ?? appointment.patientID,
+    doctorID: appointment.doctorID?._id ?? appointment.doctorID,
+    status: appointment.state,
+    appointment: {
+        title: appointment.title,
+        description: appointment.desc,
+        date: appointment.expectedDate,
+        mode: appointment.mode,
+    },
+    patient: {
+        name: appointment.patientName,
+        email: appointment.patientEmail,
+        phone: appointment.patientContact,
+        gender: appointment.gender,
+        age: appointment.age,
+        address: appointment.patientAddress,
+        disease: appointment.disease,
+    },
+    doctor: appointment.doctorID ? {
+        name: appointment.doctorID.name,
+        email: appointment.doctorID.email,
+        phone: appointment.doctorID.phone,
+        profession: appointment.doctorID.profession,
+        department: appointment.doctorID.department,
+        experience: appointment.doctorID.experience,
+        bio: appointment.doctorID.bio,
+        gender: appointment.doctorID.gender,
+        username: appointment.doctorID.username,
+    } : null,
+});
 
-// Create a new appointment
-
+// Create appointment
 export const createAppointment = async (req, res) => {
     try {
-        const {
-            patientName,
-            patientContact,
-            gender,
-            age,
-            title,
-            desc,
-            expectedDate,
-            patientAddress,
-            disease,
-            mode,
-            doctorId,
-            userId,
-            email
-        } = req.body;
+        const { patientName, patientContact, gender, age, title, desc, expectedDate, patientAddress, disease, mode, doctorId, userId, email } = req.body;
 
         const { doctor, user } = await findDoctorAndUser(doctorId, userId);
-
         if (!doctor || !user) {
             return res.status(404).json({ message: "Doctor or User not found", success: false });
         }
 
         const newAppointment = new Appointment({
-            patientName,
-            patientContact,
-            gender,
-            age,
-            title,
-            desc,
-            expectedDate,
-            patientAddress,
-            disease,
-            mode,
-            doctorID: doctor._id,
-            patientID: user._id,
-            patientEmail: email
+            patientName, patientContact, gender, age, title, desc,
+            expectedDate, patientAddress, disease, mode,
+            doctorID: doctor._id, patientID: user._id, patientEmail: email,
         });
 
         await newAppointment.generateAppointmentID();
@@ -67,35 +72,18 @@ export const createAppointment = async (req, res) => {
     }
 };
 
-//see current user appointment and  all the  details of doctor
+// Get current/future appointments for a user
 export const getUserAppointments = async (req, res) => {
     try {
         const { userId } = req.params;
+        if (!userId) return res.status(400).json({ success: false, message: "User ID is required" });
 
-        if (!userId) {
-            return res.status(400).json({ success: false, message: "User ID is required" });
-        }
-
-
-        console.log("Fetching all appointments for user:", userId);
-
+        // Use UTC midnight — MongoDB stores dates in UTC
         const currentDate = new Date();
-        currentDate.setHours(currentDate.getHours() + 5);  // +5 hours for IST
-        currentDate.setMinutes(currentDate.getMinutes() + 30); // +30 minutes for IST
         currentDate.setUTCHours(0, 0, 0, 0);
 
-        // Fetch all appointments for the given user and populate doctor details
-        const appointments = await Appointment.find({ patientID: userId,
-            expectedDate:{ $gte:currentDate}
-         })
-            .populate({
-                path: "doctorID",
-                select: "name email phone department experience bio profession gender username"
-            })
-            .populate({
-                path: "appointmentID",
-                select: "patientName patientEmail patientContact gender age  title desc mode state expectedDate patientAddress"
-            })
+        const appointments = await Appointment.find({ patientID: userId, expectedDate: { $gte: currentDate } })
+            .populate({ path: "doctorID", select: "name email phone department experience bio profession gender username" })
             .select('-__v')
             .lean();
 
@@ -103,142 +91,45 @@ export const getUserAppointments = async (req, res) => {
             return res.status(404).json({ success: false, message: "No appointments found for this user" });
         }
 
-        // Prepare structured response
-        const response = {
-            success: true,
-            totalAppointments: appointments.length,
-            appointments: appointments.map((appointment) => ({
-                appointmentID: appointment._id, // MongoDB Appointment ID
-                customAppointmentID: appointment.appointmentID, // Custom generated Appointment ID
-                patientID: appointment.patientID._id, // User (Patient) ID
-                doctorID: appointment.doctorID._id, // Doctor ID
-                status: appointment.state,
-                appointment: {
-                    title: appointment.title,
-                    description: appointment.desc,
-                    date: appointment.expectedDate,
-                    mode: appointment.mode
-                },
-                patient: {
-                    name: appointment.patientName,
-                    email: appointment.patientEmail,
-                    phone: appointment.patientContact,
-                    gender: appointment.gender,
-                    age: appointment.age,
-                    address: appointment.patientID.patientAddress,
-                    disease: appointment.disease
-                },
-                doctor: {
-                    name: appointment.doctorID.name,
-                    email: appointment.doctorID.email,
-                    phone: appointment.doctorID.phone,
-                    profession: appointment.doctorID.profession,
-                    department: appointment.doctorID.department,
-                    experience: appointment.doctorID.experience,
-                    bio: appointment.doctorID.bio,
-                    gender: appointment.doctorID.gender,
-                    username: appointment.doctorID.username
-                }
-            }))
-        };
-
-        res.status(200).json(response);
+        res.status(200).json({ success: true, totalAppointments: appointments.length, appointments: appointments.map(mapAppointment) });
     } catch (error) {
-        console.error("❌ Error fetching user-based appointments:", error.message);
+        console.error("❌ Error fetching user appointments:", error.message);
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
     }
 };
 
-//get appointment history
-
+// Get past appointments for a user
 export const getAppointmentHistory = async (req, res) => {
     try {
         const { userId } = req.params;
-        if (!userId) {
-            return res.status(400).json({ success: false, message: "User ID is required" });
-        }
+        if (!userId) return res.status(400).json({ success: false, message: "User ID is required" });
 
-        const currentDate = new Date().setUTCHours(0, 0, 0, 0);
+        // Fix: setUTCHours mutates and returns Number — must use the Date object
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0);
 
-        const appointments = await Appointment.find({
-            patientID: userId, // Correct field from schema
-            expectedDate: { $lt: currentDate } // Fetch only past appointments
-        })
-            .populate({
-                path: "doctorID",
-                select: "name email phone department experience bio"
-            })
-            .populate({
-                path: "appointmentID",
-                select: "patientName patientEmail patientContact gender age  title desc mode state expectedDate patientAddress"
-            })
-            .select('-__v') // Remove unnecessary fields
-            .lean(); // Optimize query performance
+        const appointments = await Appointment.find({ patientID: userId, expectedDate: { $lt: currentDate } })
+            .populate({ path: "doctorID", select: "name email phone department experience bio profession gender username" })
+            .select('-__v')
+            .lean();
 
         if (!appointments.length) {
-            return res.status(404).json({ success: false, message: "No past appointments found for this user" });
+            return res.status(404).json({ success: false, message: "No past appointments found" });
         }
 
-        // Prepare structured response
-        const response = {
-            success: true,
-            totalAppointments: appointments.length,
-            appointments: appointments.map((appointment) => ({
-                appointmentID: appointment._id, // MongoDB Appointment ID
-                customAppointmentID: appointment.appointmentID, // Custom generated Appointment ID
-                patientID: appointment.patientID._id, // User (Patient) ID
-                doctorID: appointment.doctorID._id, // Doctor ID
-                status: appointment.state,
-                appointment: {
-                    title: appointment.title,
-                    description: appointment.desc,
-                    date: appointment.expectedDate,
-                    mode: appointment.mode
-                },
-                patient: {
-                    name: appointment.patientName,
-                    email: appointment.patientEmail,
-                    phone: appointment.patientContact,
-                    gender: appointment.gender,
-                    age: appointment.age,
-                    address: appointment.patientID.patientAddress,
-                    disease: appointment.disease
-                },
-                doctor: {
-                    name: appointment.doctorID.name,
-                    email: appointment.doctorID.email,
-                    phone: appointment.doctorID.phone,
-                    profession: appointment.doctorID.profession,
-                    department: appointment.doctorID.department,
-                    experience: appointment.doctorID.experience,
-                    bio: appointment.doctorID.bio,
-                    gender: appointment.doctorID.gender,
-                    username: appointment.doctorID.username
-                }
-            }))
-        };
-
-        res.status(200).json(response);
+        res.status(200).json({ success: true, totalAppointments: appointments.length, appointments: appointments.map(mapAppointment) });
     } catch (error) {
         console.error("❌ Error fetching appointment history:", error.message);
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
     }
 };
 
-// Fetch all appointments in the database
+// Get all appointments (admin)
 export const getAllAppointments = async (req, res) => {
     try {
-        const totalAppointmentsCount = await getTotalAppointmentsCount(); // Get total count of appointments
-
         const appointments = await Appointment.find()
-            .populate({
-                path: "doctorID",
-                select: "name email phone department experience bio profession gender username"
-            })
-            .populate({
-                path: "patientID",
-                select: "name email phone gender age patientAddress"
-            })
+            .populate({ path: "doctorID", select: "name email phone department experience bio profession gender username" })
+            .populate({ path: "patientID", select: "name email phone gender" })
             .select('-__v')
             .lean();
 
@@ -246,186 +137,122 @@ export const getAllAppointments = async (req, res) => {
             return res.status(404).json({ success: false, message: "No appointments found" });
         }
 
-        // Prepare structured response
-        const response = {
-            success: true,
-            totalAppointments: appointments.length,
-            totalAppointmentsCount, // Include total count in the response
-            appointments: appointments.map((appointment) => ({
-                appointmentID: appointment._id, // MongoDB Appointment ID
-                customAppointmentID: appointment.appointmentID, // Custom generated Appointment ID
-                patientID: appointment.patientID._id, // User (Patient) ID
-                doctorID: appointment.doctorID._id, // Doctor ID
-                status: appointment.state,
-                appointment: {
-                    title: appointment.title,
-                    description: appointment.desc,
-                    date: appointment.expectedDate,
-                    mode: appointment.mode
-                },
-                patient: {
-                    name: appointment.patientName,
-                    email: appointment.patientEmail,
-                    phone: appointment.patientContact,
-                    gender: appointment.gender,
-                    age: appointment.age,
-                    address: appointment.patientID.patientAddress,
-                    disease: appointment.disease
-                },
-                doctor: {
-                    name: appointment.doctorID.name,
-                    email: appointment.doctorID.email,
-                    phone: appointment.doctorID.phone,
-                    profession: appointment.doctorID.profession,
-                    department: appointment.doctorID.department,
-                    experience: appointment.doctorID.experience,
-                    bio: appointment.doctorID.bio,
-                    gender: appointment.doctorID.gender,
-                    username: appointment.doctorID.username
-                }
-            }))
-        };
-
-        res.status(200).json(response);
+        // totalAppointments from array length — no extra countDocuments needed
+        res.status(200).json({ success: true, totalAppointments: appointments.length, appointments: appointments.map(mapAppointment) });
     } catch (error) {
         console.error("❌ Error fetching all appointments:", error.message);
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
     }
 };
 
-//*********************************  Doctor Dash appointment list *************************************************************************************/
-
+// Get doctor's pending + approved appointments
 export const getDoctorAppointments = async (req, res) => {
     try {
         const { doctorId } = req.params;
+        if (!doctorId) return res.status(400).json({ success: false, message: "Doctor ID is required" });
 
-        if (!doctorId) {
-            return res.status(400).json({ success: false, message: "Doctor ID is required" });
-        }
+        // Push state filter into DB — two parallel queries instead of fetching all and filtering in JS
+        const [pendingRaw, approvedRaw] = await Promise.all([
+            Appointment.find({ doctorID: doctorId, state: "pending" })
+                .populate({ path: "patientID", select: "name email phone gender" })
+                .select('-__v').lean(),
+            Appointment.find({ doctorID: doctorId, state: "approved" })
+                .populate({ path: "patientID", select: "name email phone gender" })
+                .select('-__v').lean(),
+        ]);
 
-        console.log("Fetching all appointments for doctor:", doctorId);
+        const mapDoc = (appointment) => ({
+            appointmentID: appointment._id,
+            // Guard against deleted patient
+            patientID: appointment.patientID?._id ?? null,
+            status: appointment.state,
+            appointment: {
+                appointmentID: appointment.appointmentID,
+                title: appointment.title,
+                description: appointment.desc,
+                date: appointment.expectedDate,
+                mode: appointment.mode,
+            },
+            patient: appointment.patientID ? {
+                name: appointment.patientName,
+                email: appointment.patientEmail,
+                phone: appointment.patientContact,
+                gender: appointment.gender,
+                age: appointment.age,
+                address: appointment.patientAddress,
+                disease: appointment.disease,
+            } : null,
+        });
 
-        // Fetch doctor's appointments
-        const appointments = await Appointment.find({ doctorID: doctorId })
-            .populate({
-                path: "patientID",
-                select: "name email phone gender age patientAddress"
-            })
-            .select('-__v')
-            .lean();
-
-        if (!appointments.length) {
-            return res.status(404).json({ success: false, message: "No appointments found for this doctor" });
-        }
-
-        // Separate pending and approved appointments
-        const pendingAppointments = appointments.filter(appointment => appointment.state === "pending");
-        const approvedAppointments = appointments.filter(appointment => appointment.state === "approved");
-
-        // Structured Response
-        const response = {
+        res.status(200).json({
             success: true,
-            totalAppointments: appointments.length,
-            pendingAppointments: pendingAppointments.map(appointment => ({
-                appointmentID: appointment._id,
-                patientID: appointment.patientID._id,
-                status: appointment.state,
-                appointment: {
-                    title: appointment.title,
-                    description: appointment.desc,
-                    date: appointment.expectedDate,
-                    mode: appointment.mode,
-                },
-                patient: {
-                    name: appointment.patientName,
-                    email: appointment.patientEmail,
-                    phone: appointment.patientContact,
-                    gender: appointment.gender,
-                    age: appointment.age,
-                    address: appointment.patientAddress,
-                    disease: appointment.disease
-                }
-            })),
-            approvedAppointments: approvedAppointments.map(appointment => ({
-                appointmentID: appointment._id,
-                patientID: appointment.patientID._id,
-                status: appointment.state,
-                appointment: {
-                    appointmentID: appointment.appointmentID,
-                    title: appointment.title,
-                    description: appointment.desc,
-                    date: appointment.expectedDate,
-                    mode: appointment.mode,
-
-                },
-                patient: {
-                    name: appointment.patientName,
-                    email: appointment.patientEmail,
-                    phone: appointment.patientContact,
-                    gender: appointment.gender,
-                    age: appointment.age,
-                    address: appointment.patientAddress,
-                    disease: appointment.disease
-                }
-            }))
-        };
-
-        res.status(200).json(response);
+            totalAppointments: pendingRaw.length + approvedRaw.length,
+            pendingAppointments: pendingRaw.map(mapDoc),
+            approvedAppointments: approvedRaw.map(mapDoc),
+        });
     } catch (error) {
-        console.error("❌ Error fetching doctor-based appointments:", error.message);
+        console.error("❌ Error fetching doctor appointments:", error.message);
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
     }
 };
 
+// Appointment stats (admin)
 export const getAppointmentStats = async (req, res) => {
     try {
-        const totalAppointments = await Appointment.countDocuments();
-        const pendingAppointments = await Appointment.countDocuments({ state: "pending" });
-        const completedAppointments = await Appointment.countDocuments({ state: "completed" });
+        const [total, pending, approved, rejected] = await Promise.all([
+            Appointment.countDocuments(),
+            Appointment.countDocuments({ state: "pending" }),
+            Appointment.countDocuments({ state: "approved" }),   // was wrongly "completed"
+            Appointment.countDocuments({ state: "rejected" }),
+        ]);
 
-        res.status(200).json({
-            success: true,
-            totalAppointments,
-            pendingAppointments,
-            completedAppointments,
-        });
+        res.status(200).json({ success: true, totalAppointments: total, pendingAppointments: pending, approvedAppointments: approved, rejectedAppointments: rejected });
     } catch (error) {
         console.error("❌ Error fetching appointment stats:", error.message);
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
     }
 };
 
+// Verify meeting password
 export const appointmentpasswordverify = async (req, res) => {
     try {
         const { meetingPassword, appointmentID } = req.body;
-
         if (!meetingPassword || !appointmentID) {
             return res.status(400).json({ success: false, message: "Meeting password and appointment ID are required" });
         }
 
-        // Step 1: Find appointment using the appointmentID string
         const appointment = await Appointment.findOne({ appointmentID });
-        if (!appointment) {
-            return res.status(404).json({ success: false, message: "Appointment not found" });
-        }
+        if (!appointment) return res.status(404).json({ success: false, message: "Appointment not found" });
 
-        // Step 2: Use appointment._id to find the matching contract
         const contract = await Contract.findOne({
             appointmentId: appointment._id,
-            "meetingDetails.meetingPassword": meetingPassword
+            "meetingDetails.meetingPassword": meetingPassword,
         });
 
-        if (!contract) {
-            return res.status(404).json({ success: false, message: "Invalid meeting password or appointment ID" });
-        }
+        if (!contract) return res.status(404).json({ success: false, message: "Invalid meeting password" });
 
-        return res.status(200).json({
-            success: true,
-            message: "Meeting password verified successfully",
-            meetingUrl: contract.meetingDetails.meetingUrl,
-        });
+        return res.status(200).json({ success: true, message: "Password verified", meetingUrl: contract.meetingDetails.meetingUrl });
     } catch (error) {
         console.error("❌ Error verifying meeting password:", error.message);
+        res.status(500).json({ success: false, message: "Server Error: " + error.message });
+    }
+};
+
+
+// Get offline appointment location for patient map view
+export const getAppointmentLocation = async (req, res) => {
+    try {
+        const { appointmentId } = req.params;
+        const appointment = await Appointment.findOne({ appointmentID: appointmentId });
+        if (!appointment) return res.status(404).json({ success: false, message: "Appointment not found" });
+
+        const contract = await Contract.findOne({ appointmentId: appointment._id });
+        if (!contract?.meetingDetails?.location) {
+            return res.status(404).json({ success: false, message: "Location not set for this appointment" });
+        }
+
+        res.status(200).json({ success: true, location: contract.meetingDetails.location });
+    } catch (error) {
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
     }
 };

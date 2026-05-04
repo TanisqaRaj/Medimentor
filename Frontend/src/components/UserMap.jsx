@@ -1,21 +1,25 @@
 import "leaflet/dist/leaflet.css";
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
-import axios from "axios";
+import api from "../api";
+import { useSelector } from "react-redux";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const UserMap = ({ appointmentId, onClose }) => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
 
+  const token = useSelector((state) => state.auth.accessToken);
   const [position, setPosition] = useState(null);
   const [locationText, setLocationText] = useState("Fetching location...");
 
   // Step 1: Get doctor's location from backend
   const fetchDoctorLocation = async () => {
     try {
-      const res = await axios.get(`/api/appointments/${appointmentId}/location`);
-      const { latitude, longitude } = res.data;
+      const res = await api.get(`${BACKEND}/appointments/${appointmentId}/location`);
+      const { latitude, longitude } = res.data.location;
 
       if (latitude && longitude) {
         const pos = [latitude, longitude];
@@ -34,7 +38,7 @@ const UserMap = ({ appointmentId, onClose }) => {
   // Step 2: Use reverse geocoding to get readable address
   const fetchLocationDetails = async (lat, lon) => {
     try {
-      const res = await axios.get("https://nominatim.openstreetmap.org/reverse", {
+      const res = await api.get("https://nominatim.openstreetmap.org/reverse", {
         params: {
           format: "json",
           lat: lat,

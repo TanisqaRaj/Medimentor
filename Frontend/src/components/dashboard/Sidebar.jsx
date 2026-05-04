@@ -38,7 +38,7 @@ const Sidebar = () => {
         <div className="flex flex-col items-center mb-10 fade-in">
           <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-surface-variant shadow-sm bg-surface-container">
             <img
-              src={user?.image ? `data:image/png;base64,${user.image}` : "https://lh3.googleusercontent.com/aida-public/AB6AXuCI5Do1Pm2eJcPZL-GTT40jlo-1JJiqsgGSvyxeoAcu17qkWeFrInVSfPgjESLnHfYeS3XEikm37EGyeqC4nmmVWIJ5l47qLcDbt2dy2chL4BN20N-t_w2TH6Elh6AcekwjQgr02tMwihBw03YuW8VQWy01ifuCUHxrScQeTOEuolPT5Aj-CmIviyLTTq437v-UHHrS5YBz2aeDGwx_yn-_8OVPxHgP-GS1tyThYBhq9ELXYmX8UGxvvFg9WqDfrOyq16_aUpTQbKSa"}
+              src={user?.image ? `${user.image}` : "https://lh3.googleusercontent.com/aida-public/AB6AXuCI5Do1Pm2eJcPZL-GTT40jlo-1JJiqsgGSvyxeoAcu17qkWeFrInVSfPgjESLnHfYeS3XEikm37EGyeqC4nmmVWIJ5l47qLcDbt2dy2chL4BN20N-t_w2TH6Elh6AcekwjQgr02tMwihBw03YuW8VQWy01ifuCUHxrScQeTOEuolPT5Aj-CmIviyLTTq437v-UHHrS5YBz2aeDGwx_yn-_8OVPxHgP-GS1tyThYBhq9ELXYmX8UGxvvFg9WqDfrOyq16_aUpTQbKSa"}
               className="h-full w-full object-cover"
               alt="Profile"
             />

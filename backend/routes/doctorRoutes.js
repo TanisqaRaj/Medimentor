@@ -1,16 +1,15 @@
 import express from 'express';
-import { getDoctors, getTotalDoctors, searchdoctor , getTotalUsers} from '../controllers/getdetails.js'; // Corrected import to match function name
+import { getDoctors, getTotalDoctors, searchdoctor, getTotalUsers } from '../controllers/getdetails.js';
+import { verifyToken } from '../middleware/verifyToken.js';
+
 const doctorRoute = express.Router();
-// 🔎 Doctor Search (Public)
-doctorRoute.get('/searchdoctor', searchdoctor); // Corrected function name to match import
-//get all doctors
-doctorRoute.get('/listdoctors',getDoctors);
 
-//get total count of doc
-doctorRoute.get('/totaldoctors',getTotalDoctors);
+// Public — used on landing/search page before login
+doctorRoute.get('/searchdoctor', searchdoctor);
+doctorRoute.get('/listdoctors', getDoctors);
 
-//get total count of user
-doctorRoute.get('/totalusers',getTotalUsers);
-
+// Protected — admin only
+doctorRoute.get('/totaldoctors', verifyToken, getTotalDoctors);
+doctorRoute.get('/totalusers', verifyToken, getTotalUsers);
 
 export default doctorRoute;
