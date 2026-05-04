@@ -26,6 +26,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.set("trust proxy", 1);
 const httpServer = http.createServer(app);
 const ALLOWED_ORIGIN = process.env.FRONTEND_URL || "http://localhost:5173";
 
