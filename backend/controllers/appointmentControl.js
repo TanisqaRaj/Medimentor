@@ -239,6 +239,29 @@ export const appointmentpasswordverify = async (req, res) => {
 };
 
 
+// Cancel appointment — user: only if pending; doctor: any time except completed
+export const cancelAppointment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { role } = req.body; // "user" or "doctor"
+
+        const appointment = await Appointment.findById(id);
+        if (!appointment) return res.status(404).json({ success: false, message: "Appointment not found" });
+
+        if (appointment.state === "completed") {
+            return res.status(400).json({ success: false, message: "Cannot cancel a completed appointment" });
+        }
+        if (role === "user" && appointment.state !== "pending") {
+            return res.status(403).json({ success: false, message: "You can only cancel pending appointments" });
+        }
+
+        await Appointment.findByIdAndDelete(id);
+        res.status(200).json({ success: true, message: "Appointment cancelled" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error: " + error.message });
+    }
+};
+
 // Get offline appointment location for patient map view
 export const getAppointmentLocation = async (req, res) => {
     try {

@@ -1,29 +1,32 @@
 import React, { useState } from "react";
 import UserMeetingDetails from "./UserMeetingDetails";
-import { useNavigate } from "react-router-dom";
+import api from "../../../api";
 
-const DetailedAppoitmentList = ({ show, close, appointment }) => {
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
+const DetailedAppoitmentList = ({ show, close, appointment, onCancel }) => {
   const [meetingDetailsVisible, setMeetingDetailsVisible] = useState(false);
-  const navigate = useNavigate ();
-  const handleClose = (e) => {
-    if (e.target.id === "detAppList") close();
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleClose = (e) => { if (e.target.id === "detAppList") close(); };
+  const handleMeeting = () => setMeetingDetailsVisible(true);
+  const handleMeetingDetailsClose = () => setMeetingDetailsVisible(false);
+
+  const handleCancel = async () => {
+    if (!window.confirm("Cancel this appointment?")) return;
+    setCancelling(true);
+    try {
+      await api.delete(`${BACKEND}/appointments/${appointment.appointmentID}`, { data: { role: "user" } });
+      close();
+      onCancel?.();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to cancel");
+    } finally {
+      setCancelling(false);
+    }
   };
 
-  const handleOpenMap = () => {
-    //navigate("/map");
-  };
-
-  const handlePopup= () => {
-    console.log("map.....");
-  };
-
-  const handleMeeting = () => {
-    setMeetingDetailsVisible(true);
-  };
-
-  const handleMeetingDetailsClose = () => {
-    setMeetingDetailsVisible(false);
-  };
+  const canCancel = appointment?.status === "pending";
 
   if (!show) return null;
   return (
@@ -92,22 +95,26 @@ const DetailedAppoitmentList = ({ show, close, appointment }) => {
             {appointment?.appointment?.mode === "offline" && appointment?.status === "approved" && (
               <div className="mt-2 pt-4 border-t border-surface-container-high">
                 <p className="font-label-md text-label-md text-on-surface mb-2">In-person appointment confirmed</p>
-                <button
-                  className="flex items-center gap-2 bg-surface-container hover:bg-primary-container/10 border border-outline-variant/50 hover:border-primary-container/30 text-on-surface-variant hover:text-primary-container font-label-md px-5 py-2 rounded-lg transition-all"
-                  onClick={handleOpenMap}
-                >
+                <button className="flex items-center gap-2 bg-surface-container hover:bg-primary-container/10 border border-outline-variant/50 hover:border-primary-container/30 text-on-surface-variant hover:text-primary-container font-label-md px-5 py-2 rounded-lg transition-all">
                   <span className="material-symbols-outlined text-base">location_on</span>
                   View Location
                 </button>
               </div>
             )}
 
+            {/* Cancel button — disabled if not pending */}
             <button
-              className="mt-2 flex items-center gap-2 text-red-600 border border-red-200 hover:bg-red-50 font-label-md px-4 py-2 rounded-lg transition-colors w-fit"
-              onClick={handlePopup}
+              className={`mt-2 flex items-center gap-2 font-label-md px-4 py-2 rounded-lg transition-colors w-fit border ${
+                canCancel
+                  ? "text-red-600 border-red-200 hover:bg-red-50 cursor-pointer"
+                  : "text-outline border-outline-variant/30 cursor-not-allowed opacity-50"
+              }`}
+              onClick={canCancel ? handleCancel : undefined}
+              disabled={!canCancel || cancelling}
+              title={!canCancel ? "Cannot cancel after appointment is approved" : ""}
             >
               <span className="material-symbols-outlined text-base">cancel</span>
-              Cancel Appointment
+              {cancelling ? "Cancelling..." : "Cancel Appointment"}
             </button>
           </div>
 
@@ -136,7 +143,6 @@ const DetailedAppoitmentList = ({ show, close, appointment }) => {
               </div>
             ))}
 
-            {/* Specialties */}
             {appointment?.doctor?.profession?.length > 0 && (
               <div>
                 <div className="font-caption text-caption text-outline mb-1.5">Specialties</div>
@@ -153,7 +159,7 @@ const DetailedAppoitmentList = ({ show, close, appointment }) => {
         </div>
       </div>
 
-      <UserMeetingDetails visible={meetingDetailsVisible} onClose={handleMeetingDetailsClose} />
+      <UserMeetingDetails visible={meetingDetailsVisible} onClose={handleMeetingDetailsClose} selectedAppointmentId={appointment?.appointmentID} />
     </div>
   );
 };

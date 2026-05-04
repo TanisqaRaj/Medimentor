@@ -167,7 +167,7 @@ const AppointmentList = () => {
       <DetailedAppoitmentList
         close={handleClose}
         show={popupVisible}
-        appointment={selectedAppointment}
+        appointment={selectedAppointment}`n        onCancel={fetchAppointmentlist}
       />
     </div>
   );

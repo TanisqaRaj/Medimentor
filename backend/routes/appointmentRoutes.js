@@ -7,7 +7,8 @@ import {
     getAllAppointments,
     getAppointmentStats,
     appointmentpasswordverify,
-    getAppointmentLocation
+    getAppointmentLocation,
+    cancelAppointment
 } from '../controllers/appointmentControl.js';
 import { verifyToken } from '../middleware/verifyToken.js';
 
@@ -21,5 +22,6 @@ appointmentRoute.get('/all', verifyToken, getAllAppointments);
 appointmentRoute.get('/stats', verifyToken, getAppointmentStats);
 appointmentRoute.post('/veify', verifyToken, appointmentpasswordverify);
 appointmentRoute.get('/:appointmentId/location', verifyToken, getAppointmentLocation);
+appointmentRoute.delete('/:id', verifyToken, cancelAppointment);
 
 export default appointmentRoute;
