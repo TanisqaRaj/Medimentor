@@ -120,34 +120,46 @@ const IncomingRequest = () => {
 
               {/* Actions */}
               <div className="flex gap-3 mt-2">
-                {item.status !== "approved" ? (
-                  <button
-                    className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-label-md py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
-                    onClick={() => item.appointment?.mode === "offline" ? openMap(item.appointmentID) : openPasswordPopup(item.appointmentID)}
-                  >
+                {item.status === "rejected" ? (
+                  <div className="flex-grow flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 text-red-600 font-label-md">
+                    <span className="material-symbols-outlined text-base">cancel</span>
+                    Rejected
+                  </div>
+                ) : endedCalls.has(item.appointmentID) ? (
+                  <div className="flex-grow flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 font-label-md">
                     <span className="material-symbols-outlined text-base">check_circle</span>
-                    Accept
-                  </button>
+                    Completed
+                  </div>
                 ) : (
-                  // Approved online → show Join Call button
-                  item.appointment?.mode === "online" && (
+                  <>
+                    {item.status !== "approved" ? (
+                      <button
+                        className="flex-grow bg-emerald-600 hover:bg-emerald-700 text-white font-label-md py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                        onClick={() => item.appointment?.mode === "offline" ? openMap(item.appointmentID) : openPasswordPopup(item.appointmentID)}
+                      >
+                        <span className="material-symbols-outlined text-base">check_circle</span>
+                        Accept
+                      </button>
+                    ) : (
+                      item.appointment?.mode === "online" && (
+                        <button
+                          className="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-label-md py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                          onClick={() => setActiveCall(item.appointmentID)}
+                        >
+                          <span className="material-symbols-outlined text-base">videocam</span>
+                          Join Call
+                        </button>
+                      )
+                    )}
                     <button
-                      className="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-label-md py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
-                      onClick={() => setActiveCall(item.appointmentID)}
-                      disabled={endedCalls.has(item.appointmentID)}
+                      onClick={() => rejectAction(item.appointmentID)}
+                      className="bg-surface-container-high hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 hover:border-red-200 font-label-md px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
                     >
-                      <span className="material-symbols-outlined text-base">videocam</span>
-                      Join Call
+                      <span className="material-symbols-outlined text-base">cancel</span>
+                      Reject
                     </button>
-                  )
+                  </>
                 )}
-                <button
-                  onClick={() => rejectAction(item.appointmentID)}
-                  className="bg-surface-container-high hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 hover:border-red-200 font-label-md px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-base">cancel</span>
-                  Reject
-                </button>
               </div>
             </div>
           ))}
