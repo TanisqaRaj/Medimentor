@@ -199,14 +199,15 @@ export const getDoctorAppointments = async (req, res) => {
 // Appointment stats (admin)
 export const getAppointmentStats = async (req, res) => {
     try {
-        const [total, pending, approved, rejected] = await Promise.all([
+        const [total, pending, approved, rejected, completed] = await Promise.all([
             Appointment.countDocuments(),
             Appointment.countDocuments({ state: "pending" }),
-            Appointment.countDocuments({ state: "approved" }),   // was wrongly "completed"
+            Appointment.countDocuments({ state: "approved" }),
             Appointment.countDocuments({ state: "rejected" }),
+            Appointment.countDocuments({ state: "completed" }),
         ]);
 
-        res.status(200).json({ success: true, totalAppointments: total, pendingAppointments: pending, approvedAppointments: approved, rejectedAppointments: rejected });
+        res.status(200).json({ success: true, totalAppointments: total, pendingAppointments: pending, approvedAppointments: approved, rejectedAppointments: rejected, completedAppointments: completed });
     } catch (error) {
         console.error("❌ Error fetching appointment stats:", error.message);
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
