@@ -10,10 +10,12 @@ const getIceServers = async () => {
     const res = await fetch(
       `https://${METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${METERED_SECRET}`
     );
-    const iceServers = await res.json();
+    const data = await res.json();
+    console.log("[ICE] Metered response:", JSON.stringify(data));
+    const iceServers = Array.isArray(data) ? data : data.iceServers ?? [];
+    if (!iceServers.length) throw new Error("empty");
     return { iceServers };
   } catch {
-    // fallback to STUN only
     return { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
   }
 };
