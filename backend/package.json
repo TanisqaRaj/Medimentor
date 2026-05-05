@@ -17,7 +17,7 @@
     "testMatch": [
       "**/tests/**/*.test.js"
     ],
-    "testTimeout": 60000
+    "testTimeout": 120000
   },
   "mongodbMemoryServer": {
     "version": "7.0.14",

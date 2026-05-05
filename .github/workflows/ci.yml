@@ -25,6 +25,12 @@ jobs:
 
       - run: npm ci
 
+      - name: Cache MongoDB binary
+        uses: actions/cache@v4
+        with:
+          path: backend/tests/.mongodb-binaries
+          key: mongodb-binary-7.0.14
+
       - name: Run tests
         run: npm test
         env:
