@@ -63,6 +63,7 @@ const VideoCall = ({ roomId, onEnd }) => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       } catch (err) {
+        console.error("[VideoCall] getUserMedia error:", err.name, err.message);
         setStatus(err.name === "NotAllowedError" ? "Camera/mic permission denied" : "Camera/mic not available");
         return;
       }
@@ -92,6 +93,7 @@ const VideoCall = ({ roomId, onEnd }) => {
 
       // Register all listeners BEFORE joining the room to avoid missing events
       socket.on("user-joined", async () => {
+        console.log("[VideoCall] user-joined received, creating offer");
         setStatus("Calling...");
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
@@ -127,7 +129,9 @@ const VideoCall = ({ roomId, onEnd }) => {
       });
 
       // Join room only after all listeners are set up
+      console.log("[VideoCall] joining room:", roomId);
       socket.emit("join-room", { roomId, token }, (res) => {
+        console.log("[VideoCall] join-room response:", JSON.stringify(res));
         if (res && !res.success) setStatus("Access denied: " + res.message);
       });
     };
