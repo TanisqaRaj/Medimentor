@@ -29,6 +29,14 @@ beforeAll(async () => {
 });
 
 afterAll(async () => { await closeTestDB(); });
+afterEach(async () => {
+  // Clear only appointments between tests to avoid state bleed
+  // but keep users/doctors so tokens remain valid
+  const mongoose = (await import("mongoose")).default;
+  const cols = mongoose.connection.collections;
+  if (cols.appointments) await cols.appointments.deleteMany({});
+  if (cols.contracts) await cols.contracts.deleteMany({});
+});
 
 // ── Create Appointment ─────────────────────────────────────────────────────
 describe("Integration: POST /appointments/create", () => {

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
 
 dotenv.config();
 
@@ -65,6 +66,11 @@ doctorSchema.pre('save', async function () {
         } while (true);
 
         this.doctorId = newDoctorId;
+    }
+
+    if (this.isModified('password')) {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
     }
 });
 
