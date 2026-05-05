@@ -29,7 +29,7 @@ const doctorSchema = new mongoose.Schema(
             lowercase: true,
         },
         username: { type: String, required: true, unique: true },
-        certificate: { type: String, required: true },
+        certificate: { type: String, required: false },
         bio: { type: String, required: true },
         image: { type: String, required: false },
         gender: {

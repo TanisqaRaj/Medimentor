@@ -2,6 +2,7 @@ import Appointment from "../models/Appointment.js";
 import Contract from "../models/Contract.js";
 import Doctor from "../models/Doctor.js";
 import User from "../models/user.js";
+import mongoose from "mongoose";
 
 const findDoctorAndUser = async (doctorId, userId) => {
     const [doctor, user] = await Promise.all([
@@ -77,6 +78,7 @@ export const getUserAppointments = async (req, res) => {
     try {
         const { userId } = req.params;
         if (!userId) return res.status(400).json({ success: false, message: "User ID is required" });
+        if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(404).json({ success: false, message: "No appointments found for this user" });
 
         // Use UTC midnight — MongoDB stores dates in UTC
         const currentDate = new Date();

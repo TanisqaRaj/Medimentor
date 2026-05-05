@@ -5,7 +5,6 @@ import { connectTestDB, clearTestDB, closeTestDB } from "../setup.js";
 import mongoose from "mongoose";
 import Doctor from "../../models/Doctor.js";
 import User from "../../models/user.js";
-import bcrypt from "bcrypt";
 
 process.env.JWT_SECRET = "test_secret";
 process.env.JWT_REFRESH_SECRET = "test_refresh_secret";
@@ -16,13 +15,12 @@ let userToken, userId, doctorId;
 beforeAll(async () => {
   await connectTestDB();
 
-  // Create user
-  const hash = await bcrypt.hash("Test@1234", 10);
-  const user = await User.create({ name: "Patient One", email: "patient@test.com", phone: "9000000001", username: "patient01", password: hash, gender: "male", role: "user" });
+  // Create user — plain password, pre-save hook will hash it
+  const user = await User.create({ name: "Patient One", email: "patient@test.com", phone: "9000000001", username: "patient01", password: "Test@1234", gender: "male", role: "user" });
   userId = user._id.toString();
 
-  // Create doctor
-  const doctor = await Doctor.create({ name: "Dr One", email: "drone@test.com", phone: 9000000002, username: "drone01", password: hash, gender: "male", bio: "bio", mciNumber: "MCI-001", department: "Cardiology", experience: 5, profession: ["Cardiologist"], certificate: "dGVzdA==" });
+  // Create doctor — plain password, pre-save hook will hash it
+  const doctor = await Doctor.create({ name: "Dr One", email: "drone@test.com", phone: 9000000002, username: "drone01", password: "Test@1234", gender: "male", bio: "bio", mciNumber: "MCI-001", department: "Cardiology", experience: 5, profession: ["Cardiologist"], certificate: "dGVzdA==" });
   doctorId = doctor._id.toString();
 
   // Login to get token
@@ -124,8 +122,7 @@ describe("Integration: GET /appointments/stats", () => {
 // ── Doctor Appointments ────────────────────────────────────────────────────
 describe("Integration: GET /appointments/docapp/:doctorId", () => {
   it("returns pending and approved arrays", async () => {
-    const hash = await bcrypt.hash("Test@1234", 10);
-    const doc = await Doctor.create({ name: "Dr Two", email: "drtwo@test.com", phone: 9000000003, username: "drtwo01", password: hash, gender: "male", bio: "bio", mciNumber: "MCI-002", department: "Neurology", experience: 3, profession: ["Neurologist"], certificate: "dGVzdA==" });
+    const doc = await Doctor.create({ name: "Dr Two", email: "drtwo@test.com", phone: 9000000003, username: "drtwo01", password: "Test@1234", gender: "male", bio: "bio", mciNumber: "MCI-002", department: "Neurology", experience: 3, profession: ["Neurologist"], certificate: "dGVzdA==" });
     const loginRes = await request(app).post("/auth/login").send({ email: "drtwo@test.com", password: "Test@1234", role: "doctor" });
     const docToken = loginRes.body.accessToken;
 

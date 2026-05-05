@@ -89,7 +89,7 @@ export const registerDoctor = async (req, res) => {
 // ✅ Create JWT Token
 // ✅ Token helpers
 const createAccessToken = (userId, role) =>
-  jwt.sign({ _id: userId, role }, process.env.JWT_SECRET, { algorithm: "HS256", expiresIn: "15m" });
+  jwt.sign({ _id: userId, role, jti: Math.random().toString(36).slice(2) }, process.env.JWT_SECRET, { algorithm: "HS256", expiresIn: "15m" });
 
 const createRefreshToken = (userId, role) =>
   jwt.sign({ _id: userId, role }, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET + "_refresh", { algorithm: "HS256", expiresIn: "7d" });
