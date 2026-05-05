@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
   if (!this.numericId) {
     const lastUser = await mongoose.model('User').findOne().sort({ numericId: -1 });
     this.numericId = lastUser ? lastUser.numericId + 1 : 1;
@@ -70,8 +70,6 @@ userSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }
-
-  next();
 });
 
 userSchema.virtual('publicProfile').get(function () {

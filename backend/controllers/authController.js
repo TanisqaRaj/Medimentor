@@ -73,10 +73,8 @@ export const registerDoctor = async (req, res) => {
     const doctorExists = await Doctor.findOne({ $or: [{ email }, { phone }, { username }, { mciNumber }] });
     if (doctorExists) return res.status(400).json({ message: "Doctor already exists" });
 
-    const compressedImage = image ? await compressImage(image) : null;
-    const certificateData = certificate && certificate.startsWith("JVBER")
-      ? certificate
-      : certificate ? await compressImage(certificate) : null;
+    const imageUrl = image ? await uploadToCloudinary(image, "medimentor/doctors") : null;
+    const certificateData = certificate ? await uploadToCloudinary(certificate, "medimentor/certificates") : null;
 
     const doctor = new Doctor({ role, name, email, phone, username, certificate: certificateData, image: imageUrl, bio, gender, mciNumber, department, experience, profession, password });
 

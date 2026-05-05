@@ -51,7 +51,7 @@ const doctorSchema = new mongoose.Schema(
 );
 
 // Middleware to auto-generate doctor ID
-doctorSchema.pre('save', async function (next) {
+doctorSchema.pre('save', async function () {
     if (!this.doctorId) {
         const departmentCode = this.department.slice(0, 3).toUpperCase();
         let newIdNumber = 1;
@@ -66,7 +66,6 @@ doctorSchema.pre('save', async function (next) {
 
         this.doctorId = newDoctorId;
     }
-    next();
 });
 
 // Query indexes
