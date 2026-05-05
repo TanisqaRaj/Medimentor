@@ -7,22 +7,27 @@ import { RiArrowDropDownLine } from "react-icons/ri";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../reduxslice/AuthSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../api";
+import axios from "axios";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const doctor = useSelector((state) => state.auth.doctor);
   const token = useSelector((state) => state.auth.accessToken);
+  
   const handleLogout = async () => {
     try { await api.post("/auth/logout"); } catch {}
     dispatch(logout());
     navigate("/");
   };
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -52,6 +57,7 @@ const NavBar = () => {
       return;
     }
   };
+  
   useEffect(() => {
     expirytoken();
     AOS.init({
@@ -61,11 +67,11 @@ const NavBar = () => {
   }, []);
 
   return (
-    <header className="w-full z-10 border-b border-gray-100 bg-white shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] font-manrope text-sm tracking-tight">
+    <header className="w-full z-50 border-b border-gray-100 bg-white shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] font-manrope text-sm tracking-tight relative">
       <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
         {/* Logo & Main Nav */}
         <div className="flex items-center gap-8">
-          <div className="flex items-center hidden md:block">
+          <div className="flex items-center">
             <img alt="Logo" className="h-10" height={150} src="https://res.cloudinary.com/dzfftyy42/image/upload/f_auto,q_auto/v1/initial%20Img/kidunrkrjfvaiubzr5lv" width={50} />
           </div>
           
@@ -156,55 +162,119 @@ const NavBar = () => {
             )}
           </div>
 
-          {/* Hide menu on Login/Register pages for cleaner mobile UI */}
-          {!['/login', '/registration'].includes(window.location.pathname) && (
-            <button
-              onClick={toggleMenu}
-              className="md:hidden focus:outline-none z-50 text-emerald-700"
-            >
-              <div className="relative w-6 h-6 flex items-center justify-center">
-                <GiHamburgerMenu size={24} />
-              </div>
-            </button>
-          )}
+          {/* Mobile Menu Toggle - Always visible on mobile */}
+          <button
+            onClick={toggleMenu}
+            className="md:hidden focus:outline-none z-50 text-emerald-700 p-2 rounded-lg hover:bg-emerald-50 transition-colors"
+            aria-label="Toggle mobile menu"
+          >
+            <GiHamburgerMenu size={24} />
+          </button>
         </div>
-
-        {/* Mobile Menu Dropdown */}
-        {isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-gray-100 z-40">
-            <ul className="flex flex-col py-4 px-6 space-y-4 text-slate-700 font-medium">
-              <li>
-                <a className="block hover:text-emerald-600 transition-colors" href="/" onClick={handleLogout}>Home</a>
-              </li>
-              <li>
-                <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/about")}>About</a>
-              </li>
-              <li>
-                <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/contact")}>Contact</a>
-              </li>
-              <li>
-                <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/pharmacy")}>Pharmacy</a>
-              </li>
-              {!user && !doctor ? (
-                <>
-                  <li className="pt-2 border-t border-gray-100">
-                    <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/login")}>Login</a>
-                  </li>
-                  <li>
-                    <a className="block hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/registration")}>Sign Up</a>
-                  </li>
-                </>
-              ) : (
-                <li className="pt-2 border-t border-gray-100">
-                  <button onClick={handleLogout} className="text-red-600 hover:text-red-700 transition-colors w-full text-left">
-                    Logout
-                  </button>
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {isMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-xl border-t border-gray-100 z-[60]">
+          <ul className="flex flex-col py-4 px-6 space-y-4 text-slate-700 font-medium">
+            <li>
+              <a 
+                className="block hover:text-emerald-600 transition-colors py-2" 
+                href="/" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleLogout(); 
+                  setIsMenuOpen(false);
+                }}
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a 
+                className="block hover:text-emerald-600 transition-colors cursor-pointer py-2" 
+                onClick={() => {
+                  navigate("/about");
+                  setIsMenuOpen(false);
+                }}
+              >
+                About
+              </a>
+            </li>
+            <li>
+              <a 
+                className="block hover:text-emerald-600 transition-colors cursor-pointer py-2" 
+                onClick={() => {
+                  navigate("/contact");
+                  setIsMenuOpen(false);
+                }}
+              >
+                Contact
+              </a>
+            </li>
+            <li>
+              <a 
+                className="block hover:text-emerald-600 transition-colors cursor-pointer py-2" 
+                onClick={() => {
+                  navigate("/pharmacy");
+                  setIsMenuOpen(false);
+                }}
+              >
+                Pharmacy
+              </a>
+            </li>
+            <li>
+              <a 
+                className="block hover:text-emerald-600 transition-colors cursor-pointer py-2" 
+                onClick={() => {
+                  navigate("/appointment");
+                  setIsMenuOpen(false);
+                }}
+              >
+                Appointment
+              </a>
+            </li>
+            {!user && !doctor ? (
+              <>
+                <li className="pt-2 border-t border-gray-100">
+                  <a 
+                    className="block hover:text-emerald-600 transition-colors cursor-pointer py-2" 
+                    onClick={() => {
+                      navigate("/login");
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Login
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    className="block hover:text-emerald-600 transition-colors cursor-pointer py-2" 
+                    onClick={() => {
+                      navigate("/registration");
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Sign Up
+                  </a>
+                </li>
+              </>
+            ) : (
+              <li className="pt-2 border-t border-gray-100">
+                <button 
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }} 
+                  className="text-red-600 hover:text-red-700 transition-colors w-full text-left py-2"
+                >
+                  Logout
+                </button>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
     </header>
   );
 };
