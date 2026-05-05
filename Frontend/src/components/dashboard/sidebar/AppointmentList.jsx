@@ -39,7 +39,8 @@ const AppointmentList = () => {
           patient: appointmentData.patient,
           doctor: appointmentData.doctor,
           appointment: appointmentData.appointment,
-          appointmentID: appointmentData.customAppointmentID,`n          status: appointmentData.status,
+          appointmentID: appointmentData.customAppointmentID,
+          status: appointmentData.status,
         }));
   
         dispatch(appointmentDetails(meetDetailsArray));
