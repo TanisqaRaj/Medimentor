@@ -22,16 +22,22 @@ const extractJSON = (raw = "") => {
 };
 
 import { Redis } from "@upstash/redis";
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+
+const redis = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+  ? new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN })
+  : null;
 const CACHE_KEY = "doctor:meta";
 const CACHE_TTL = 6 * 60 * 60;
 
+let _cache = { data: null, expiresAt: 0 };
+
 const getProfessionsAndDepartments = async () => {
-  const cached = await redis.get(CACHE_KEY);
-  if (cached) return cached;
+  if (redis) {
+    const cached = await redis.get(CACHE_KEY);
+    if (cached) return cached;
+  } else if (_cache.data && Date.now() < _cache.expiresAt) {
+    return _cache.data;
+  }
 
   const [profAgg, deptAgg] = await Promise.all([
     Doctor.aggregate([{ $unwind: "$profession" }, { $group: { _id: null, professions: { $addToSet: "$profession" } } }]),
@@ -43,7 +49,11 @@ const getProfessionsAndDepartments = async () => {
     departments: deptAgg[0]?.departments || [],
   };
 
-  await redis.set(CACHE_KEY, data, { ex: CACHE_TTL });
+  if (redis) {
+    await redis.set(CACHE_KEY, data, { ex: CACHE_TTL });
+  } else {
+    _cache = { data, expiresAt: Date.now() + 6 * 60 * 60 * 1000 };
+  }
   return data;
 };
 
