@@ -218,8 +218,10 @@ io.on("connection", (socket) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const userId = decoded._id;
 
-      // 2. Find appointment by _id (roomId is the MongoDB _id used as room name)
-      const appointment = await Appointment.findById(roomId);
+      // 2. Find appointment — roomId is the custom appointmentID (e.g. APT-XXXX)
+      const appointment =
+        (await Appointment.findOne({ appointmentID: roomId })) ||
+        (await Appointment.findById(roomId).catch(() => null));
       if (!appointment) {
         return callback?.({ success: false, message: "Appointment not found" });
       }
