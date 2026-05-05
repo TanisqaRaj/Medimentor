@@ -234,7 +234,7 @@ export const appointmentpasswordverify = async (req, res) => {
 
         if (!contract) return res.status(404).json({ success: false, message: "Invalid meeting password" });
 
-        return res.status(200).json({ success: true, message: "Password verified", meetingUrl: contract.meetingDetails.meetingUrl });
+        return res.status(200).json({ success: true, message: "Password verified", meetingUrl: appointment._id });
     } catch (error) {
         console.error("❌ Error verifying meeting password:", error.message);
         res.status(500).json({ success: false, message: "Server Error: " + error.message });
