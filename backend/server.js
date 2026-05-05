@@ -100,6 +100,19 @@ app.use((req, res, next) => {
   next();
 });
 
+// TURN credentials proxy — keeps Metered API key server-side
+app.get("/turn-credentials", async (req, res) => {
+  try {
+    const response = await fetch(
+      `https://${process.env.METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${process.env.METERED_SECRET}`
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch TURN credentials" });
+  }
+});
+
 // Routes
 app.get("/", (req, res) => res.send("Welcome to the main server!"));
 app.use("/auth", authRoutes);

@@ -2,17 +2,14 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import socket from "../socket";
 
-const METERED_DOMAIN = import.meta.env.VITE_METERED_DOMAIN;
-const METERED_SECRET = import.meta.env.VITE_METERED_SECRET;
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const getIceServers = async () => {
   try {
-    const res = await fetch(
-      `https://${METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${METERED_SECRET}`
-    );
+    const res = await fetch(`${BACKEND}/turn-credentials`);
     const data = await res.json();
-    console.log("[ICE] Metered response:", JSON.stringify(data));
-    const iceServers = Array.isArray(data) ? data : data.iceServers ?? [];
+    console.log("[ICE] TURN credentials:", JSON.stringify(data));
+    const iceServers = Array.isArray(data) ? data : [];
     if (!iceServers.length) throw new Error("empty");
     return { iceServers };
   } catch {
