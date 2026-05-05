@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 let mongod;
 
 export const connectTestDB = async () => {
+  if (mongoose.connection.readyState !== 0) return; // already connected
   mongod = await MongoMemoryServer.create();
   await mongoose.connect(mongod.getUri());
 };
@@ -16,7 +17,8 @@ export const clearTestDB = async () => {
 };
 
 export const closeTestDB = async () => {
+  if (mongoose.connection.readyState === 0) return;
   await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
-  await mongod.stop();
+  if (mongod) await mongod.stop();
 };

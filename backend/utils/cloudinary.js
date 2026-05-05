@@ -12,6 +12,7 @@ cloudinary.config({
  */
 export const uploadToCloudinary = async (base64String, folder = "medimentor", isPDF = false) => {
   if (!base64String) return null;
+  if (process.env.NODE_ENV === "test") return null; // skip in test env
 
   // Already a URL (already uploaded) — return as-is
   if (base64String.startsWith("http")) return base64String;
