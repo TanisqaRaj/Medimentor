@@ -2,11 +2,20 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import socket from "../socket";
 
-const ICE_SERVERS = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" },
-  ],
+const METERED_DOMAIN = import.meta.env.VITE_METERED_DOMAIN;
+const METERED_SECRET = import.meta.env.VITE_METERED_SECRET;
+
+const getIceServers = async () => {
+  try {
+    const res = await fetch(
+      `https://${METERED_DOMAIN}/api/v1/turn/credentials?apiKey=${METERED_SECRET}`
+    );
+    const iceServers = await res.json();
+    return { iceServers };
+  } catch {
+    // fallback to STUN only
+    return { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+  }
 };
 
 const VideoCall = ({ roomId, onEnd }) => {
@@ -60,11 +69,11 @@ const VideoCall = ({ roomId, onEnd }) => {
       streamRef.current = stream;
       if (localRef.current) localRef.current.srcObject = stream;
 
-      // Reflect actual track state in UI
       setCamOn(stream.getVideoTracks()[0]?.enabled ?? false);
       setMicOn(stream.getAudioTracks()[0]?.enabled ?? false);
 
-      pc = new RTCPeerConnection(ICE_SERVERS);
+      const iceConfig = await getIceServers();
+      pc = new RTCPeerConnection(iceConfig);
       pcRef.current = pc;
       stream.getTracks().forEach((t) => pc.addTrack(t, stream));
 
@@ -81,6 +90,7 @@ const VideoCall = ({ roomId, onEnd }) => {
         if (pc.connectionState === "disconnected" || pc.connectionState === "failed") handleEnd();
       };
 
+      // Register all listeners BEFORE joining the room to avoid missing events
       socket.on("user-joined", async () => {
         setStatus("Calling...");
         const offer = await pc.createOffer();
@@ -98,6 +108,7 @@ const VideoCall = ({ roomId, onEnd }) => {
       });
 
       socket.on("answer", async (answer) => {
+        if (pc.signalingState !== "have-local-offer") return; // guard against duplicate answers
         await pc.setRemoteDescription(new RTCSessionDescription(answer));
         await flushIceCandidates(pc);
       });
@@ -115,6 +126,7 @@ const VideoCall = ({ roomId, onEnd }) => {
         setTimeout(onEnd, 1500);
       });
 
+      // Join room only after all listeners are set up
       socket.emit("join-room", { roomId, token }, (res) => {
         if (res && !res.success) setStatus("Access denied: " + res.message);
       });
