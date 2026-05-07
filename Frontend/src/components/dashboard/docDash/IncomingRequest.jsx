@@ -42,7 +42,31 @@ const IncomingRequest = () => {
   useEffect(() => {
     const eventName = `updateAppointmentStatus/${doctorId}`;
     socket.on(eventName, () => fetchAppointments());
-    return () => socket.off(eventName);
+
+    // New appointment notification with sound
+    const newApptEvent = `newAppointment/${doctorId}`;
+    socket.on(newApptEvent, () => {
+      fetchAppointments();
+      // Play notification sound
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.5);
+      } catch {}
+    });
+
+    return () => {
+      socket.off(eventName);
+      socket.off(newApptEvent);
+    };
   }, [doctorId]);
 
   const openPasswordPopup = (id) => { setAppointmentId(id); setAction("approved"); setAppVisible(true); };
@@ -146,7 +170,7 @@ const IncomingRequest = () => {
                         Accept
                       </button>
                     ) : (
-                      item.appointment?.mode === "online" && (
+                      item.appointment?.mode === "online" && new Date(item.appointment.date) >= new Date(new Date().setHours(0,0,0,0)) && (
                         <button
                           className="flex-grow bg-blue-600 hover:bg-blue-700 text-white font-label-md py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
                           onClick={() => setActiveCall(item.appointmentID)}
@@ -154,8 +178,7 @@ const IncomingRequest = () => {
                           <span className="material-symbols-outlined text-base">videocam</span>
                           Join Call
                         </button>
-                      )
-                    )}
+                      )                    )}
                     <button
                       onClick={() => rejectAction(item.appointmentID)}
                       className="bg-surface-container-high hover:bg-red-50 text-on-surface-variant hover:text-red-600 border border-outline-variant/50 hover:border-red-200 font-label-md px-4 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2"

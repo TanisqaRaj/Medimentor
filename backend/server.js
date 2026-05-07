@@ -120,9 +120,33 @@ app.get("/turn-credentials", async (req, res) => {
 app.get("/", (req, res) => res.send("Welcome to the main server!"));
 app.get("/health", (req, res) => res.status(200).json({ status: "ok", uptime: process.uptime() }));
 app.use("/auth", authRoutes);
-app.use("/appointments", appointmentRoute);
+app.use("/appointments", (req, res, next) => {
+  // Notify doctor in real-time when a new appointment is booked
+  if (req.method === "POST" && req.path === "/create") {
+    const origJson = res.json.bind(res);
+    res.json = (body) => {
+      if (body?.success && body?.appointment?.doctorID) {
+        io.emit(`newAppointment/${body.appointment.doctorID}`, body.appointment);
+      }
+      return origJson(body);
+    };
+  }
+  next();
+}, appointmentRoute);
 app.use("/doctors", doctorRoute);
 app.use("/monitor", monitorRoute);
+
+// Notify doctor in real-time when a new appointment is booked
+app.use((req, res, next) => {
+  const origJson = res.json.bind(res);
+  res.json = (body) => {
+    if (req.method === "POST" && req.path === "/appointments/create" && body?.success && body?.appointment) {
+      io.emit(`newAppointment/${body.appointment.doctorID}`, body.appointment);
+    }
+    return origJson(body);
+  };
+  next();
+});
 
 // Contact Form Route (single source of truth — contactServer.js removed)
 app.post("/send", (req, res) => {

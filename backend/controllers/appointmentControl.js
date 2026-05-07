@@ -110,14 +110,18 @@ export const getAppointmentHistory = async (req, res) => {
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0);
 
-        const appointments = await Appointment.find({ patientID: userId, expectedDate: { $lt: currentDate } })
+        // Include completed appointments OR past-date appointments
+        const appointments = await Appointment.find({
+            patientID: userId,
+            $or: [
+                { state: "completed" },
+                { state: "rejected" },
+                { expectedDate: { $lt: currentDate } },
+            ],
+        })
             .populate({ path: "doctorID", select: "name email phone department experience bio profession gender username" })
             .select('-__v')
             .lean();
-
-        if (!appointments.length) {
-            return res.status(404).json({ success: false, message: "No past appointments found" });
-        }
 
         res.status(200).json({ success: true, totalAppointments: appointments.length, appointments: appointments.map(mapAppointment) });
     } catch (error) {

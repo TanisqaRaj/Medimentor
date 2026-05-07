@@ -1,39 +1,37 @@
 import api from "../../../api";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import socket from "../../../socket";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const AppointmentHistory = () => {
   const [appointmentHistory, setAppointmentHistory] = useState([]);
   const userId = useSelector((state) => state.auth.user._id);
-  const token = useSelector((state) => state.auth.accessToken);
 
   const fetchAppointmentHistory = async () => {
     try {
       const response = await api.get(`${BACKEND}/appointments/history/${userId}`);
-      console.log("userId is", userId);
-      console.log("appointment history list ", response.data);
-      const success = response?.data?.success;
-
-      if (success) {
-        const list = response.data.appointments;
-        setAppointmentHistory(list || []);
-      } else {
-        alert("Something went wrong");
+      if (response?.data?.success) {
+        setAppointmentHistory(response.data.appointments || []);
       }
     } catch (error) {
-      console.error("Error:", error);
+      if (error?.response?.status !== 404) console.error("Error:", error);
     }
   };
+
   useEffect(() => {
     fetchAppointmentHistory();
-  }, []);
+    const eventName = `updateAppointmentStatus/${userId}`;
+    socket.on(eventName, fetchAppointmentHistory);
+    return () => socket.off(eventName, fetchAppointmentHistory);
+  }, [userId]);
 
   const statusConfig = {
-    Pending:  { color: "bg-amber-100 text-amber-700",  icon: "schedule" },
-    Accepted: { color: "bg-emerald-100 text-emerald-700", icon: "check_circle" },
-    Rejected: { color: "bg-red-100 text-red-700", icon: "cancel" },
+    pending:   { color: "bg-amber-100 text-amber-700",   icon: "schedule" },
+    approved:  { color: "bg-emerald-100 text-emerald-700", icon: "check_circle" },
+    rejected:  { color: "bg-red-100 text-red-700",       icon: "cancel" },
+    completed: { color: "bg-blue-100 text-blue-700",     icon: "task_alt" },
   };
 
   return (
@@ -54,19 +52,17 @@ const AppointmentHistory = () => {
       ) : (
         <div className="space-y-4">
           {appointmentHistory.map((item, index) => {
-            const status = item.status || "Pending";
+            const status = (item.status || "pending").toLowerCase();
             const cfg = statusConfig[status] || { color: "bg-surface-variant text-on-surface-variant", icon: "info" };
             return (
               <div
                 key={index}
                 className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 items-start md:items-center"
               >
-                {/* Left: Status Icon */}
                 <div className="shrink-0 w-12 h-12 rounded-full bg-surface-container flex items-center justify-center">
                   <span className="material-symbols-outlined text-primary-container text-2xl">event_note</span>
                 </div>
 
-                {/* Center: Info */}
                 <div className="flex-grow grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   <div>
                     <div className="font-caption text-caption text-outline mb-0.5">Patient</div>
@@ -98,11 +94,10 @@ const AppointmentHistory = () => {
                   </div>
                 </div>
 
-                {/* Right: Status Badge */}
                 <div className="shrink-0">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-label-md font-semibold ${cfg.color}`}>
                     <span className="material-symbols-outlined text-[14px]">{cfg.icon}</span>
-                    {status}
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
                   </span>
                 </div>
               </div>
@@ -115,4 +110,3 @@ const AppointmentHistory = () => {
 };
 
 export default AppointmentHistory;
-
