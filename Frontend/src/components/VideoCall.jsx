@@ -33,6 +33,7 @@ const VideoCall = ({ roomId, onEnd }) => {
   const [status, setStatus] = useState("Connecting...");
   const [camOn, setCamOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
+  const [facingMode, setFacingMode] = useState("user"); // "user" = front, "environment" = rear
   const token = useSelector((state) => state.auth.accessToken);
 
   const handleEnd = () => {
@@ -52,6 +53,31 @@ const VideoCall = ({ roomId, onEnd }) => {
     if (!track) return;
     track.enabled = !track.enabled;
     setMicOn(track.enabled);
+  };
+
+  const flipCamera = async () => {
+    const newFacing = facingMode === "user" ? "environment" : "user";
+    try {
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: newFacing },
+        audio: false,
+      });
+      const newVideoTrack = newStream.getVideoTracks()[0];
+
+      // Replace track in peer connection
+      const sender = pcRef.current?.getSenders().find((s) => s.track?.kind === "video");
+      if (sender) await sender.replaceTrack(newVideoTrack);
+
+      // Stop old video track and swap in stream
+      streamRef.current?.getVideoTracks()[0]?.stop();
+      streamRef.current?.removeTrack(streamRef.current.getVideoTracks()[0]);
+      streamRef.current?.addTrack(newVideoTrack);
+
+      if (localRef.current) localRef.current.srcObject = streamRef.current;
+      setFacingMode(newFacing);
+    } catch (err) {
+      console.error("[flipCamera] failed:", err.message);
+    }
   };
 
   const flushIceCandidates = async (pc) => {
@@ -74,7 +100,7 @@ const VideoCall = ({ roomId, onEnd }) => {
     const start = async () => {
       let stream;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: true });
       } catch (err) {
         setStatus(err.name === "NotAllowedError" ? "Camera/mic permission denied" : "Camera/mic not available");
         return;
@@ -197,6 +223,9 @@ const VideoCall = ({ roomId, onEnd }) => {
         </button>
         <button onClick={toggleCam} style={{ ...btnBase, background: camOn ? "rgba(255,255,255,0.15)" : "#ef4444", color: "#fff" }}>
           {camOn ? "📷" : "🚫"} {camOn ? "Cam Off" : "Cam On"}
+        </button>
+        <button onClick={flipCamera} style={{ ...btnBase, background: "rgba(255,255,255,0.15)", color: "#fff" }}>
+          🔄 Flip
         </button>
       </div>
     </div>
