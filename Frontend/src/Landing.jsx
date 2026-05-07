@@ -25,45 +25,13 @@ const Landing = () => {
   const [totalDoctors, setTotalDoctors] = useState(null);
   const [totalUsers, setTotalusers] = useState(null);
 
-  const fetchTotalUsers = async () => {
-    try {
-      const response = await axios.get(
-        `${BACKEND}/doctors/totalusers`
-      );
-      const success = response?.data?.success;
-
-      if (success) {
-        const total = response.data.totalUsers;
-        setTotalusers(total);
-      } else {
-        alert("Something went wrong");
-      }
-    } catch (error) {
-      console.error("❌ Error fetching total doctors:", error);
-    }
-  };
-
-  const fetchTotalDoctors = async () => {
-    try {
-      const response = await axios.get(
-        `${BACKEND}/doctors/totaldoctors`
-      );
-      const success = response?.data?.success;
-
-      if (success) {
-        const total = response.data.totalDoctors;
-        setTotalDoctors(total);
-      } else {
-        alert("Something went wrong");
-      }
-    } catch (error) {
-      console.error("❌ Error fetching total doctors:", error);
-    }
-  };
-
   useEffect(() => {
-    fetchTotalUsers();
-    fetchTotalDoctors();
+    axios.get(`${BACKEND}/doctors/stats`).then(r => {
+      if (r?.data?.success) {
+        setTotalusers(r.data.totalUsers);
+        setTotalDoctors(r.data.totalDoctors);
+      }
+    }).catch(console.error);
   }, []);
   return (
     <main className="w-full bg-background selection:bg-primary-container selection:text-on-primary-container m-0 p-0 overflow-hidden">
