@@ -61,15 +61,19 @@ const VerifyOtp = ({ visible, onClose, email }) => {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center" id="container" onClick={handleOnClose}>
-      <div className="h-auto w-[90vw] md:w-[400px] flex flex-col items-center justify-center rounded-2xl bg-white shadow-lg p-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">Enter OTP</h2>
-        <p className="text-sm text-gray-500 mb-6">Sent to {email}</p>
-        <div className="flex justify-center gap-4 mb-6">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-sm md:p-xl" id="container" onClick={handleOnClose}>
+      <div className="w-full max-w-md flex flex-col items-center justify-center rounded-xl bg-surface-container-lowest border border-surface-container-highest shadow-xl p-lg">
+        <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+            <span className="material-symbols-outlined text-primary text-[32px]">lock_reset</span>
+        </div>
+        <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Enter OTP</h2>
+        <p className="font-body-md text-body-md text-tertiary mb-lg text-center">We've sent a 4-digit code to <br/><span className="font-medium text-on-surface">{email}</span></p>
+        
+        <div className="flex justify-center gap-4 mb-lg w-full">
           {inputArr.map((value, index) => (
             <input
               key={index}
-              className="border-2 rounded-lg w-14 h-14 text-center text-xl font-bold focus:border-emerald-500 outline-none"
+              className="border border-outline-variant bg-surface text-on-surface rounded-lg w-14 h-14 text-center text-xl font-bold focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-colors"
               maxLength="1"
               ref={refs[index]}
               value={value}
@@ -80,12 +84,14 @@ const VerifyOtp = ({ visible, onClose, email }) => {
             />
           ))}
         </div>
-        {msg && <p className="text-red-500 text-sm mb-4">{msg}</p>}
+        {msg && <p className="text-error font-caption text-caption mb-4 text-center">{msg}</p>}
+        
         <button
-          className="px-8 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-colors"
+          className="w-full bg-primary-container text-on-primary font-label-md text-label-md py-sm px-md rounded-lg hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-container/20 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-primary-container flex items-center justify-center gap-xs"
           onClick={handleChangePassword}
         >
           Verify OTP
+          <span className="material-symbols-outlined">check_circle</span>
         </button>
       </div>
       <ChangePassword onClose={() => setAppVisible(false)} visible={appVisible} resetToken={resetToken} />

@@ -23,9 +23,17 @@ const DocSidebar = () => {
       }
 
   return (
-    <div
-      className={`${open ? "w-[240px]" : "w-[64px]"} duration-300 flex flex-col h-screen bg-white border-r border-outline-variant/40 shadow-sm sticky top-0 font-manrope`}
-    >
+    <>
+      {open && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden" 
+          onClick={() => setOpen(false)} 
+        />
+      )}
+      <div className={`hidden max-md:block ${open ? 'w-[64px]' : 'w-0'}`} />
+      <div
+        className={`${open ? "w-[240px] shadow-2xl md:shadow-sm max-md:fixed max-md:left-0 max-md:top-[64px] max-md:h-[calc(100vh-64px)]" : "w-[64px]"} duration-300 flex flex-col h-screen bg-white border-r border-outline-variant/40 shadow-sm sticky top-0 font-manrope z-50`}
+      >
       {/* Toggle */}
       <div
         className={`flex ${!open ? "justify-center" : "justify-end pr-4"} pt-4 pb-3 cursor-pointer text-on-surface-variant hover:text-primary transition-colors`}
@@ -65,7 +73,8 @@ const DocSidebar = () => {
           </div>
         ))}
       </nav>
-    </div>
+      </div>
+    </>
   );
 }
 

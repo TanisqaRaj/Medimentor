@@ -151,13 +151,13 @@ const Registration = () => {
             <p className="font-body-md text-body-md text-on-surface-variant">Create your MediMentor account</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-gutter">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Name Fields */}
-            <div className="flex flex-col sm:flex-row gap-gutter">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="space-y-xs w-full sm:w-1/2">
                 <label className="block font-label-md text-label-md text-on-surface">First Name</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-outline">person</span>
                   </div>
                   <input
@@ -174,7 +174,7 @@ const Registration = () => {
               <div className="space-y-xs w-full sm:w-1/2">
                 <label className="block font-label-md text-label-md text-on-surface">Last Name</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-outline">person</span>
                   </div>
                   <input
@@ -190,11 +190,11 @@ const Registration = () => {
             </div>
 
             {/* Username & Email */}
-            <div className="flex flex-col sm:flex-row gap-gutter">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="space-y-xs w-full sm:w-1/2">
                 <label className="block font-label-md text-label-md text-on-surface">Username</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-outline">badge</span>
                   </div>
                   <input
@@ -211,7 +211,7 @@ const Registration = () => {
               <div className="space-y-xs w-full sm:w-1/2">
                 <label className="block font-label-md text-label-md text-on-surface">Email Address</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-outline">mail</span>
                   </div>
                   <input
@@ -226,11 +226,11 @@ const Registration = () => {
             </div>
 
             {/* Password & Contact */}
-            <div className="flex flex-col sm:flex-row gap-gutter">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="space-y-xs w-full sm:w-1/2">
                 <label className="block font-label-md text-label-md text-on-surface">Password</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-outline">lock</span>
                   </div>
                   <input
@@ -246,7 +246,7 @@ const Registration = () => {
               <div className="space-y-xs w-full sm:w-1/2">
                 <label className="block font-label-md text-label-md text-on-surface">Contact No.</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
                     <span className="material-symbols-outlined text-outline">phone</span>
                   </div>
                   <input
@@ -261,10 +261,10 @@ const Registration = () => {
             </div>
 
             {/* Gender & Role */}
-            <div className="flex flex-col sm:flex-row gap-gutter">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="space-y-xs w-full sm:w-1/2">
                 <label className="block font-label-md text-label-md text-on-surface">Gender</label>
-                <div className="flex space-x-4 items-center h-10">
+                <div className="flex space-x-4 items-center h-[42px]">
                   <label className="inline-flex items-center">
                     <input {...register("gender")} value="male" type="radio" className="form-radio text-primary focus:ring-primary border-outline-variant" />
                     <span className="ml-2 font-body-md text-on-surface">Male</span>
@@ -316,10 +316,10 @@ const Registration = () => {
 
             {/* Doctor specific fields */}
             {isDoctor === "doctor" && (
-              <div className="p-md bg-surface-container-low rounded-lg border border-outline-variant/50 space-y-gutter mt-sm">
+              <div className="p-md bg-surface-container-low rounded-lg border border-outline-variant/50 space-y-6 mt-sm">
                 <h3 className="font-headline-md text-headline-md text-primary mb-sm">Medical Professional Details</h3>
                 
-                <div className="flex flex-col sm:flex-row gap-gutter">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <div className="space-y-xs w-full sm:w-1/2">
                     <label className="block font-label-md text-label-md text-on-surface">Doctor Bio</label>
                     <textarea
@@ -344,7 +344,7 @@ const Registration = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-gutter">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <div className="space-y-xs w-full sm:w-1/2">
                     <label className="block font-label-md text-label-md text-on-surface">MCI Number</label>
                     <input
@@ -364,7 +364,7 @@ const Registration = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-gutter">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <div className="space-y-xs w-full sm:w-1/2">
                     <label className="block font-label-md text-label-md text-on-surface">Experience (Years)</label>
                     <input

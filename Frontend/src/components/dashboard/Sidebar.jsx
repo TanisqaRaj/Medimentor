@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { BsLayoutSidebarInset } from "react-icons/bs";
-import { FaNotesMedical} from "react-icons/fa";
+import { FaNotesMedical, FaBookMedical, FaUser } from "react-icons/fa";
 import { TbHistoryToggle } from "react-icons/tb";
 import { AiTwotoneMedicineBox } from "react-icons/ai";
-import { FaBookMedical } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RiCalendarScheduleLine } from "react-icons/ri";
@@ -18,13 +17,22 @@ const Sidebar = () => {
     { title: "Scheduled meet", icon: <RiCalendarScheduleLine />, path: "/scheduledmeet" },
     { title: "Appointment History", icon: <TbHistoryToggle /> , path: "/appointmenthistory" },
     { title: "Buy Medicine", icon: <AiTwotoneMedicineBox />, path: "/pharmacy" },
+    { title: "Profile", icon: <FaUser />, path: "/userprofile" },
   ];
 
   return (
-    <div
-      className={`${open ? "w-[250px]" : "w-[72px]"
-        } duration-300 px-2 py-6 flex flex-col bg-surface-container-lowest border-r border-outline-variant/30 text-on-surface h-screen sticky top-0 font-manrope z-40 shadow-sm`}
-    >
+    <>
+      {open && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden" 
+          onClick={() => setOpen(false)} 
+        />
+      )}
+      <div className={`hidden max-md:block ${open ? 'w-[72px]' : 'w-0'}`} />
+      <div
+        className={`${open ? "w-[250px] shadow-2xl md:shadow-sm max-md:fixed max-md:left-0 max-md:top-[64px] max-md:h-[calc(100vh-64px)]" : "w-[72px]"
+          } duration-300 px-2 py-6 flex flex-col bg-surface-container-lowest border-r border-outline-variant/30 text-on-surface h-screen sticky top-0 font-manrope z-50`}
+      >
       {/* Toggle Icon */}
       <div
         className={`flex justify-end mb-8 cursor-pointer text-outline hover:text-primary-container transition-colors ${!open && "justify-center"}`}
@@ -69,7 +77,8 @@ const Sidebar = () => {
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

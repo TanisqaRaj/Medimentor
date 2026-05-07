@@ -178,7 +178,7 @@ const Login = () => {
               <div>
                 <label className="block font-label-md text-label-md text-on-surface-variant mb-base" htmlFor="loginType">Select Role</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
                     <span className="material-symbols-outlined">badge</span>
                   </div>
                   <select
@@ -192,7 +192,7 @@ const Login = () => {
                     <option value="doctor">Doctor</option>
                     <option value="admin">Admin</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-tertiary">
+                  <div className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-0 flex items-center px-2 text-tertiary">
                     <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                   </div>
                 </div>
@@ -202,7 +202,7 @@ const Login = () => {
               <div>
                 <label className="block font-label-md text-label-md text-on-surface-variant mb-base" htmlFor="identifier">Email, Phone, or Username</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
                     <span className="material-symbols-outlined">person</span>
                   </div>
                   <input 
@@ -221,7 +221,7 @@ const Login = () => {
               <div>
                 <label className="block font-label-md text-label-md text-on-surface-variant mb-base" htmlFor="password">Password</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-sm flex items-center pointer-events-none text-tertiary">
                     <span className="material-symbols-outlined">lock</span>
                   </div>
                   <input 
@@ -234,7 +234,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
-                <div className="flex justify-end mt-xs">
+                <div className="flex justify-end mt-4 mb-2">
                   <span className="font-label-md text-label-md text-primary hover:text-primary-container transition-colors focus:ring-2 focus:ring-primary focus:outline-none rounded cursor-pointer" onClick={navigatebackupemail}>Forgot Password?</span>
                 </div>
               </div>
