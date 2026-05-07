@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import axios from "axios";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
@@ -22,8 +22,8 @@ const Landing = () => {
     setIsOpen(!isOpen);
   };
 
-  const [totalDoctors, setTotalDoctors] = useState(0);
-  const [totalUsers, setTotalusers] = useState(0);
+  const [totalDoctors, setTotalDoctors] = useState(null);
+  const [totalUsers, setTotalusers] = useState(null);
 
   const fetchTotalUsers = async () => {
     try {
@@ -76,7 +76,7 @@ const Landing = () => {
             <div className="bg-surface-container px-sm py-xs rounded-full flex items-center gap-2 border border-outline-variant">
               <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
               <span className="font-label-md text-label-md text-on-surface-variant">
-                Trusted by <CountUp end={totalUsers} duration={4} />+ Patients &amp; <CountUp end={totalDoctors} duration={4} />+ Doctors
+                Trusted by {totalUsers ? <><CountUp end={totalUsers} duration={4} />+</> : "..."} Patients &amp; {totalDoctors ? <><CountUp end={totalDoctors} duration={4} />+</> : "..."} Doctors
               </span>
             </div>
             <h1 className="font-display-lg text-headline-lg sm:text-display-md md:text-display-lg text-on-surface text-balance">
