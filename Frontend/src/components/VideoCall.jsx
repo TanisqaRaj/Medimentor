@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import socket from "../socket";
 
@@ -8,11 +8,12 @@ const getIceServers = async () => {
   try {
     const res = await fetch(`${BACKEND}/turn-credentials`);
     const data = await res.json();
-    console.log("[ICE] TURN credentials:", JSON.stringify(data));
     const iceServers = Array.isArray(data) ? data : [];
     if (!iceServers.length) throw new Error("empty");
+    console.log("[ICE] Using TURN servers:", iceServers.length);
     return { iceServers };
   } catch {
+    console.warn("[ICE] Falling back to STUN only");
     return { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
   }
 };
@@ -22,16 +23,22 @@ const VideoCall = ({ roomId, onEnd }) => {
   const remoteRef = useRef();
   const pcRef = useRef(null);
   const streamRef = useRef(null);
-  const iceCandidateBuffer = useRef([]); // buffer ICE candidates until remote desc is set
+  const iceCandidateBuffer = useRef([]);
+  // Use refs for roomId and onEnd to avoid re-running the effect
+  const roomIdRef = useRef(roomId);
+  const onEndRef = useRef(onEnd);
+  useEffect(() => { roomIdRef.current = roomId; }, [roomId]);
+  useEffect(() => { onEndRef.current = onEnd; }, [onEnd]);
+
   const [status, setStatus] = useState("Connecting...");
   const [camOn, setCamOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
   const token = useSelector((state) => state.auth.accessToken);
 
-  const handleEnd = useCallback(() => {
-    socket.emit("leave-room", roomId);
-    onEnd();
-  }, [roomId, onEnd]);
+  const handleEnd = () => {
+    socket.emit("leave-room", roomIdRef.current);
+    onEndRef.current?.();
+  };
 
   const toggleCam = () => {
     const track = streamRef.current?.getVideoTracks()[0];
@@ -56,19 +63,24 @@ const VideoCall = ({ roomId, onEnd }) => {
 
   useEffect(() => {
     let pc;
+    let ended = false;
+
+    const doEnd = () => {
+      if (ended) return;
+      ended = true;
+      onEndRef.current?.();
+    };
 
     const start = async () => {
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       } catch (err) {
-        console.error("[VideoCall] getUserMedia error:", err.name, err.message);
         setStatus(err.name === "NotAllowedError" ? "Camera/mic permission denied" : "Camera/mic not available");
         return;
       }
       streamRef.current = stream;
       if (localRef.current) localRef.current.srcObject = stream;
-
       setCamOn(stream.getVideoTracks()[0]?.enabled ?? false);
       setMicOn(stream.getAudioTracks()[0]?.enabled ?? false);
 
@@ -83,20 +95,35 @@ const VideoCall = ({ roomId, onEnd }) => {
       };
 
       pc.onicecandidate = (e) => {
-        if (e.candidate) socket.emit("ice-candidate", { roomId, candidate: e.candidate });
+        if (e.candidate) socket.emit("ice-candidate", { roomId: roomIdRef.current, candidate: e.candidate });
       };
 
       pc.onconnectionstatechange = () => {
-        if (pc.connectionState === "disconnected" || pc.connectionState === "failed") handleEnd();
+        const state = pc.connectionState;
+        console.log("[WebRTC] connectionState:", state);
+        if (state === "failed") {
+          // Attempt ICE restart before giving up
+          if (pc.signalingState === "stable") {
+            console.log("[WebRTC] Attempting ICE restart...");
+            pc.restartIce();
+          } else {
+            setStatus("Connection failed");
+            setTimeout(doEnd, 2000);
+          }
+        }
+        // NOTE: "disconnected" is transient — do NOT end the call here
       };
 
-      // Register all listeners BEFORE joining the room to avoid missing events
+      pc.oniceconnectionstatechange = () => {
+        console.log("[WebRTC] iceConnectionState:", pc.iceConnectionState);
+      };
+
       socket.on("user-joined", async () => {
-        console.log("[VideoCall] user-joined received, creating offer");
+        console.log("[VideoCall] user-joined, creating offer");
         setStatus("Calling...");
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        socket.emit("offer", { roomId, offer });
+        socket.emit("offer", { roomId: roomIdRef.current, offer });
       });
 
       socket.on("offer", async ({ offer }) => {
@@ -105,11 +132,11 @@ const VideoCall = ({ roomId, onEnd }) => {
         await flushIceCandidates(pc);
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
-        socket.emit("answer", { roomId, answer });
+        socket.emit("answer", { roomId: roomIdRef.current, answer });
       });
 
       socket.on("answer", async (answer) => {
-        if (pc.signalingState !== "have-local-offer") return; // guard against duplicate answers
+        if (pc.signalingState !== "have-local-offer") return;
         await pc.setRemoteDescription(new RTCSessionDescription(answer));
         await flushIceCandidates(pc);
       });
@@ -124,12 +151,10 @@ const VideoCall = ({ roomId, onEnd }) => {
 
       socket.on("user-left", () => {
         setStatus("Call ended by other party");
-        setTimeout(onEnd, 1500);
+        setTimeout(doEnd, 1500);
       });
 
-      // Join room only after all listeners are set up
-      console.log("[VideoCall] joining room:", roomId);
-      socket.emit("join-room", { roomId, token }, (res) => {
+      socket.emit("join-room", { roomId: roomIdRef.current, token }, (res) => {
         console.log("[VideoCall] join-room response:", JSON.stringify(res));
         if (res && !res.success) setStatus("Access denied: " + res.message);
       });
@@ -146,7 +171,8 @@ const VideoCall = ({ roomId, onEnd }) => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       pcRef.current?.close();
     };
-  }, [roomId, handleEnd]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Empty deps: roomId/onEnd accessed via refs to prevent re-registration of socket listeners
 
   const btnBase = { border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 };
 

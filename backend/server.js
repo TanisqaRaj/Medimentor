@@ -32,6 +32,9 @@ const ALLOWED_ORIGIN = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const io = new Server(httpServer, {
   cors: { origin: ALLOWED_ORIGIN, methods: ["GET", "POST"] },
+  transports: ["websocket"],   // skip polling — avoids Render proxy timeout on long-poll
+  pingInterval: 25000,         // ping every 25s (Render proxy cuts idle connections ~55s)
+  pingTimeout: 20000,
 });
 
 // ── Security headers ───────────────────────────────────────────────────────
@@ -115,6 +118,7 @@ app.get("/turn-credentials", async (req, res) => {
 
 // Routes
 app.get("/", (req, res) => res.send("Welcome to the main server!"));
+app.get("/health", (req, res) => res.status(200).json({ status: "ok", uptime: process.uptime() }));
 app.use("/auth", authRoutes);
 app.use("/appointments", appointmentRoute);
 app.use("/doctors", doctorRoute);
