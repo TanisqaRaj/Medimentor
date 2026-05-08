@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../../../api";
 import { useSelector } from "react-redux";
 import MeetingDetails from "./MeetingDetails";
@@ -21,7 +21,7 @@ const IncomingRequest = () => {
   const doctorId = useSelector((state) => state.auth.doctor._id);
   const token = useSelector((state) => state.auth.accessToken);
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     try {
       const response = await api.get(`${BACKEND}/appointments/docapp/${doctorId}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -35,17 +35,16 @@ const IncomingRequest = () => {
     } catch (error) {
       console.error("Error fetching appointments:", error);
     }
-  };
+  }, [doctorId, token]);
 
-  useEffect(() => { fetchAppointments(); }, []);
+  useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
 
   useEffect(() => {
     const eventName = `updateAppointmentStatus/${doctorId}`;
-    socket.on(eventName, () => fetchAppointments());
+    socket.on(eventName, fetchAppointments);
 
-    // New appointment notification with sound
     const newApptEvent = `newAppointment/${doctorId}`;
-    socket.on(newApptEvent, () => {
+    const handleNewAppt = () => {
       fetchAppointments();
       // Play notification sound
       try {
@@ -61,13 +60,14 @@ const IncomingRequest = () => {
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.5);
       } catch {}
-    });
+    };
+    socket.on(newApptEvent, handleNewAppt);
 
     return () => {
-      socket.off(eventName);
-      socket.off(newApptEvent);
+      socket.off(eventName, fetchAppointments);
+      socket.off(newApptEvent, handleNewAppt);
     };
-  }, [doctorId]);
+  }, [doctorId, fetchAppointments]);
 
   const openPasswordPopup = (id) => { setAppointmentId(id); setAction("approved"); setAppVisible(true); };
   const openMap = (id) => { setAppointmentId(id); setAction("approved"); setMapVisible(true); };

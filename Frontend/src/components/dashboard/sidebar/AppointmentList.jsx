@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState, useCallback } from "react";
 import DetailedAppoitmentList from "./DetailedAppoitmentList";
 import { useSelector } from "react-redux";
 import api from "../../../api";
@@ -24,17 +24,13 @@ const AppointmentList = () => {
     setPopupVisible(true);
   };
 
-  // API call to fetch appointments
-  const fetchAppointmentlist = async () => {
+  const fetchAppointmentlist = useCallback(async () => {
     try {
       const response = await api.get(`${BACKEND}/appointments/current/${userId}`);
-      console.log("userId is", userId);
       const success = response?.data?.success;
-
       if (success) {
         setAppointmentState(response.data.appointments || []);
         setLoading(false);
-        
         const meetDetailsArray = response.data.appointments.map((appointmentData) => ({
           patient: appointmentData.patient,
           doctor: appointmentData.doctor,
@@ -42,7 +38,6 @@ const AppointmentList = () => {
           appointmentID: appointmentData.customAppointmentID,
           status: appointmentData.status,
         }));
-  
         dispatch(appointmentDetails(meetDetailsArray));
       } else {
         alert("Something went wrong");
@@ -51,17 +46,15 @@ const AppointmentList = () => {
       console.error("Error:", error);
     }
     setLoading(false);
-  };
+  }, [userId, dispatch]);
 
-  useEffect(() => {
-    fetchAppointmentlist();
-  }, []);
+  useEffect(() => { fetchAppointmentlist(); }, [fetchAppointmentlist]);
 
   useEffect(() => {
     const eventName = `updateAppointmentStatus/${userId}`;
-    socket.on(eventName, () => fetchAppointmentlist());
-    return () => socket.off(eventName);
-  }, [userId]); // Remove `appointmentState` from dependencies
+    socket.on(eventName, fetchAppointmentlist);
+    return () => socket.off(eventName, fetchAppointmentlist);
+  }, [userId, fetchAppointmentlist]);
 
   const handleClose = () => setPopupVisible(false);
 

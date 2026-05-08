@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../api";
 import { useSelector } from "react-redux";
 
@@ -21,6 +21,7 @@ const AdminMonitor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const autoRefreshRef = useRef(autoRefresh);
   const token = useSelector((state) => state.auth.accessToken);
 
   const fetchMetrics = useCallback(async () => {
@@ -37,12 +38,16 @@ const AdminMonitor = () => {
     }
   }, [token]);
 
+  // Keep ref in sync so the interval can read the latest value without being a dependency
+  useEffect(() => { autoRefreshRef.current = autoRefresh; }, [autoRefresh]);
+
   useEffect(() => {
     fetchMetrics();
-    if (!autoRefresh) return;
-    const interval = setInterval(fetchMetrics, 10000); // refresh every 10s
+    const interval = setInterval(() => {
+      if (autoRefreshRef.current) fetchMetrics();
+    }, 10000);
     return () => clearInterval(interval);
-  }, [fetchMetrics, autoRefresh]);
+  }, [fetchMetrics]); // no autoRefresh here — avoids recreating the interval on every toggle
 
   if (loading) return (
     <div className="w-full flex-grow flex items-center justify-center">
