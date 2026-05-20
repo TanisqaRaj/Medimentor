@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import CountUp from "react-countup";
 import api from "../../api";
-import { useSelector } from "react-redux";
 import { StatCardSkeleton } from "../Skeleton";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
@@ -11,16 +10,13 @@ const AdminContent = () => {
     const [totalUsers, setTotalUsers] = useState(0);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
-    const token = useSelector((state) => state.auth.accessToken);
-    const headers = { Authorization: `Bearer ${token}` };
-
     useEffect(() => {
         const fetchAll = async () => {
             try {
                 const [usersRes, doctorsRes, statsRes] = await Promise.all([
-                    api.get(`${BACKEND}/doctors/totalusers`, { headers }),
-                    api.get(`${BACKEND}/doctors/totaldoctors`, { headers }),
-                    api.get(`${BACKEND}/appointments/stats`, { headers }),
+                    api.get(`${BACKEND}/doctors/totalusers`),
+                    api.get(`${BACKEND}/doctors/totaldoctors`),
+                    api.get(`${BACKEND}/appointments/stats`),
                 ]);
                 if (usersRes.data.success) setTotalUsers(usersRes.data.totalUsers);
                 if (doctorsRes.data.success) setTotalDoctors(doctorsRes.data.totalDoctors);

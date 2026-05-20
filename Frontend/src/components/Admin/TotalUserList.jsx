@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
-import { useSelector } from "react-redux";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
@@ -8,14 +7,11 @@ const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 // We'll add a /users/list route; for now fetch from auth verify or use existing data
 const TotalUserList = () => {
   const [userList, setUserList] = useState([]);
-  const token = useSelector((state) => state.auth.accessToken);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await api.get(`${BACKEND}/auth/users`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await api.get(`${BACKEND}/auth/users`);
         if (response.data.success) setUserList(response.data.users);
       } catch (error) {
         console.error("Error fetching users:", error);

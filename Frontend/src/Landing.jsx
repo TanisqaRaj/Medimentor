@@ -76,9 +76,9 @@ const Landing = () => {
             <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Comprehensive Care Solutions</h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Integrated medical services designed for clarity, efficiency, and your peace of mind.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-md auto-rows-[280px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-md md:auto-rows-[280px]">
             {/* Large Card: Online Consultation */}
-            <div className="md:col-span-2 bg-surface-container-low rounded-xl p-md border border-outline-variant/50 hover:shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] transition-all flex flex-col justify-between relative overflow-hidden group">
+            <div className="md:col-span-2 bg-surface-container-low rounded-xl p-md border border-outline-variant/50 hover:shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] transition-all flex flex-col justify-between relative overflow-hidden group min-h-[220px]">
               <div className="relative z-10">
                 <div className="bg-surface-container-lowest w-12 h-12 rounded-lg flex items-center justify-center mb-md shadow-sm">
                   <span className="material-symbols-outlined text-primary text-[28px] icon-fill">video_camera_front</span>

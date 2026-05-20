@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import DashHeader from "../DashHeader";
 import Appointment from "./Appointment";
 import { FaStar } from "react-icons/fa";
@@ -110,10 +110,10 @@ const BookAppointment = () => {
               (filteredDoctors.length > 0 ? filteredDoctors : visibleDoctors).map((item, index) => (
                 <article
                   key={index}
-                  className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col sm:flex-row gap-6 items-start"
+                  className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start"
                 >
                   {/* Doctor Avatar */}
-                  <div className="w-32 h-32 shrink-0 rounded-xl overflow-hidden border border-surface-variant bg-surface-container">
+                  <div className="w-20 h-20 sm:w-32 sm:h-32 shrink-0 rounded-xl overflow-hidden border border-surface-variant bg-surface-container">
                     <img
                       src={`${item?.image}`}
                       alt={item?.name}

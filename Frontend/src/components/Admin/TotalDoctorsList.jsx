@@ -1,19 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
-import { useSelector } from "react-redux";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const TotalDoctorsList = () => {
   const [doctorList, setDoctorList] = useState([]);
-  const token = useSelector((state) => state.auth.accessToken);
 
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await api.get(`${BACKEND}/doctors/listdoctors?limit=100`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await api.get(`${BACKEND}/doctors/listdoctors?limit=100`);
         if (response.data.success) setDoctorList(response.data.doctors);
       } catch (error) {
         console.error("Error fetching doctors:", error);

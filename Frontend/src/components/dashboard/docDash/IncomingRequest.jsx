@@ -19,13 +19,10 @@ const IncomingRequest = () => {
   const [endedCalls, setEndedCalls] = useState(new Set());
 
   const doctorId = useSelector((state) => state.auth.doctor._id);
-  const token = useSelector((state) => state.auth.accessToken);
 
   const fetchAppointments = useCallback(async () => {
     try {
-      const response = await api.get(`${BACKEND}/appointments/docapp/${doctorId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get(`${BACKEND}/appointments/docapp/${doctorId}`);
       if (response?.data?.success) {
         setAppointments([
           ...response.data.pendingAppointments,
@@ -35,7 +32,7 @@ const IncomingRequest = () => {
     } catch (error) {
       console.error("Error fetching appointments:", error);
     }
-  }, [doctorId, token]);
+  }, [doctorId]);
 
   useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
 

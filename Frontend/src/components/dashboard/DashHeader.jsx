@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import api from "../../api";
@@ -79,15 +79,15 @@ useEffect(() => {
   };
 
   return (
-    <header className="h-20 flex px-6 lg:px-10 w-full z-30 bg-surface-container-lowest border-b border-outline-variant/30 font-manrope shadow-sm sticky top-0">
-      <div className="h-full container mx-auto flex items-center justify-between w-full">
-        <h1 className="text-2xl font-headline-md font-bold tracking-tight text-emerald-700 hidden md:block">
+    <header className="h-16 md:h-20 flex px-4 md:px-6 lg:px-10 w-full z-30 bg-surface-container-lowest border-b border-outline-variant/30 font-manrope shadow-sm sticky top-0">
+      <div className="h-full container mx-auto flex items-center justify-between w-full gap-3">
+        <h1 className="text-2xl font-headline-md font-bold tracking-tight text-emerald-700 hidden md:block shrink-0">
           Find Your Doctor
         </h1>
         
         {/*----------- SearchBar and SearchLogo ---------------*/}
-        <div className="flex items-center flex-grow justify-end max-w-lg">
-          <div className="flex w-full items-center bg-surface-container rounded-full border border-outline-variant/50 focus-within:ring-2 focus-within:ring-primary-container/20 focus-within:border-primary-container transition-all overflow-hidden h-12 shadow-sm">
+        <div className="flex items-center flex-grow w-full md:max-w-lg">
+          <div className="flex w-full items-center bg-surface-container rounded-full border border-outline-variant/50 focus-within:ring-2 focus-within:ring-primary-container/20 focus-within:border-primary-container transition-all overflow-hidden h-11 md:h-12 shadow-sm">
             <div className="relative">
               <button
                 className="flex items-center justify-center gap-1 bg-surface-variant hover:bg-surface-container-highest text-on-surface-variant px-4 h-full transition-colors border-r border-outline-variant/30 font-label-md"
@@ -129,7 +129,7 @@ useEffect(() => {
 
       {isPopupOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[100]">
-          <div className="bg-surface-container-lowest p-8 rounded-xl shadow-2xl w-full max-w-md border border-outline-variant/50 font-manrope">
+          <div className="bg-surface-container-lowest p-5 sm:p-8 rounded-xl shadow-2xl w-full max-w-md mx-4 border border-outline-variant/50 font-manrope">
             <h2 className="text-xl font-headline-md font-bold text-on-surface mb-2">Write Your Query</h2>
             <p className="text-body-md text-on-surface-variant mb-4">Describe the symptoms or specialty you are looking for.</p>
             <textarea
@@ -160,3 +160,4 @@ useEffect(() => {
 };
 
 export default DashHeader;
+

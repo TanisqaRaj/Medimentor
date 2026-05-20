@@ -100,7 +100,7 @@ const AppointmentList = () => {
           {appointmentState.map((item, index) => (
             <div
               key={index}
-              className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 items-start md:items-center"
+              className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 items-start md:items-center"
             >
               {/* Icon */}
               <div className="shrink-0 w-12 h-12 rounded-full bg-primary-container/10 border border-primary-container/20 flex items-center justify-center">
@@ -108,10 +108,10 @@ const AppointmentList = () => {
               </div>
 
               {/* Info Grid */}
-              <div className="flex-grow grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4">
+              <div className="flex-grow grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-2 sm:gap-x-4 min-w-0">
                 <div>
                   <div className="font-caption text-caption text-outline mb-0.5">Patient</div>
-                  <div className="font-label-md text-label-md text-on-surface">{item.patient?.name}</div>
+                  <div className="font-label-md text-label-md text-on-surface truncate">{item.patient?.name}</div>
                 </div>
                 <div>
                   <div className="font-caption text-caption text-outline mb-0.5">Contact</div>
@@ -131,7 +131,7 @@ const AppointmentList = () => {
                 </div>
                 <div>
                   <div className="font-caption text-caption text-outline mb-0.5">Doctor</div>
-                  <div className="font-label-md text-label-md text-on-surface">{item.doctor?.name}</div>
+                  <div className="font-label-md text-label-md text-on-surface truncate">{item.doctor?.name}</div>
                 </div>
                 <div>
                   <div className="font-caption text-caption text-outline mb-0.5">Dr. Contact</div>
@@ -169,4 +169,5 @@ const AppointmentList = () => {
 };
 
 export default AppointmentList;
+
 

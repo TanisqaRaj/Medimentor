@@ -9,15 +9,12 @@ const DocContent = () => {
   const [loading, setLoading] = useState(true);
 
   const doctorId = useSelector((state) => state.auth.doctor?._id);
-  const token = useSelector((state) => state.auth.accessToken);
 
   useEffect(() => {
     const fetchStats = async () => {
-      if (!doctorId || !token) return;
+      if (!doctorId) return;
       try {
-        const response = await api.get(`${BACKEND}/appointments/docapp/${doctorId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await api.get(`${BACKEND}/appointments/docapp/${doctorId}`);
         
         if (response?.data?.success) {
           const pending = response.data.pendingAppointments || [];
@@ -39,7 +36,7 @@ const DocContent = () => {
     };
 
     fetchStats();
-  }, [doctorId, token]);
+  }, [doctorId]);
 
   return (
     <div className='w-full max-w-[1280px] mx-auto py-8 font-manrope'>

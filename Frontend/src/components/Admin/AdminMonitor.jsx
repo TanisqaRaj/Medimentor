@@ -24,10 +24,13 @@ const AdminMonitor = () => {
   const autoRefreshRef = useRef(autoRefresh);
   const token = useSelector((state) => state.auth.accessToken);
 
+  const tokenRef = useRef(token);
+  useEffect(() => { tokenRef.current = token; }, [token]);
+
   const fetchMetrics = useCallback(async () => {
     try {
       const { data } = await api.get(`${BACKEND}/monitor/stats`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${tokenRef.current}` },
       });
       if (data.success) setMetrics(data.metrics);
       setError(null);
@@ -36,7 +39,7 @@ const AdminMonitor = () => {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []); // stable — reads token via ref, no deps that change
 
   // Keep ref in sync so the interval can read the latest value without being a dependency
   useEffect(() => { autoRefreshRef.current = autoRefresh; }, [autoRefresh]);
@@ -47,7 +50,7 @@ const AdminMonitor = () => {
       if (autoRefreshRef.current) fetchMetrics();
     }, 10000);
     return () => clearInterval(interval);
-  }, [fetchMetrics]); // no autoRefresh here — avoids recreating the interval on every toggle
+  }, [fetchMetrics]); // fetchMetrics is now stable, interval created only once
 
   if (loading) return (
     <div className="w-full flex-grow flex items-center justify-center">

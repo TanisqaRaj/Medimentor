@@ -1,4 +1,4 @@
-import api from "../../../api";
+﻿import api from "../../../api";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import socket from "../../../socket";
@@ -57,13 +57,13 @@ const AppointmentHistory = () => {
             return (
               <div
                 key={index}
-                className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 items-start md:items-center"
+                className="bg-surface-container-lowest rounded-xl border border-outline-variant/50 p-4 sm:p-5 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 items-start md:items-center"
               >
                 <div className="shrink-0 w-12 h-12 rounded-full bg-surface-container flex items-center justify-center">
                   <span className="material-symbols-outlined text-primary-container text-2xl">event_note</span>
                 </div>
 
-                <div className="flex-grow grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="flex-grow grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-2 sm:gap-x-3 min-w-0">
                   <div>
                     <div className="font-caption text-caption text-outline mb-0.5">Patient</div>
                     <div className="font-label-md text-label-md text-on-surface">{item.patient?.name}</div>
@@ -110,3 +110,4 @@ const AppointmentHistory = () => {
 };
 
 export default AppointmentHistory;
+

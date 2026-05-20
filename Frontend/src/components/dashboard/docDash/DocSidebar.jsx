@@ -1,4 +1,4 @@
-import  { useState } from "react";
+﻿import  { useState } from "react";
 import { BsLayoutSidebarInset } from "react-icons/bs";
 import { FaNotesMedical } from "react-icons/fa";
 import { TbHistoryToggle } from "react-icons/tb";
@@ -30,9 +30,8 @@ const DocSidebar = () => {
           onClick={() => setOpen(false)} 
         />
       )}
-      <div className={`hidden max-md:block ${open ? 'w-[64px]' : 'w-0'}`} />
-      <div
-        className={`${open ? "w-[240px] shadow-2xl md:shadow-sm max-md:fixed max-md:left-0 max-md:top-[64px] max-md:h-[calc(100vh-64px)]" : "w-[64px]"} duration-300 flex flex-col h-screen bg-white border-r border-outline-variant/40 shadow-sm sticky top-0 font-manrope z-50`}
+            <div
+        className={`${open ? "w-[240px] shadow-2xl md:shadow-sm max-md:fixed max-md:left-0 max-md:top-[64px] max-md:h-[calc(100vh-64px)]" : "w-0 md:w-[64px] overflow-hidden md:overflow-visible"} duration-300 flex flex-col h-screen bg-white border-r border-outline-variant/40 shadow-sm sticky top-0 font-manrope z-50`}
       >
       {/* Toggle */}
       <div
@@ -72,10 +71,20 @@ const DocSidebar = () => {
             )}
           </div>
         ))}
-      </nav>
-      </div>
+      </nav>      </div>
+      {/* Mobile open button */}
+      {!open && (
+        <button
+          className="md:hidden fixed bottom-6 left-4 z-50 bg-emerald-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center"
+          onClick={() => setOpen(true)}
+          aria-label="Open menu"
+        >
+          <BsLayoutSidebarInset className="text-xl rotate-180" />
+        </button>
+      )}
     </>
   );
 }
 
 export default DocSidebar;
+
