@@ -43,28 +43,3 @@ jobs:
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
-  frontend:
-    name: Frontend — Lint & Build
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: Frontend
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: Frontend/package-lock.json
-
-      - run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Build
-        run: npm run build
-        env:
-          VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}

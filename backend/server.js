@@ -28,7 +28,10 @@ connectDB();
 const app = express();
 app.set("trust proxy", 1);
 const httpServer = http.createServer(app);
-const ALLOWED_ORIGIN = process.env.FRONTEND_URL || "http://localhost:5173";
+const ALLOWED_ORIGIN = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
 const io = new Server(httpServer, {
   cors: { origin: ALLOWED_ORIGIN, methods: ["GET", "POST"] },
