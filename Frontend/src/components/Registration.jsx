@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Multiselect from "multiselect-react-dropdown";
@@ -127,7 +127,7 @@ const Registration = () => {
             <img alt="Medical Professional" className="w-4/5 max-w-2xl h-auto object-cover rounded-xl shadow-2xl shadow-primary/20 aspect-[4/3]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOu-TsCkuf0h0KqtOdzy55XYf1teN-zMaz2hOBDVT0vZ6Fm2tS-XmZQfZjEkrZp4GLz1Upngtt2haxasfZRSnHlbsqL_jSt3nX1JsPfuEulGhQNdLuxw3J74PaKuY4ETzDLNHGmAprUms5egbyzQDXREe4zsFzJU41RkNXJiHw-raF_ZxX9nplqJqt8YyGIHhEk_S1fqiVl2kYu6HxZ4PlqQ3B5cwxoLDZw4myMa2L5aWy-5GMlQktNgjfU4DVfbQvtSghFkgPAt7u" />
           </div>
           <div className="max-w-md text-on-primary">
-            <p className="font-headline-md text-headline-md mb-sm">"Clinical Clarity Certified."</p>
+            <p className="font-headline-md text-headline-md mb-sm">&quot;Clinical Clarity Certified.&quot;</p>
             <p className="font-body-lg text-body-lg text-primary-fixed-dim">Join thousands of healthcare professionals connecting and learning in a secure environment.</p>
           </div>
         </div>

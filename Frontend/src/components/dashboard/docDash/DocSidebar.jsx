@@ -1,7 +1,5 @@
 ﻿import  { useState } from "react";
 import { BsLayoutSidebarInset } from "react-icons/bs";
-import { FaNotesMedical } from "react-icons/fa";
-import { TbHistoryToggle } from "react-icons/tb";
 import { AiTwotoneMedicineBox } from "react-icons/ai";
 import { FaBookMedical } from "react-icons/fa";
 import { useSelector } from "react-redux";

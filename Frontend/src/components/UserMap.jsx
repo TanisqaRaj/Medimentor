@@ -1,8 +1,7 @@
 import "leaflet/dist/leaflet.css";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import api from "../api";
-import { useSelector } from "react-redux";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
@@ -11,9 +10,8 @@ const UserMap = ({ appointmentId, onClose }) => {
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
 
-  const token = useSelector((state) => state.auth.accessToken);
-  const [position, setPosition] = useState(null);
   const [locationText, setLocationText] = useState("Fetching location...");
+  const [, setPosition] = useState(null);
 
   // Step 1: Get doctor's location from backend
   const fetchDoctorLocation = async () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
@@ -50,7 +50,7 @@ const Contact = () => {
         {/* Left — contact info */}
         <div className="space-y-8">
           <div>
-            <h2 className="font-headline-md text-headline-md text-on-surface mb-2">We're here to help</h2>
+            <h2 className="font-headline-md text-headline-md text-on-surface mb-2">We&apos;re here to help</h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
               Whether you need help booking an appointment, have a billing question, or want to give feedback — reach out and we'll get back to you promptly.
             </p>
@@ -85,7 +85,7 @@ const Contact = () => {
               </div>
               <h3 className="font-headline-md text-headline-md text-on-surface">Message Sent!</h3>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-xs">
-                Thank you for reaching out. We'll get back to you within 24 hours.
+                Thank you for reaching out. We&apos;ll get back to you within 24 hours.
               </p>
               <button
                 onClick={() => setSent(false)}

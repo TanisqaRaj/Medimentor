@@ -1,5 +1,4 @@
-
-import React from 'react'
+﻿
 import { FaInstagram } from "react-icons/fa6";
 import { PiFacebookLogoBold } from "react-icons/pi";
 import { RiYoutubeLine } from "react-icons/ri";
@@ -84,7 +83,7 @@ const Footer = () => {
 
         <div className="flex flex-col lg:flex-row justify-between items-center py-8 border-y border-slate-200">
           <div className="text-slate-600 text-center lg:text-left font-medium italic max-w-md">
-            "Your well-being is our priority, Your trust is our promise. Caring for you is not just our duty, It’s a commitment to life and its beauty."
+            {`"Your well-being is our priority, Your trust is our promise. Caring for you is not just our duty, It's a commitment to life and its beauty."`}
           </div>
           <div className="flex items-center mt-6 lg:mt-0 bg-white border border-slate-200 rounded-full overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
             <input

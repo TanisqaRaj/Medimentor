@@ -7,7 +7,6 @@ import "aos/dist/aos.css";
 //import doctor from "./assets/images/doctorsGrpPic1.webp";
 //import doctors from "./assets/images/Doctors.png.png";
 import CountUp from "react-countup";
-import LazyImage from "./LazyImage";
 
 const Landing = () => {
   useEffect(() => {
@@ -16,11 +15,6 @@ const Landing = () => {
       once: true,
     });
   }, []);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
 
   const [totalDoctors, setTotalDoctors] = useState(null);
   const [totalUsers, setTotalusers] = useState(null);

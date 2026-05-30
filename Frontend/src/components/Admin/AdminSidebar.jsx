@@ -2,7 +2,6 @@
 import { BsLayoutSidebarInset } from "react-icons/bs";
 import { FaUserDoctor } from "react-icons/fa6";
 import { FaUser } from "react-icons/fa";
-import { AiTwotoneMedicineBox } from "react-icons/ai";
 import { FaBookMedical } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { FaUserCheck } from "react-icons/fa";

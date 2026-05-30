@@ -1,27 +1,24 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import Logo from "../../assets/images/logo2.jpg";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../reduxslice/AuthSlice";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../../api";
 import axios from "axios";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const doctor = useSelector((state) => state.auth.doctor);
   const token = useSelector((state) => state.auth.accessToken);
   
   const handleLogout = async () => {
-    try { await api.post("/auth/logout"); } catch {}
+    try { await api.post("/auth/logout"); } catch (_) { /* ignore logout errors */ }
     dispatch(logout());
     navigate("/");
   };
@@ -36,7 +33,7 @@ const NavBar = () => {
     setIsOpen(!isOpen);
   };
 
-  const expirytoken = async () => {
+  const expirytoken = useCallback(async () => {
     const tokenObj = {
       token: token,
     };
@@ -56,7 +53,7 @@ const NavBar = () => {
     } else {
       return;
     }
-  };
+  }, [token, navigate, dispatch]);
   
   useEffect(() => {
     expirytoken();
@@ -64,7 +61,7 @@ const NavBar = () => {
       duration: 1000,
       once: true,
     });
-  }, []);
+  }, [expirytoken]);
 
   return (
     <header className="w-full z-50 border-b border-gray-100 bg-white shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] font-manrope text-sm tracking-tight relative">

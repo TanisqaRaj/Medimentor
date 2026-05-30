@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+﻿import { useState, useRef } from "react";
 import ChangePassword from "./ChangePassword";
 import axios from "axios";
 
@@ -67,7 +67,7 @@ const VerifyOtp = ({ visible, onClose, email }) => {
             <span className="material-symbols-outlined text-primary text-[32px]">lock_reset</span>
         </div>
         <h2 className="font-headline-lg text-headline-lg text-on-surface mb-xs">Enter OTP</h2>
-        <p className="font-body-md text-body-md text-tertiary mb-lg text-center">We've sent a 4-digit code to <br/><span className="font-medium text-on-surface">{email}</span></p>
+        <p className="font-body-md text-body-md text-tertiary mb-lg text-center">We&apos;ve sent a 4-digit code to <br/><span className="font-medium text-on-surface">{email}</span></p>
         
         <div className="flex justify-center gap-4 mb-lg w-full">
           {inputArr.map((value, index) => (

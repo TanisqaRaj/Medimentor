@@ -1,5 +1,6 @@
 import "./App.css";
 import { lazy, Suspense } from "react";
+import PropTypes from "prop-types";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -64,6 +65,8 @@ const Page = ({ children }) => (
   </div>
 );
 
+Page.propTypes = { children: PropTypes.node.isRequired };
+
 const DashLayout = ({ sidebar, content }) => (
   <Page>
     <div className="flex flex-1 min-h-[calc(100vh-64px)]">
@@ -72,6 +75,11 @@ const DashLayout = ({ sidebar, content }) => (
     </div>
   </Page>
 );
+
+DashLayout.propTypes = {
+  sidebar: PropTypes.node.isRequired,
+  content: PropTypes.node.isRequired,
+};
 
 function App() {
   const router = createBrowserRouter([

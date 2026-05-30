@@ -1,5 +1,4 @@
-import PropTypes from "prop-types";
-
+﻿
 const PopupDetailedAppointment = ({ show, close, appointment }) => {
 
   const handleClose = (e) => {
@@ -108,7 +107,7 @@ const PopupDetailedAppointment = ({ show, close, appointment }) => {
           <div className="space-y-6">
             <div className="bg-white/60 backdrop-blur rounded-2xl p-5 border border-white shadow-sm">
               <div className="font-caption text-[10px] uppercase tracking-wider text-outline mb-1">Bio</div>
-              <p className="font-body-md text-sm text-on-surface-variant leading-relaxed italic">"{appointment.doctor?.bio}"</p>
+              <p className="font-body-md text-sm text-on-surface-variant leading-relaxed italic">{`"`}{appointment.doctor?.bio}{`"`}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

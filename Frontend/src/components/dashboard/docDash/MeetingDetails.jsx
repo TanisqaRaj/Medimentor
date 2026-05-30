@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 
 const MeetingDetails = ({ visible, onClose, appointmentId, appointmentState, updateAppointmentStatus }) => {

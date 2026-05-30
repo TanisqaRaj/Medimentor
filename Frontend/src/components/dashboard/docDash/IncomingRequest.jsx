@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../../../api";
 import { useSelector } from "react-redux";
 import MeetingDetails from "./MeetingDetails";
@@ -56,7 +56,7 @@ const IncomingRequest = () => {
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.5);
-      } catch {}
+      } catch (_) { /* ignore audio errors */ }
     };
     socket.on(newApptEvent, handleNewAppt);
 
