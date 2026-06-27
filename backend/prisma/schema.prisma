@@ -1,0 +1,125 @@
+// Prisma schema for Medimentor Pharmacy
+// Database: PostgreSQL (separate from MongoDB — userId is stored as String ref to Mongo ObjectId)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique @db.VarChar(100)
+  medicines Medicine[]
+
+  @@map("categories")
+}
+
+model Medicine {
+  id                   Int          @id @default(autoincrement())
+  name                 String       @db.VarChar(200)
+  description          String?      @db.Text
+  price                Decimal      @db.Decimal(10, 2)
+  stock                Int          @default(0)
+  imageUrl             String?      @map("image_url") @db.Text
+  manufacturer         String?      @db.VarChar(200)
+  dosage               String?      @db.VarChar(100)
+  requiresPrescription Boolean      @default(false) @map("requires_prescription")
+  categoryId           Int?         @map("category_id")
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+
+  category   Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+  @@index([name])
+  @@map("medicines")
+}
+
+// userId = MongoDB ObjectId string — shared identity from Mongo auth
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  userId     String   @map("user_id") @db.Text
+  medicineId Int      @map("medicine_id")
+  quantity   Int      @default(1)
+
+  medicine Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, medicineId])
+  @@index([userId])
+  @@map("cart_items")
+}
+
+model Prescription {
+  id        Int                @id @default(autoincrement())
+  userId    String             @map("user_id") @db.Text
+  fileUrl   String             @map("file_url") @db.Text
+  publicId  String             @map("public_id") @db.Text
+  status    PrescriptionStatus @default(PENDING)
+  createdAt DateTime           @default(now()) @map("created_at")
+
+  orders Order[]
+
+  @@index([userId])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("prescriptions")
+}
+
+enum PrescriptionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  orderNumber     String      @unique @map("order_number") @db.VarChar(30)
+  userId          String      @map("user_id") @db.Text
+  totalAmount     Decimal     @map("total_amount") @db.Decimal(10, 2)
+  shippingAddress String      @map("shipping_address") @db.Text
+  paymentMethod   PaymentMethod @map("payment_method")
+  status          OrderStatus @default(PENDING)
+  prescriptionId  Int?        @map("prescription_id")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  prescription Prescription? @relation(fields: [prescriptionId], references: [id], onDelete: SetNull)
+  items        OrderItem[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  UPI
+  CARD
+}
+
+model OrderItem {
+  id               Int     @id @default(autoincrement())
+  orderId          Int     @map("order_id")
+  medicineId       Int?    @map("medicine_id")
+  medicineName     String  @map("medicine_name") @db.VarChar(200)
+  priceAtPurchase  Decimal @map("price_at_purchase") @db.Decimal(10, 2)
+  quantity         Int
+
+  order    Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  medicine Medicine? @relation(fields: [medicineId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@map("order_items")
+}

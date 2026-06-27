@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# MongoDB binary cache (downloaded by mongodb-memory-server)
+tests/.mongodb-binaries/
+
+# Build
+dist/
+
+/generated/prisma
