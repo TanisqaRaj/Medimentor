@@ -31,3 +31,5 @@ Thumbs.db
 # Misc
 *.local
 /stitch_medimentor_interactive_redesign/
+fix.ps1
+*.ps1
