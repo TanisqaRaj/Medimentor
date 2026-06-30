@@ -1,11 +1,14 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import api from "../../../api";
 import VideoCall from "../../VideoCall";
+import { removeMeet } from "../../../reduxslice/ScheduleMeetSlice";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const UserMeetingDetails = ({ visible, onClose, selectedAppointmentId }) => {
+  const dispatch = useDispatch();
   const [inCall, setInCall] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [roomId, setRoomId] = useState(null);
@@ -38,6 +41,7 @@ const UserMeetingDetails = ({ visible, onClose, selectedAppointmentId }) => {
     setInCall(false);
     setRoomId(null);
     setCallEnded(true);
+    dispatch(removeMeet(selectedAppointmentId));
   };
 
   // Show video call if verified

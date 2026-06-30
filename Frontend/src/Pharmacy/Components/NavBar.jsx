@@ -1,24 +1,27 @@
-import { useState, useEffect, useCallback } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Logo from "../../assets/images/logo2.jpg";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../reduxslice/AuthSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../api";
 import axios from "axios";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const doctor = useSelector((state) => state.auth.doctor);
   const token = useSelector((state) => state.auth.accessToken);
   
   const handleLogout = async () => {
-    try { await api.post("/auth/logout"); } catch (_) { /* ignore logout errors */ }
+    try { await api.post("/auth/logout"); } catch {}
     dispatch(logout());
     navigate("/");
   };
@@ -33,27 +36,31 @@ const NavBar = () => {
     setIsOpen(!isOpen);
   };
 
-  const expirytoken = useCallback(async () => {
-    const tokenObj = {
-      token: token,
-    };
-    if (token) {
-      axios
-        .post(import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/auth/verify-token` : "http://localhost:8080/auth/verify-token", tokenObj)
-        .then((response) => {
-          if (response.data.success) {
-            response.data.user.role === "user"
-              ? navigate("/dashboard")
-              : navigate("/doctordashboard");
-          } else {
-            dispatch(logout());
-            navigate("/"); //change it to protected route
-          }
-        });
-    } else {
-      return;
-    }
-  }, [token, navigate, dispatch]);
+  const expirytoken = async () => {
+    // Only redirect from strictly public-only pages
+    const publicOnlyPaths = ["/login", "/registration"];
+    if (!publicOnlyPaths.includes(location.pathname)) return;
+
+    if (!token) return;
+    const tokenObj = { token };
+    axios
+      .post(
+        import.meta.env.VITE_BACKEND_URL
+          ? `${import.meta.env.VITE_BACKEND_URL}/auth/verify-token`
+          : "http://localhost:8080/auth/verify-token",
+        tokenObj
+      )
+      .then((response) => {
+        if (response.data.success) {
+          response.data.user.role === "user"
+            ? navigate("/dashboard")
+            : navigate("/doctordashboard");
+        } else {
+          dispatch(logout());
+          navigate("/");
+        }
+      });
+  };
   
   useEffect(() => {
     expirytoken();
@@ -61,7 +68,7 @@ const NavBar = () => {
       duration: 1000,
       once: true,
     });
-  }, [expirytoken]);
+  }, []);
 
   return (
     <header className="w-full z-50 border-b border-gray-100 bg-white shadow-[0_10px_25px_-5px_rgba(4,120,87,0.05)] font-manrope text-sm tracking-tight relative">
@@ -122,6 +129,22 @@ const NavBar = () => {
             >
               Pharmacy
             </a>
+            {(user || doctor) && (
+              <>
+                <a
+                  className="text-slate-600 font-medium hover:text-emerald-600 transition-colors duration-200 cursor-pointer"
+                  onClick={() => navigate("/pharmacy/orders")}
+                >
+                  My Orders
+                </a>
+                <a
+                  className="text-slate-600 font-medium hover:text-emerald-600 transition-colors duration-200 cursor-pointer"
+                  onClick={() => navigate("/pharmacy/prescriptions")}
+                >
+                  Prescriptions
+                </a>
+              </>
+            )}
           </nav>
         </div>
 
@@ -138,12 +161,24 @@ const NavBar = () => {
 
           <div className="hidden md:flex items-center space-x-3">
             {user || doctor ? (
-              <button
-                onClick={handleLogout}
-                className="text-slate-600 font-medium hover:text-red-600 transition-colors"
-              >
-                Logout
-              </button>
+              <>
+                <a
+                  className="text-slate-600 font-medium hover:text-emerald-600 transition-colors cursor-pointer"
+                  onClick={() => {
+                    const role = user?.role || doctor?.role;
+                    const path = role === "admin" ? "/admindashboard" : role === "doctor" ? "/doctordashboard" : "/dashboard";
+                    navigate(path);
+                  }}
+                >
+                  Dashboard
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="text-slate-600 font-medium hover:text-red-600 transition-colors"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <a className="text-slate-600 font-medium hover:text-emerald-600 transition-colors cursor-pointer" onClick={() => navigate("/login")}>
@@ -234,40 +269,46 @@ const NavBar = () => {
             {!user && !doctor ? (
               <>
                 <li className="pt-2 border-t border-gray-100">
-                  <a 
-                    className="block hover:text-emerald-600 transition-colors cursor-pointer py-2" 
-                    onClick={() => {
-                      navigate("/login");
-                      setIsMenuOpen(false);
-                    }}
+                  <a
+                    className="block hover:text-emerald-600 transition-colors cursor-pointer py-2"
+                    onClick={() => { navigate("/login"); setIsMenuOpen(false); }}
                   >
                     Login
                   </a>
                 </li>
                 <li>
-                  <a 
-                    className="block hover:text-emerald-600 transition-colors cursor-pointer py-2" 
-                    onClick={() => {
-                      navigate("/registration");
-                      setIsMenuOpen(false);
-                    }}
+                  <a
+                    className="block hover:text-emerald-600 transition-colors cursor-pointer py-2"
+                    onClick={() => { navigate("/registration"); setIsMenuOpen(false); }}
                   >
                     Sign Up
                   </a>
                 </li>
               </>
             ) : (
-              <li className="pt-2 border-t border-gray-100">
-                <button 
-                  onClick={() => {
-                    handleLogout();
-                    setIsMenuOpen(false);
-                  }} 
-                  className="text-red-600 hover:text-red-700 transition-colors w-full text-left py-2"
-                >
-                  Logout
-                </button>
-              </li>
+              <>
+                <li className="pt-2 border-t border-gray-100">
+                  <a
+                    className="block hover:text-emerald-600 transition-colors cursor-pointer py-2"
+                    onClick={() => {
+                      const role = user?.role || doctor?.role;
+                      const path = role === "admin" ? "/admindashboard" : role === "doctor" ? "/doctordashboard" : "/dashboard";
+                      navigate(path);
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    Dashboard
+                  </a>
+                </li>
+                <li>
+                  <button
+                    onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                    className="text-red-600 hover:text-red-700 transition-colors w-full text-left py-2"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </div>

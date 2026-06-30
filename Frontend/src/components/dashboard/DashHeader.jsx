@@ -8,6 +8,7 @@ const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 const DashHeader = ({ setFilteredDoctors }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [isDoctor, setIsDoctor] = useState("true");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -19,6 +20,7 @@ const DashHeader = ({ setFilteredDoctors }) => {
 
   const closePopup = () => {
     setIsPopupOpen(false);
+    setQuery("");
     setIsDoctor("true");
   };
 

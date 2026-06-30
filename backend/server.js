@@ -21,9 +21,12 @@ import Contract from "./models/Contract.js";
 import logger from "./utils/logger.js";
 import { recordRequest, recordError, recordSocketEvent, incrementConnections, decrementConnections } from "./utils/metrics.js";
 import jwt from "jsonwebtoken";
+import createPharmacyRouter from "./pharmacy/routes/index.js";
+import { connectPharmacyDB } from "./pharmacy/pgClient.js";
 
 dotenv.config();
 connectDB();
+connectPharmacyDB().catch((err) => console.error("[PG] Failed to connect:", err.message));
 
 const app = express();
 app.set("trust proxy", 1);
@@ -73,8 +76,7 @@ app.use(cookieParser());
 // ── Injection protection ───────────────────────────────────────────────────
 // Strip $ and . from req.body/params/query to prevent NoSQL injection
 app.use((req, res, next) => {
-  req.body   = mongoSanitize(req.body);
-  req.params = mongoSanitize(req.params);
+  req.body = mongoSanitize(req.body);
   const sanitizedQuery = mongoSanitize({ ...req.query });
   Object.keys(req.query).forEach((k) => delete req.query[k]);
   Object.assign(req.query, sanitizedQuery);
@@ -138,7 +140,7 @@ app.use("/appointments", (req, res, next) => {
 }, appointmentRoute);
 app.use("/doctors", doctorRoute);
 app.use("/monitor", monitorRoute);
-
+app.use("/api", createPharmacyRouter(io));
 // Notify doctor in real-time when a new appointment is booked
 app.use((req, res, next) => {
   const origJson = res.json.bind(res);
@@ -320,6 +322,20 @@ io.on("connection", (socket) => {
     } catch (err) {
       logger.error("leave-room update error:", err.message);
     }
+  });
+
+  // ── Order tracking rooms ───────────────────────────────────────────────────
+  // Users join their personal room to receive live shipment updates.
+  // Room name: `orders:<userId>` — only the owner and server emit to it.
+  socket.on("order:join", (userId) => {
+    if (typeof userId === "string" && userId.length > 0) {
+      socket.join(`orders:${userId}`);
+      logger.info(`Socket ${socket.id} joined orders:${userId}`);
+    }
+  });
+
+  socket.on("order:leave", (userId) => {
+    socket.leave(`orders:${userId}`);
   });
 
   socket.on("disconnect", () => {

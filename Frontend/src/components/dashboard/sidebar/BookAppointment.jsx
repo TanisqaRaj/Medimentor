@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import DashHeader from "../DashHeader";
 import Appointment from "./Appointment";
 import { FaStar } from "react-icons/fa";

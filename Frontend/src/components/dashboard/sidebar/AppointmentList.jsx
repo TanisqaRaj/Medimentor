@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import React, { useEffect, useState, useCallback } from "react";
 import DetailedAppoitmentList from "./DetailedAppoitmentList";
 import { useSelector } from "react-redux";
 import api from "../../../api";
@@ -16,6 +16,7 @@ const AppointmentList = () => {
   const [appointmentState, setAppointmentState] = useState([]);
   const [loading, setLoading] = useState(true);
   const userId = useSelector((state) => state.auth.user._id);
+  const token = useSelector((state) => state.auth.accessToken);
   const dispatch = useDispatch();
 
   const handleShowDetails = (appointment) => {

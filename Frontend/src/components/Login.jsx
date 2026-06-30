@@ -1,5 +1,6 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import LoginImg from "../assets/images/loginimg.png"; // Adjust the path as per your project structure
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../reduxslice/AuthSlice";
@@ -138,7 +139,7 @@ const Login = () => {
           </div>
           {/* Testimonial / Value Prop */}
           <div className="max-w-md text-on-primary">
-            <p className="font-headline-md text-headline-md mb-sm text-balance">&quot;Clinical Clarity Certified.&quot;</p>
+            <p className="font-headline-md text-headline-md mb-sm text-balance">"Clinical Clarity Certified."</p>
             <p className="font-body-lg text-body-lg text-primary-fixed-dim">Join thousands of healthcare professionals connecting and learning in a secure environment.</p>
           </div>
         </div>
@@ -258,7 +259,7 @@ const Login = () => {
             {/* Create Account Link */}
             <div className="text-center">
               <p className="font-body-md text-body-md text-tertiary">
-                Don&apos;t have an account? 
+                Don't have an account? 
                 <span className="font-label-md text-label-md text-primary hover:text-primary-container transition-colors focus:ring-2 focus:ring-primary focus:outline-none rounded ml-xs cursor-pointer" onClick={navigateRegister}>Create an Account</span>
               </p>
             </div>

@@ -1,3 +1,4 @@
+import React from "react";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import api from "../../../api";
@@ -11,6 +12,7 @@ export default function Appointment({ visible, onClose, doctorId }) {
   };
 
   const userId = useSelector((state) => state.auth.user._id);
+  const token = useSelector((state) => state.auth.accessToken);
 
   const {
     register,

@@ -1,6 +1,5 @@
 import "./App.css";
 import { lazy, Suspense } from "react";
-import PropTypes from "prop-types";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -16,14 +15,24 @@ const About          = lazy(() => import("./components/pages/About"));
 const Services       = lazy(() => import("./Pharmacy/Components/navbar/Services"));
 const Contact        = lazy(() => import("./components/pages/Contact/Contact"));
 const NotFound       = lazy(() => import("./Pharmacy/Components/navbar/NotFound"));
-const Header         = lazy(() => import("./Pharmacy/Components/Header"));
-const Hero           = lazy(() => import("./Pharmacy/Components/hero/Hero"));
-const Carousel       = lazy(() => import("./Pharmacy/Components/hero/Carousel"));
 const TermsAndCond   = lazy(() => import("./Pharmacy/Components/hero/footer/TermsAndCond"));
 const HelpCenter     = lazy(() => import("./Pharmacy/Components/hero/footer/HelpCenter"));
 const PrivacyPolicy  = lazy(() => import("./Pharmacy/Components/hero/footer/PrivacyPolicy"));
 const ForgotpasswordEmail = lazy(() => import("./components/ForgotpasswordEmail"));
 const ThankYou = lazy(() => import("./components/ThankYou"));
+
+// Pharmacy pages
+const PharmacyHome        = lazy(() => import("./Pharmacy/pages/PharmacyHome"));
+const ProductDetail       = lazy(() => import("./Pharmacy/pages/ProductDetail"));
+const CartPage            = lazy(() => import("./Pharmacy/pages/CartPage"));
+const CheckoutPage        = lazy(() => import("./Pharmacy/pages/CheckoutPage"));
+const OrdersPage          = lazy(() => import("./Pharmacy/pages/OrdersPage"));
+const MyPrescriptions     = lazy(() => import("./Pharmacy/pages/MyPrescriptions"));
+const PharmacyAdminDash   = lazy(() => import("./Pharmacy/pages/admin/AdminDashboard"));
+const PharmacyAdminMeds   = lazy(() => import("./Pharmacy/pages/admin/AdminMedicines"));
+const PharmacyAdminOrders = lazy(() => import("./Pharmacy/pages/admin/AdminOrders"));
+const PharmacyAdminRx     = lazy(() => import("./Pharmacy/pages/admin/AdminPrescriptions"));
+const PharmacyAdminCats   = lazy(() => import("./Pharmacy/pages/admin/AdminCategories"));
 
 // User dashboard
 const Sidebar           = lazy(() => import("./components/dashboard/Sidebar"));
@@ -50,7 +59,6 @@ const TotalUserList         = lazy(() => import("./components/Admin/TotalUserLis
 const TotalAppointmentList  = lazy(() => import("./components/Admin/TotalAppointmentList"));
 const AdminMonitor          = lazy(() => import("./components/Admin/AdminMonitor"));
 
-// Spinner shown while lazy chunks load
 const Loader = () => (
   <div className="w-full min-h-screen flex items-center justify-center">
     <span className="material-symbols-outlined text-4xl text-emerald-600 animate-spin">progress_activity</span>
@@ -65,8 +73,6 @@ const Page = ({ children }) => (
   </div>
 );
 
-Page.propTypes = { children: PropTypes.node.isRequired };
-
 const DashLayout = ({ sidebar, content }) => (
   <Page>
     <div className="flex flex-1 min-h-[calc(100vh-64px)]">
@@ -76,53 +82,58 @@ const DashLayout = ({ sidebar, content }) => (
   </Page>
 );
 
-DashLayout.propTypes = {
-  sidebar: PropTypes.node.isRequired,
-  content: PropTypes.node.isRequired,
-};
+const router = createBrowserRouter([
+  // Public
+  { path: "/",              element: <Page><Landing /></Page> },
+  { path: "/about",         element: <Page><About /></Page> },
+  { path: "/services",      element: <Page><Services /></Page> },
+  { path: "/contact",       element: <Page><Contact /></Page> },
+  { path: "/pharmacy",                    element: <Page><PharmacyHome /></Page> },
+  { path: "/pharmacy/product/:id",        element: <Page><ProductDetail /></Page> },
+  { path: "/pharmacy/cart",               element: <Page><CartPage /></Page> },
+  { path: "/pharmacy/checkout",           element: <Page><CheckoutPage /></Page> },
+  { path: "/pharmacy/orders",             element: <Page><OrdersPage /></Page> },
+  { path: "/pharmacy/prescriptions",       element: <Page><MyPrescriptions /></Page> },
+  { path: "/pharmacy/admin",              element: <ProtectedRoute allowedRoles={["admin"]} element={<Page><PharmacyAdminDash /></Page>} /> },
+  { path: "/pharmacy/admin/medicines",    element: <ProtectedRoute allowedRoles={["admin"]} element={<Page><PharmacyAdminMeds /></Page>} /> },
+  { path: "/pharmacy/admin/orders",       element: <ProtectedRoute allowedRoles={["admin"]} element={<Page><PharmacyAdminOrders /></Page>} /> },
+  { path: "/pharmacy/admin/prescriptions",element: <ProtectedRoute allowedRoles={["admin"]} element={<Page><PharmacyAdminRx /></Page>} /> },
+  { path: "/pharmacy/admin/categories",   element: <ProtectedRoute allowedRoles={["admin"]} element={<Page><PharmacyAdminCats /></Page>} /> },
+  { path: "/login",         element: <Page><Login /></Page> },
+  { path: "/registration",  element: <Page><Registration /></Page> },
+  { path: "/terms",         element: <Page><TermsAndCond /></Page> },
+  { path: "/privacypolicy", element: <Page><PrivacyPolicy /></Page> },
+  { path: "/helpcenter",    element: <Page><HelpCenter /></Page> },
+  { path: "/forgotpasswordemail", element: <Page><ForgotpasswordEmail /></Page> },
+  { path: "/thankyou", element: <Page><ThankYou /></Page> },
+
+  // User
+  { path: "/dashboard",          element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<Content />} />} /> },
+  { path: "/appointmentlist",    element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<AppointmentList />} />} /> },
+  { path: "/bookappointment",    element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<BookAppointment />} />} /> },
+  { path: "/appointmenthistory", element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<AppointmentHistory />} />} /> },
+  { path: "/userprofile",        element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<UserProfile />} />} /> },
+  { path: "/scheduledmeet",      element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<ScheduledMeet />} />} /> },
+  { path: "/map",                element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<Map />} />} /> },
+  { path: "/appointment",        element: <ProtectedRoute allowedRoles={["user"]} element={<Page><Appointment /></Page>} /> },
+
+  // Doctor
+  { path: "/doctordashboard", element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<DocContent />} />} /> },
+  { path: "/incomingrequest", element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<IncomingRequest />} />} /> },
+  { path: "/doctorprofile",   element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<DoctorProfile />} />} /> },
+  { path: "/docmap",          element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<Map />} />} /> },
+
+  // Admin
+  { path: "/admindashboard",       element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<AdminContent />} />} /> },
+  { path: "/doctorlist",           element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalDoctorsList />} />} /> },
+  { path: "/userlist",             element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalUserList />} />} /> },
+  { path: "/totalappointmentlist", element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalAppointmentList />} />} /> },
+  { path: "/monitor",              element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<AdminMonitor />} />} /> },
+
+  { path: "/*", element: <NotFound /> },
+]);
 
 function App() {
-  const router = createBrowserRouter([
-    // Public
-    { path: "/",              element: <Page><Landing /></Page> },
-    { path: "/about",         element: <Page><About /></Page> },
-    { path: "/services",      element: <Page><Services /></Page> },
-    { path: "/contact",       element: <Page><Contact /></Page> },
-    { path: "/pharmacy",      element: <Page><Header /><Carousel /><Hero /></Page> },
-    { path: "/login",         element: <Page><Login /></Page> },
-    { path: "/registration",  element: <Page><Registration /></Page> },
-    { path: "/terms",         element: <Page><TermsAndCond /></Page> },
-    { path: "/privacypolicy", element: <Page><Carousel /><PrivacyPolicy /></Page> },
-    { path: "/helpcenter",    element: <Page><HelpCenter /></Page> },
-    { path: "/forgotpasswordemail", element: <Page><ForgotpasswordEmail /></Page> },
-    { path: "/thankyou", element: <Page><ThankYou /></Page> },
-
-    // User
-    { path: "/dashboard",          element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<Content />} />} /> },
-    { path: "/appointmentlist",    element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<AppointmentList />} />} /> },
-    { path: "/bookappointment",    element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<BookAppointment />} />} /> },
-    { path: "/appointmenthistory", element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<AppointmentHistory />} />} /> },
-    { path: "/userprofile",        element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<UserProfile />} />} /> },
-    { path: "/scheduledmeet",      element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<ScheduledMeet />} />} /> },
-    { path: "/map",                element: <ProtectedRoute allowedRoles={["user"]} element={<DashLayout sidebar={<Sidebar />} content={<Map />} />} /> },
-    { path: "/appointment",        element: <ProtectedRoute allowedRoles={["user"]} element={<Page><Appointment /></Page>} /> },
-
-    // Doctor
-    { path: "/doctordashboard", element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<DocContent />} />} /> },
-    { path: "/incomingrequest", element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<IncomingRequest />} />} /> },
-    { path: "/doctorprofile",   element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<DoctorProfile />} />} /> },
-    { path: "/docmap",          element: <ProtectedRoute allowedRoles={["doctor"]} element={<DashLayout sidebar={<DocSidebar />} content={<Map />} />} /> },
-
-    // Admin
-    { path: "/admindashboard",       element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<AdminContent />} />} /> },
-    { path: "/doctorlist",           element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalDoctorsList />} />} /> },
-    { path: "/userlist",             element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalUserList />} />} /> },
-    { path: "/totalappointmentlist", element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<TotalAppointmentList />} />} /> },
-    { path: "/monitor",              element: <ProtectedRoute allowedRoles={["admin"]} element={<DashLayout sidebar={<AdminSidebar />} content={<AdminMonitor />} />} /> },
-
-    { path: "/*", element: <NotFound /> },
-  ]);
-
   return <RouterProvider router={router} />;
 }
 

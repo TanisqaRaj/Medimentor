@@ -1,23 +1,68 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import UserMeetingDetails from "./UserMeetingDetails";
+import UserMap from "../../UserMap";
+import api from "../../../api";
+import { appointmentDetails } from "../../../reduxslice/ScheduleMeetSlice";
+import socket from "../../../socket";
+
+const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const ScheduledMeet = () => {
+  const dispatch = useDispatch();
   const [meetingDetailsVisible, setMeetingDetailsVisible] = useState(false);
+  const [mapVisible, setMapVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [online, setOnline] = useState(false);
   const [offline, setOffline] = useState(false);
+  const [loading, setLoading] = useState(true);
   const meetDetails = useSelector((state) => state.schedule.meetDetails);
+  const userId = useSelector((state) => state.auth.user._id);
   const today = new Date().toISOString().split("T")[0];
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
 
-  const handleMeeting = (appointmentId) => {
+  const fetchMeets = useCallback(async () => {
+    try {
+      const response = await api.get(`${BACKEND}/appointments/current/${userId}`);
+      if (response?.data?.success) {
+        const approved = response.data.appointments
+          .filter((a) => a.status === "approved")
+          .map((a) => ({
+            patient: a.patient,
+            doctor: a.doctor,
+            appointment: a.appointment,
+            appointmentID: a.customAppointmentID,
+            status: a.status,
+          }));
+        dispatch(appointmentDetails(approved));
+      }
+    } catch (error) {
+      console.error("Error fetching scheduled meets:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, dispatch]);
+
+  useEffect(() => { fetchMeets(); }, [fetchMeets]);
+
+  useEffect(() => {
+    const event = `updateAppointmentStatus/${userId}`;
+    socket.on(event, fetchMeets);
+    return () => socket.off(event, fetchMeets);
+  }, [userId, fetchMeets]);
+
+  const handleMeeting = (appointmentId, mode) => {
     setSelectedAppointmentId(appointmentId);
-    setMeetingDetailsVisible(true);
+    if (mode === "offline") {
+      setMapVisible(true);
+    } else {
+      setMeetingDetailsVisible(true);
+    }
   };
 
   const handleMeetingDetailsClose = () => {
     setMeetingDetailsVisible(false);
+    setMapVisible(false);
     setSelectedAppointmentId(null);
   };
 
@@ -134,7 +179,12 @@ const ScheduledMeet = () => {
 
         {/* Meeting Cards */}
         <div className="flex-grow">
-          {filteredMeetDetails.length === 0 ? (
+          {loading ? (
+            <div className="py-20 flex flex-col items-center justify-center bg-surface-container-low rounded-xl border border-outline-variant/30">
+              <span className="material-symbols-outlined text-5xl text-outline mb-3 animate-spin">progress_activity</span>
+              <p className="font-headline-md text-on-surface-variant">Loading meets...</p>
+            </div>
+          ) : filteredMeetDetails.length === 0 ? (
             <div className="py-20 flex flex-col items-center justify-center bg-surface-container-low rounded-xl border border-outline-variant/30">
               <span className="material-symbols-outlined text-5xl text-outline mb-3">event_busy</span>
               <p className="font-headline-md text-on-surface-variant">No meets scheduled</p>
@@ -185,7 +235,7 @@ const ScheduledMeet = () => {
                           ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                           : "bg-surface-container hover:bg-primary-container/10 border border-outline-variant/50 hover:border-primary-container/30 text-on-surface-variant hover:text-primary-container"
                       }`}
-                      onClick={() => handleMeeting(item.appointmentID)}
+                      onClick={() => handleMeeting(item.appointmentID, item.appointment?.mode)}
                     >
                       <span className="material-symbols-outlined text-base">{isOnline ? "videocam" : "location_on"}</span>
                       {isOnline ? "Join Meet" : "View Location"}
@@ -203,6 +253,12 @@ const ScheduledMeet = () => {
         onClose={handleMeetingDetailsClose}
         selectedAppointmentId={selectedAppointmentId}
       />
+      {mapVisible && (
+        <UserMap
+          appointmentId={selectedAppointmentId}
+          onClose={handleMeetingDetailsClose}
+        />
+      )}
     </div>
   );
 };

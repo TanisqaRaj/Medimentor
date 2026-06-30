@@ -1,4 +1,5 @@
-﻿
+import React from 'react'
+
 const TermsAndCond = () => {
   return (
     <div className='p-20 '>
@@ -33,7 +34,7 @@ const TermsAndCond = () => {
             <li className='ml-[27px] mb-3'>
                 <p>
                     <span>
-                    You are legally competent to contract, and otherwise competent to receive the Services (as defined in these Terms and Conditions). Persons who are &quot;incompetent to contract&quot; within the meaning of the Indian Contract Act, 1872 including un-discharged insolvents, etc. are not eligible to use the Platform.       
+                    You are legally competent to contract, and otherwise competent to receive the Services (as defined in these Terms and Conditions). Persons who are "incompetent to contract" within the meaning of the Indian Contract Act, 1872 including un-discharged insolvents, etc. are not eligible to use the Platform.       
                     </span>
                 </p>
             </li>

@@ -197,7 +197,7 @@ const VideoCall = ({ roomId, onEnd }) => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       pcRef.current?.close();
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // Empty deps: roomId/onEnd accessed via refs to prevent re-registration of socket listeners
 
   const btnBase = { border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 };

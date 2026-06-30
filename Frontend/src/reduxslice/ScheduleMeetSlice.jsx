@@ -9,9 +9,14 @@ export const ScheduleMeetSlice = createSlice({
     appointmentDetails: (state, action) => {
       state.meetDetails = action.payload; 
     },
+    removeMeet: (state, action) => {
+      state.meetDetails = state.meetDetails.filter(
+        (item) => item.appointmentID !== action.payload
+      );
+    },
   },
 });
 
-export const {appointmentDetails } = ScheduleMeetSlice.actions;
+export const {appointmentDetails, removeMeet } = ScheduleMeetSlice.actions;
 
 export default ScheduleMeetSlice.reducer;

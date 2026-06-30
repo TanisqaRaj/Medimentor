@@ -1,5 +1,5 @@
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { MdAddLocationAlt } from "react-icons/md";
 
@@ -158,7 +158,7 @@ const Map = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center"
+      className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-[200]"
       id="container"
       onClick={handleOnClose}
     >

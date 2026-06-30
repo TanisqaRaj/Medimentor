@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import CountUp from "react-countup";
 import api from "../../api";
+import { StatCardSkeleton } from "../Skeleton";
+
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const AdminContent = () => {
     const [totalDoctors, setTotalDoctors] = useState(0);
     const [totalUsers, setTotalUsers] = useState(0);
+    const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
     useEffect(() => {
         const fetchAll = async () => {
@@ -17,6 +20,7 @@ const AdminContent = () => {
                 ]);
                 if (usersRes.data.success) setTotalUsers(usersRes.data.totalUsers);
                 if (doctorsRes.data.success) setTotalDoctors(doctorsRes.data.totalDoctors);
+                setLoading(false);
                 if (statsRes.data.success) setStats({
                     total: statsRes.data.totalAppointments,
                     pending: statsRes.data.pendingAppointments,

@@ -1,6 +1,7 @@
 import  { useEffect, useState } from "react";
 import PopupDetailedAppointment from "./PopupDetailedAppointment";
 import api from "../../api";
+import { useSelector } from "react-redux";
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080"; // Import axios for API calls
 
@@ -8,6 +9,7 @@ const TotalAppointmentList = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [appointmentState, setAppointmentState] = useState([]);
+  const token = useSelector((state) => state.auth.accessToken);
 
   useEffect(() => {
     const fetchAppointments = async () => {
