@@ -6,6 +6,7 @@ const fmtCart = async (userId) => {
     include: { medicine: { select: { name: true, imageUrl: true, price: true, requiresPrescription: true } } },
     orderBy: { id: "asc" },
   });
+  
   const formatted = items.map((i) => ({
     id:                   i.id,
     medicineId:           i.medicineId,
